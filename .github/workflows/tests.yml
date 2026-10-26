@@ -1,0 +1,56 @@
+# Автоматические проверки: запускаются при каждом изменении тестового сайта.
+# Отчёт со скриншотами сохраняется в ветку "reports" (README.md там).
+name: Проверка игры
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: tests, cancel-in-progress: true }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chrome, webkit, firefox]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm i --no-save playwright@1.48.2
+      - name: Браузер
+        run: |
+          if [ "${{ matrix.engine }}" = "chrome" ]; then npx playwright install --with-deps chrome chromium; else npx playwright install --with-deps ${{ matrix.engine }}; fi
+      - name: Проверки
+        run: |
+          python3 -m http.server 8080 >/dev/null 2>&1 &
+          sleep 2
+          node tests/run.mjs ${{ matrix.engine }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: out-${{ matrix.engine }}, path: out/${{ matrix.engine }} }
+  report:
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/download-artifact@v4
+        with: { path: dl }
+      - name: Отчёт
+        run: |
+          mkdir -p out
+          for e in chrome webkit firefox; do [ -d dl/out-$e ] && cp -r dl/out-$e out/$e || true; done
+          node tests/report.mjs
+      - name: Сохранить отчёт в ветку reports
+        run: |
+          cd out
+          git init -q -b reports
+          git config user.name "github-actions"; git config user.email "actions@github.com"
+          git add -A && git commit -q -m "Отчёт $(date -u +%F\ %H:%M)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" reports

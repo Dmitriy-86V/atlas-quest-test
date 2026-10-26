@@ -1,0 +1,1714 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Атлас пропавшего картографа</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#14303f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Атлас">
+<link href="https://fonts.googleapis.com/css2?family=Philosopher:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<style>
+:root{
+  --bg:#14303f;--bg2:#1f4a5e;--parch:#f4e8cc;--paper:#fffaf0;--ink:#3a2a1a;--ink2:#6b5640;
+  --line:#c9b285;--accent:#9c4a24;--gold:#c08a1e;--ok:#2f7a4a;--okbg:#e3efdc;--bad:#a23b2f;--badbg:#f6e0da;
+  --sea:#a9c9cc;--land:#efe2c2;--fog:#d9d0bd;--rev:#c99e4e;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:radial-gradient(ellipse at top,var(--bg2),var(--bg) 70%);background-attachment:fixed;min-height:100vh;
+  color:var(--ink);font-family:'PT Serif',Georgia,serif;font-size:17px;line-height:1.55}
+#app{max-width:720px;margin:0 auto;padding:16px 16px 40px}
+h1,h2,h3{font-family:'Philosopher',Georgia,serif;margin:0 0 .5em;line-height:1.2}
+h1{font-size:30px} h2{font-size:24px} h3{font-size:20px}
+p{margin:0 0 .8em}
+.card{background:var(--parch);border:1px solid var(--line);border-radius:14px;padding:20px;
+  box-shadow:0 10px 28px rgba(0,0,0,.28);margin-bottom:16px}
+.muted{color:var(--ink2)}
+.center{text-align:center}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{font-family:'Philosopher',Georgia,serif;font-weight:700;font-size:17px;background:var(--accent);color:#fff8ec;
+  border:0;border-radius:10px;padding:12px 20px;cursor:pointer;min-height:48px}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn.small{font-size:15px;min-height:40px;padding:8px 14px}
+.btn.wide{width:100%}
+.topbar{display:flex;align-items:center;gap:10px;color:var(--parch);margin-bottom:14px;flex-wrap:wrap}
+.topbar .who{flex:1;min-width:0}
+.topbar .ship{font-family:'Philosopher',serif;font-size:20px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar .cap{font-size:14px;opacity:.8}
+.restart{font:inherit;font-size:14px;background:transparent;color:var(--parch);border:1px solid rgba(244,232,204,.5);border-radius:20px;padding:4px 12px;cursor:pointer;white-space:nowrap}
+.restart:hover{background:rgba(244,232,204,.15)}
+.gold{background:rgba(192,138,30,.2);border:1px solid var(--gold);color:#f1d48a;border-radius:20px;padding:4px 12px;font-weight:700;white-space:nowrap}
+.story p{font-size:18px}
+.story .speaker{font-style:italic;color:var(--ink2)}
+label{display:block;font-weight:700;margin:14px 0 6px}
+input[type=text]{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{font:inherit;font-size:15px;background:var(--paper);color:var(--ink);border:1.5px solid var(--line);border-radius:20px;padding:8px 14px;cursor:pointer}
+.chip.used{opacity:.4}
+.swatches{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.sw{width:46px;height:46px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+.sw.sel{border-color:var(--ink)}
+.opt{display:block;width:100%;text-align:left;font:inherit;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;
+  padding:12px 14px;margin:8px 0;cursor:pointer;color:var(--ink);min-height:48px}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--okbg);border-color:var(--ok)}
+.opt.wrong{background:var(--badbg);border-color:var(--bad)}
+.progress{height:8px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden;margin-bottom:14px}
+.progress div{height:100%;background:var(--gold)}
+.tasknum{font-size:14px;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em}
+.q{font-size:19px;margin:6px 0 10px}
+.hint{background:#efe0bb;border-left:4px solid var(--gold);padding:10px 12px;border-radius:6px;font-style:italic;margin:10px 0}
+.fb{border-radius:12px;padding:16px;margin-top:14px;border:1.5px solid}
+.fb.ok{background:var(--okbg);border-color:var(--ok)}
+.fb.bad{background:var(--badbg);border-color:var(--bad)}
+.fb.neutral{background:#efe6d2;border-color:var(--line)}
+.fb .reward{font-weight:700;color:var(--gold)}
+.fb .newcard{font-size:15px;color:var(--ink2)}
+.slot{background:var(--paper);border:1.5px dashed var(--line);border-radius:10px;padding:10px 12px;margin:6px 0}
+.slot.ok{border:1.5px solid var(--ok);background:var(--okbg)}
+.slot.no{border:1.5px solid var(--bad);background:var(--badbg)}
+.mrow{display:flex;flex-direction:column;align-items:flex-start;width:100%;text-align:left;font:inherit;background:var(--paper);
+  border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;margin:6px 0;cursor:pointer;color:var(--ink)}
+.mrow span{font-size:15px;color:var(--ink2)}
+.mrow.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(156,74,36,.25)}
+.mrow.ok{border-color:var(--ok);background:var(--okbg)}
+.mrow.no{border-color:var(--bad);background:var(--badbg)}
+.mapbox{width:100%;border-radius:10px;overflow:hidden;border:1.5px solid var(--line);background:var(--sea);touch-action:manipulation}
+.mapbox svg{display:block;cursor:crosshair}
+.sea{fill:var(--sea)}
+.grat{fill:none;stroke:#fff;stroke-opacity:.35;stroke-width:.5}
+.land{stroke:#a89874;stroke-width:.4}
+.land.plain{fill:var(--land)}
+.land.fog{fill:var(--fog)}
+.land.revealed{fill:var(--rev)}
+.route{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-dasharray:6 4}
+.maplabel{font-family:'PT Serif',serif;font-style:italic;font-size:12px;fill:#2c4a55}
+.chapter{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--paper);margin:8px 0}
+.chapter.locked{opacity:.55}
+.chapter .num{font-family:'Philosopher',serif;font-weight:700;font-size:22px;width:36px;height:36px;border-radius:50%;
+  background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.chapter.locked .num{background:#9b8d73}
+.chapter .info{flex:1;min-width:0}
+.chapter .t{font-weight:700}
+.chapter .s{font-size:14px;color:var(--ink2)}
+.badge{font-size:13px;color:var(--ok);font-weight:700}
+.jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.jcard{background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:12px}
+.jcard h3{font-size:17px;margin-bottom:4px}
+.jcard p{font-size:15px;margin:0}
+.jcard.locked{display:flex;align-items:center;justify-content:center;color:var(--ink2);font-style:italic;min-height:90px;border-style:dashed}
+.foot{text-align:center;margin-top:20px}
+.linkbtn{background:none;border:0;color:var(--parch);opacity:.6;font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}
+@media (max-width:480px){h1{font-size:26px}.card{padding:16px}.q{font-size:18px}}
+
+/* ===== Персонажи ===== */
+.portrait{position:fixed;bottom:0;height:84vh;width:calc((100vw - 760px)/2 - 6px);max-width:44vw;object-fit:contain;
+  z-index:1;pointer-events:none;opacity:0;transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1), filter .5s ease;
+  filter:drop-shadow(0 12px 22px rgba(0,0,0,.6))}
+#pL{left:0;object-position:bottom center;transform:translateX(-60px)}
+#pR{right:0;object-position:bottom center;transform:translateX(60px)}
+#pL.on,#pR.on{opacity:1;transform:none}
+.portrait.flip{scale:-1 1}
+.portrait.dim{filter:drop-shadow(0 12px 22px rgba(0,0,0,.6)) brightness(.55) saturate(.7)}
+.portrait.on:not(.dim){animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@media (max-width:900px){
+  .portrait{height:var(--ph,40vh);width:52vw;max-width:none;filter:none!important;animation:none!important}
+  .portrait.dim{opacity:0!important}
+  #pR{width:56vw}
+  body.noport .portrait{opacity:0!important}
+  .title-card{background:var(--parch);margin-top:6vh}
+  .topbar,.linkbtn,#sndBtn,#fsBtn{backdrop-filter:none!important}
+  #app{padding-top:calc(54px + env(safe-area-inset-top))}
+  #sndBtn,#fsBtn{position:absolute!important;width:38px!important;height:38px!important;font-size:17px!important;bottom:auto!important;top:max(8px, env(safe-area-inset-top))!important}
+  #sndBtn{right:8px!important} #fsBtn{right:52px!important}
+  .topbar{flex-wrap:nowrap;padding:6px 10px;gap:8px}
+  .topbar svg{width:34px;height:34px}
+  .topbar .ship{font-size:17px}
+  .topbar .cap{font-size:12px}
+  .topbar .rtxt{display:none}
+  .gold{padding:3px 9px;font-size:14px}
+  .title-card{margin-right:0}
+  .simg{animation:none!important}
+}
+body.standalone #fsBtn{display:none!important}
+@media (max-width:900px){
+  #eyeBtn{position:absolute!important;width:38px!important;height:38px!important;font-size:16px!important;top:max(8px, env(safe-area-inset-top))!important;right:96px!important}
+  body.standalone #eyeBtn{right:52px!important}
+  .card{padding:14px 15px}
+  body{font-size:16px}
+  .story p{font-size:16px}
+  .q{font-size:17px}
+  .opt{padding:10px 12px;min-height:44px;margin:6px 0}
+  .fb{padding:12px}
+  .title-card h1{font-size:32px}
+  #cineCap .place{font-size:18px;padding:8px 16px}
+}
+/* ===== Подсказка повернуть телефон ===== */
+#rotate{display:none;position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at top,#1f3b55,#08121f 75%);color:#f4e8cc;
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+#rotate .rot-ico{font-size:64px;animation:rotIco 2.4s ease-in-out infinite}
+@keyframes rotIco{0%,25%{transform:rotate(0)}50%,75%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+#rotate .rot-t{font-family:'Philosopher',serif;font-size:24px;font-weight:700;margin-top:18px}
+#rotate .rot-s{opacity:.75;margin-top:6px;font-size:15px}
+#rotate button{margin-top:28px;background:none;border:0;color:#f4e8cc;opacity:.6;text-decoration:underline;font:inherit;font-size:14px}
+@media (orientation:portrait){ body.phone:not(.rotok) #rotate{display:flex} }
+/* ===== Горизонтальный телефон: видео слева, текст панелью справа ===== */
+@media (orientation:landscape) and (max-height:520px){
+  #scenebg,#fx{right:44vw;transition:right .6s ease}
+  body.cine #scenebg, body.peek #scenebg, body.cine #fx, body.peek #fx{right:0}
+  .simg{inset:0!important;animation:none!important;background-position:var(--fx,50%) center!important}
+  .svid{object-position:var(--fx,50%) center}
+  .svig{background:linear-gradient(90deg,rgba(0,0,0,0) 70%,rgba(0,0,0,.55))}
+  .portrait{height:82vh!important;width:24vw!important;max-width:none!important;filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))!important}
+  #pL{left:0!important;object-position:bottom center!important}
+  #pR{right:44vw!important;left:auto!important;object-position:bottom center!important}
+  body.noport .portrait.on{opacity:1!important}
+  .portrait.dim{opacity:1!important;filter:brightness(.55) saturate(.7)!important}
+  #app{width:44vw!important;max-width:none!important;margin:0 0 0 auto!important;padding:8px 10px 24px 6px!important}
+  body{font-size:15px}
+  .card{padding:12px 14px!important;margin-bottom:10px;border-radius:12px}
+  h2{font-size:20px} h3{font-size:17px}
+  .story p{font-size:15px!important}
+  .q{font-size:16px!important}
+  .opt{padding:8px 11px!important;min-height:40px!important;margin:5px 0!important}
+  .btn{min-height:42px;padding:9px 16px;font-size:16px}
+  .speakerbar{margin-bottom:8px} .ava{width:46px!important;height:46px!important}
+  .topbar{padding:5px 9px!important;gap:7px!important;flex-wrap:nowrap!important}
+  .topbar svg{width:30px;height:30px} .topbar .ship{font-size:15px!important} .topbar .cap{font-size:11px!important}
+  .topbar .rtxt{display:none} .gold{font-size:13px;padding:2px 8px}
+  .title-card{margin-top:4vh!important;padding:18px 16px!important}
+  .title-card h1{font-size:24px!important} .title-card .btn{min-width:0;width:100%}
+  #sndBtn,#fsBtn,#eyeBtn{position:fixed!important;top:8px!important;right:auto!important;bottom:auto!important;width:38px!important;height:38px!important;font-size:16px!important}
+  #eyeBtn{left:8px!important} #fsBtn{left:52px!important} #sndBtn{left:96px!important}
+  body.standalone #sndBtn{left:52px!important}
+  #cineCap .place{font-size:18px;padding:8px 18px}
+  #cineCap{bottom:16px}
+  .mapbox svg{max-width:100%}
+}
+/* на вертикальном экране держим в кадре главное в каждой сцене */
+@media (orientation:portrait) and (max-width:900px){
+  .simg{background-position:var(--fx,50%) center!important}
+  .svid{object-position:var(--fx,50%) center}
+}
+
+.speakerbar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ava{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);background:#e6d3a8;flex:none;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.speakerbar b{font-family:'Philosopher',serif;font-size:18px;color:var(--accent)}
+/* ===== Атлас-пергамент ===== */
+.mapbox{background:#e8d6ad;border:2px solid #8a6a3e;box-shadow:inset 0 0 40px rgba(110,70,30,.45)}
+.sea{fill:#e8d6ad}
+.grat{stroke:#8a6a3e;stroke-opacity:.25}
+.land{stroke:#6b4a2a;stroke-width:.6}
+.land.plain{fill:#cfae78}
+.land.fog{fill:#d9c49a;stroke-opacity:.35}
+.land.revealed{fill:#b5793d}
+.route{stroke:#9c2a1e;stroke-width:2.4}
+.maplabel{fill:#5a3c1e;font-size:13px}
+/* ===== Картинки сцен ===== */
+#scenebg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity 1.2s}
+body.has-img #scenebg{opacity:1}
+#bg{display:none!important}
+body{background:radial-gradient(ellipse at top,#1f3b55,#08121f 75%) fixed}
+#bg{transition:opacity 1.2s}
+/* переходы */
+/* показ сцены перед текстом и режим «посмотреть сцену» */
+#app,.portrait{transition:opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1)}
+body.cine #app, body.peek #app{opacity:0!important;transform:translateY(40px);pointer-events:none}
+body.cine .portrait, body.peek .portrait{opacity:0!important}
+#cineCap{position:fixed;left:0;right:0;bottom:max(7vh, calc(24px + env(safe-area-inset-bottom)));z-index:4;text-align:center;pointer-events:none;
+  opacity:0;transform:translateY(16px);transition:opacity .7s ease, transform .7s ease}
+body.cine #cineCap{opacity:1;transform:none}
+#cineCap .place{display:inline-block;font-family:'Philosopher',serif;font-weight:700;font-size:22px;color:#f7ecd2;
+  background:rgba(8,18,31,.6);padding:10px 22px;border-radius:30px;border:1px solid rgba(232,198,106,.6);text-shadow:0 2px 6px rgba(0,0,0,.6)}
+#cineCap .skip{display:block;margin-top:10px;font-size:13px;color:#f4e8cc;opacity:.75;text-shadow:0 1px 4px #000}
+#cineCap .bar{width:120px;height:3px;margin:10px auto 0;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden}
+#cineCap .bar i{display:block;height:100%;width:0;background:#e8c66a}
+body.cine #cineCap .bar i{animation:cineBar var(--cine,3.5s) linear forwards}
+@keyframes cineBar{to{width:100%}}
+#cineTap{position:fixed;inset:0;z-index:3;display:none}
+body.cine #cineTap, body.peek #cineTap{display:block}
+#eyeBtn{position:fixed;top:12px;right:116px;z-index:5;width:44px;height:44px;border-radius:50%;border:1px solid rgba(244,232,204,.5);
+  background:rgba(10,25,40,.7);color:#f4e8cc;font-size:19px;cursor:pointer}
+body.peek #eyeBtn{background:#9c4a24;border-color:#e8c66a}
+body.standalone #eyeBtn{right:64px}
+#app.enter > *{animation:cardIn .6s cubic-bezier(.2,.8,.2,1) both}
+#app.enter > *:nth-child(2){animation-delay:.07s}
+#app.enter > *:nth-child(3){animation-delay:.14s}
+#app.enter > *:nth-child(4){animation-delay:.21s}
+@keyframes cardIn{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
+#curtain{position:fixed;inset:0;background:#05070c;opacity:0;pointer-events:none;z-index:0;transition:opacity .45s ease}
+#curtain.dark{opacity:.6;transition:opacity .3s ease}
+.simg.pre{filter:blur(12px) brightness(.55)}
+/* движение камеры по сценам */
+.simg.cam-arrive{animation:arrive 11s cubic-bezier(.25,.6,.3,1) forwards, bobS 7s ease-in-out 11s infinite}
+@keyframes arrive{from{transform:scale(1) translate(4%,1.5%)}to{transform:scale(1.14) translate(-2%,-1%)}}
+@keyframes bobS{0%,100%{transform:scale(1.14) translate(-2%,-1%)}50%{transform:scale(1.15) translate(-2.3%,-.6%)}}
+.simg.cam-sea{animation:seaBob 7s ease-in-out infinite}
+@keyframes seaBob{0%,100%{transform:scale(1.08) translateY(0) rotate(-.5deg)}50%{transform:scale(1.08) translateY(1.4%) rotate(.6deg)}}
+.simg.cam-kb{animation:kb 40s ease-in-out infinite alternate}
+/* эффекты поверх картинок */
+#fx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+#fx .flicker{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(255,170,60,.18),rgba(0,0,0,0) 65%);animation:flick 2.3s infinite}
+@keyframes flick{0%,100%{opacity:.7}12%{opacity:1}20%{opacity:.6}45%{opacity:.95}60%{opacity:.75}80%{opacity:1}}
+#fx .spark{position:absolute;bottom:-10px;width:5px;height:5px;border-radius:50%;background:#ffd98a;box-shadow:0 0 10px 3px rgba(255,200,90,.8);animation:rise linear infinite}
+@keyframes rise{from{transform:translate(0,0);opacity:0}10%{opacity:1}to{transform:translate(var(--dx),-105vh);opacity:0}}
+#fx .gull{position:absolute;width:34px;height:12px;animation:glide linear infinite}
+#fx .gull svg{display:block;animation:flapG .5s ease-in-out infinite alternate;transform-origin:50% 60%}
+@keyframes glide{from{transform:translateX(-60px)}to{transform:translateX(calc(100vw + 60px))}}
+@keyframes flapG{from{transform:scaleY(1)}to{transform:scaleY(-.4)}}
+#fx .glint{position:absolute;left:0;right:0;bottom:0;height:35%;background:repeating-linear-gradient(100deg,rgba(255,255,255,0) 0 40px,rgba(255,255,255,.07) 40px 46px,rgba(255,255,255,0) 46px 90px);background-size:300px 100%;animation:glint 6s linear infinite;mix-blend-mode:screen}
+@keyframes glint{to{background-position:300px 0}}
+.svid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease}
+.svid.hold{animation:holdZoom 40s ease-out forwards}
+@keyframes holdZoom{from{transform:scale(1)}to{transform:scale(1.08) translate(-1%,-1%)}}
+/* мини-карта открытия */
+.revealbox{margin:12px 0 14px;position:relative}
+.revealbox .rv-cap{position:absolute;left:10px;top:8px;font-family:'Philosopher',serif;font-weight:700;color:#6b3a1a;font-size:14px;letter-spacing:.04em;text-transform:uppercase;opacity:.8}
+.rv-land{fill:#d8c194;stroke:#7a5530;stroke-width:.5}
+.rv-hit{fill:#b5793d;fill-opacity:0;stroke:#7a2a12;stroke-width:1.8;transition:fill-opacity 1s ease .2s}
+.rv-hit.filled{fill-opacity:1}
+.rv-route{fill:none;stroke:#9c2a1e;stroke-width:2.6;stroke-linecap:round}
+.rv-circle{fill:#6fa0a8;fill-opacity:0;stroke:#2f5d66;stroke-width:1.6;stroke-dasharray:5 4;transition:fill-opacity 1s ease}
+.rv-circle.filled{fill-opacity:.35}
+.rv-label{font-family:'Philosopher',serif;font-weight:700;font-size:16px;fill:#4a2410;paint-order:stroke;stroke:#f3e6c6;stroke-width:4px;opacity:0;transition:opacity .6s ease}
+.rv-label.on{opacity:1}
+.rv-dot{fill:#c0392b;stroke:#fff;stroke-width:2}
+.rv-pulse{fill:none;stroke:#c0392b;stroke-width:2;animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{from{r:6;opacity:1}to{r:26;opacity:0}}
+.land.newrev{fill:#d9c49a;transition:fill 1.6s ease}
+.land.newrev.go{fill:#b5793d}
+/* титульный экран */
+.title-card{text-align:center;padding:34px 24px 26px;margin-top:14vh;background:rgba(244,232,204,.94)}
+.title-card h1{font-size:40px;margin-bottom:6px}
+.title-card .sub{font-style:italic;color:var(--ink2);margin-bottom:22px}
+.title-card .btn{min-width:260px;font-size:20px;margin:6px auto;display:block}
+.title-card .small-note{font-size:13px;color:var(--ink2);margin-top:14px}
+#fsBtn{position:fixed;top:12px;right:64px;z-index:5;width:44px;height:44px;border-radius:50%;border:1px solid rgba(244,232,204,.5);
+  background:rgba(10,25,40,.7);color:#f4e8cc;font-size:20px;cursor:pointer;backdrop-filter:blur(4px)}
+
+/* звук */
+#sndBtn{position:fixed;top:12px;right:12px;z-index:5;width:44px;height:44px;border-radius:50%;border:1px solid rgba(244,232,204,.5);
+  background:rgba(10,25,40,.7);color:#f4e8cc;font-size:20px;cursor:pointer;backdrop-filter:blur(4px)}
+
+.simg{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;filter:blur(0) brightness(1);transition:opacity 1.4s ease, filter 1.8s ease;animation:kb 40s ease-in-out infinite alternate}
+.simg.on{opacity:1}
+.svig{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.45) 100%)}
+@keyframes kb{from{transform:scale(1) translate(0,0)}to{transform:scale(1.07) translate(-1.5%,-1%)}}
+/* ===== Живой фон ===== */
+body{background:#0b1a2e}
+#app{position:relative;z-index:1}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.topbar{background:rgba(10,25,40,.62);border-radius:14px;padding:8px 14px;backdrop-filter:blur(4px)}
+.linkbtn{background:rgba(10,25,40,.55);border-radius:14px;padding:6px 14px;opacity:.9}
+#jr{background:rgba(10,25,40,.62)!important}
+.progress{background:rgba(10,25,40,.45)}
+.fade{transition:opacity 1.4s ease}
+.sky{opacity:0}
+body.sky-night .sky-night, body.sky-dawn .sky-dawn, body.sky-day .sky-day,
+body.sky-fog .sky-fog, body.sky-sunset .sky-sunset{opacity:1}
+.layer{opacity:0}
+body.has-stars .stars, body.has-moon .moon, body.has-port .port, body.has-island .island,
+body.has-clouds .clouds, body.has-fog .foglayer, body.has-gulls .gulls, body.has-compass .compass,
+body.has-ship .bigship, body.has-light .beam{opacity:1}
+body.has-fog .compass{opacity:.25}
+.star{fill:#fff;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:1}}
+.wave{transition:fill 1.4s ease;animation:wave linear infinite}
+@keyframes wave{from{transform:translateX(0)}to{transform:translateX(-200px)}}
+.w1{fill:#2a7aa3;animation-duration:14s}.w2{fill:#236a90;animation-duration:10s}.w3{fill:#1c5878;animation-duration:7s}
+body.sky-night .w1{fill:#123552}body.sky-night .w2{fill:#0f2c45}body.sky-night .w3{fill:#0b2238}
+body.sky-dawn .w1{fill:#4a6d8c}body.sky-dawn .w2{fill:#3c5d7b}body.sky-dawn .w3{fill:#2f4d68}
+body.sky-fog .w1{fill:#6c8590}body.sky-fog .w2{fill:#5d7580}body.sky-fog .w3{fill:#4e6570}
+body.sky-sunset .w1{fill:#5a4d72}body.sky-sunset .w2{fill:#4a4063}body.sky-sunset .w3{fill:#3a3352}
+.land-sil{transition:fill 1.4s ease;fill:#3d5a3a}
+body.sky-night .land-sil{fill:#0e1d2a} body.sky-dawn .land-sil{fill:#2e3a4a} body.sky-sunset .land-sil{fill:#2b2238} body.sky-fog .land-sil{fill:#566a72}
+.win{fill:#c9b98c;transition:fill 1.4s}
+body.sky-night .win, body.sky-sunset .win{fill:#ffcf5c}
+.beam{animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:.15}50%{opacity:1}}
+.sun{transition:transform 2.2s ease, opacity 1.4s ease;opacity:0}
+body.sky-dawn .sun, body.sky-day .sun, body.sky-sunset .sun{opacity:1}
+.shipmove{transition:transform 2.6s cubic-bezier(.45,.05,.3,1)}
+.bob{animation:bob 4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 90%}
+@keyframes bob{0%,100%{transform:rotate(-2.5deg) translateY(0)}50%{transform:rotate(2.5deg) translateY(7px)}}
+.cloud{fill:#fff;animation:drift linear infinite}
+body.sky-sunset .cloud{fill:#f6c7a8} body.sky-dawn .cloud{fill:#f3d2c1}
+@keyframes drift{from{transform:translateX(-400px)}to{transform:translateX(2000px)}}
+.fogblob{fill:#e9eef0;animation:fogmove 18s ease-in-out infinite alternate}
+@keyframes fogmove{from{transform:translateX(-120px)}to{transform:translateX(120px)}}
+.gullfly{animation:fly 28s linear infinite}
+@keyframes fly{from{transform:translateX(-300px)}to{transform:translateX(1900px)}}
+.wing{fill:none;stroke:#1d2b36;stroke-width:3;stroke-linecap:round;animation:flap .6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes flap{from{transform:scaleY(1)}to{transform:scaleY(-.5)}}
+.rose{animation:spin 90s linear infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#bg *{animation:none!important}}
+</style>
+</head>
+<body>
+<svg id="bg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="gNight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#060f1e"/><stop offset=".7" stop-color="#16304d"/><stop offset="1" stop-color="#244566"/></linearGradient>
+    <linearGradient id="gDawn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3a67"/><stop offset=".5" stop-color="#b9788a"/><stop offset=".7" stop-color="#f2a96b"/><stop offset="1" stop-color="#f6d6a0"/></linearGradient>
+    <linearGradient id="gDay" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f8fc4"/><stop offset=".7" stop-color="#9fd2ea"/><stop offset="1" stop-color="#d6eef6"/></linearGradient>
+    <linearGradient id="gFog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f8590"/><stop offset="1" stop-color="#c9d4d8"/></linearGradient>
+    <linearGradient id="gSunset" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d2150"/><stop offset=".45" stop-color="#8e3f63"/><stop offset=".7" stop-color="#e0704a"/><stop offset="1" stop-color="#f6b56b"/></linearGradient>
+    <radialGradient id="gGlow"><stop offset="0" stop-color="#fff3c4" stop-opacity=".9"/><stop offset="1" stop-color="#fff3c4" stop-opacity="0"/></radialGradient>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="28"/></filter>
+  </defs>
+  <rect class="sky sky-night fade" width="1600" height="900" fill="url(#gNight)"/>
+  <rect class="sky sky-dawn fade" width="1600" height="900" fill="url(#gDawn)"/>
+  <rect class="sky sky-day fade" width="1600" height="900" fill="url(#gDay)"/>
+  <rect class="sky sky-fog fade" width="1600" height="900" fill="url(#gFog)"/>
+  <rect class="sky sky-sunset fade" width="1600" height="900" fill="url(#gSunset)"/>
+  <g class="layer stars fade" id="stars"></g>
+  <g class="layer moon fade"><circle cx="1360" cy="150" r="90" fill="url(#gGlow)" opacity=".5"/><circle cx="1360" cy="150" r="42" fill="#f4ecd0"/><circle cx="1348" cy="140" r="8" fill="#e2d7b4"/><circle cx="1372" cy="162" r="6" fill="#e2d7b4"/></g>
+  <g class="sun" id="sun"><circle r="130" fill="url(#gGlow)"/><circle r="58" fill="#ffe08a"/></g>
+  <g class="layer compass fade"><g class="rose" transform="translate(800 400)">
+    <circle r="380" fill="none" stroke="#e8c66a" stroke-opacity=".35" stroke-width="3"/>
+    <circle r="330" fill="none" stroke="#e8c66a" stroke-opacity=".25" stroke-width="1.5" stroke-dasharray="4 10"/>
+    <circle r="250" fill="none" stroke="#e8c66a" stroke-opacity=".3" stroke-width="2"/>
+    <polygon points="0,-360 28,-28 0,0 -28,-28" fill="#e8c66a" fill-opacity=".45"/>
+    <polygon points="0,360 28,28 0,0 -28,28" fill="#e8c66a" fill-opacity=".25"/>
+    <polygon points="360,0 28,28 0,0 28,-28" fill="#e8c66a" fill-opacity=".3"/>
+    <polygon points="-360,0 -28,28 0,0 -28,-28" fill="#e8c66a" fill-opacity=".3"/>
+    <polygon points="200,-200 18,0 0,0 0,-18" fill="#e8c66a" fill-opacity=".2"/>
+    <polygon points="-200,-200 -18,0 0,0 0,-18" fill="#e8c66a" fill-opacity=".2"/>
+    <polygon points="200,200 18,0 0,0 0,18" fill="#e8c66a" fill-opacity=".2"/>
+    <polygon points="-200,200 -18,0 0,0 0,18" fill="#e8c66a" fill-opacity=".2"/>
+  </g></g>
+  <g class="layer clouds fade">
+    <g class="cloud" style="animation-duration:120s;animation-delay:-20s"><ellipse cx="0" cy="130" rx="90" ry="28"/><ellipse cx="40" cy="112" rx="55" ry="30"/><ellipse cx="-40" cy="118" rx="45" ry="22"/></g>
+    <g class="cloud" style="animation-duration:150s;animation-delay:-90s;opacity:.8"><ellipse cx="0" cy="230" rx="120" ry="30"/><ellipse cx="50" cy="210" rx="70" ry="34"/></g>
+    <g class="cloud" style="animation-duration:100s;animation-delay:-60s;opacity:.9"><ellipse cx="0" cy="80" rx="70" ry="22"/><ellipse cx="30" cy="66" rx="45" ry="24"/></g>
+    <g class="cloud" style="animation-duration:135s;animation-delay:-5s;opacity:.7"><ellipse cx="0" cy="330" rx="100" ry="24"/><ellipse cx="-30" cy="316" rx="55" ry="22"/></g>
+  </g>
+  <g class="layer port fade">
+    <path class="land-sil" d="M0 560 Q120 470 260 520 Q360 480 470 600 L470 900 L0 900 Z"/>
+    <g class="land-sil"><rect x="60" y="500" width="60" height="60"/><polygon points="52,500 90,470 128,500"/>
+      <rect x="150" y="515" width="70" height="55"/><polygon points="142,515 185,488 228,515"/>
+      <rect x="250" y="525" width="50" height="45"/><polygon points="244,525 275,503 306,525"/>
+      <rect x="390" y="430" width="34" height="150"/><polygon points="384,430 407,400 430,430"/></g>
+    <rect class="win" x="78" y="518" width="12" height="14"/><rect class="win" x="98" y="518" width="12" height="14"/>
+    <rect class="win" x="168" y="530" width="12" height="14"/><rect class="win" x="196" y="530" width="12" height="14"/>
+    <rect class="win" x="268" y="538" width="12" height="12"/><rect class="win" x="400" y="455" width="14" height="16"/>
+    <g class="layer beam"><circle cx="407" cy="418" r="70" fill="url(#gGlow)"/><circle cx="407" cy="418" r="9" fill="#ffe7a0"/></g>
+  </g>
+  <g class="layer island fade">
+    <path d="M1080 640 Q1250 560 1460 590 Q1560 600 1600 640 Z" fill="#e8d29c"/>
+    <path class="land-sil" d="M1150 625 Q1300 575 1450 600 L1460 640 L1120 640 Z" opacity=".85"/>
+    <g fill="none" stroke="#5a3e24" stroke-width="10" stroke-linecap="round"><path d="M1260 600 Q1250 520 1275 440"/><path d="M1400 605 Q1415 540 1395 470"/></g>
+    <g fill="#2f6b3a"><path d="M1275 440 q-70 -10 -110 30 q60 -20 110 -30z"/><path d="M1275 440 q70 -15 115 25 q-60 -18 -115 -25z"/><path d="M1275 440 q-30 -55 -90 -60 q55 20 90 60z"/><path d="M1275 440 q35 -55 95 -55 q-60 20 -95 55z"/>
+      <path d="M1395 470 q-65 -5 -100 30 q55 -20 100 -30z"/><path d="M1395 470 q65 -12 105 25 q-55 -16 -105 -25z"/><path d="M1395 470 q-25 -50 -80 -55 q50 18 80 55z"/><path d="M1395 470 q30 -50 88 -50 q-55 18 -88 50z"/></g>
+  </g>
+  <g class="layer gulls fade">
+    <g class="gullfly" style="animation-delay:-4s"><path class="wing" d="M0 200 q12 -14 24 0 q12 -14 24 0"/></g>
+    <g class="gullfly" style="animation-delay:-6s;animation-duration:32s"><path class="wing" d="M0 250 q9 -10 18 0 q9 -10 18 0"/></g>
+    <g class="gullfly" style="animation-delay:-18s;animation-duration:36s"><path class="wing" d="M0 160 q10 -12 20 0 q10 -12 20 0"/></g>
+  </g>
+  <g class="layer bigship fade"><g class="shipmove" id="shipmove"><g class="bob" id="shipbody"></g></g></g>
+  <path class="wave w1" id="w1"/>
+  <path class="wave w2" id="w2"/>
+  <path class="wave w3" id="w3"/>
+  <g class="layer foglayer fade" filter="url(#blur)">
+    <ellipse class="fogblob" cx="300" cy="500" rx="420" ry="140" opacity=".75"/>
+    <ellipse class="fogblob" cx="1300" cy="420" rx="460" ry="160" opacity=".7" style="animation-delay:-7s"/>
+    <ellipse class="fogblob" cx="800" cy="700" rx="700" ry="160" opacity=".8" style="animation-delay:-12s"/>
+    <ellipse class="fogblob" cx="900" cy="250" rx="500" ry="110" opacity=".5" style="animation-delay:-3s"/>
+  </g>
+</svg>
+<div id="scenebg"><div class="simg"></div><div class="simg"></div><div class="svig"></div></div>
+<div id="curtain"></div>
+<div id="fx"></div>
+<img id="pL" class="portrait" alt="">
+<img id="pR" class="portrait" alt="">
+<button id="fsBtn" title="Во весь экран">⛶</button>
+<button id="eyeBtn" title="Посмотреть сцену">👁</button>
+<div id="cineTap"></div>
+<div id="rotate"><div class="rot-ico">📱</div><div class="rot-t">Поверните телефон горизонтально</div><div class="rot-s">Так сцены и видео видны целиком</div><button id="rotSkip">Играть вертикально</button></div>
+<div id="cineCap"><span class="place"></span><div class="bar"><i></i></div><span class="skip">нажми, чтобы продолжить</span></div>
+<button id="sndBtn" title="Звук"></button>
+<div id="app"></div>
+<script>
+/* ===================== ДАННЫЕ ===================== */
+const TORTUGA = [-72.78, 20.05];
+const SAILS = [
+  {c:'#262626', n:'Чёрный'}, {c:'#b03a2e', n:'Алый'}, {c:'#2e7d5b', n:'Изумрудный'}, {c:'#2c6e9e', n:'Лазурный'},
+  {c:'#c9962b', n:'Золотой'}, {c:'#6b4c9a', n:'Фиолетовый'}
+];
+const SHIP_IDEAS = ['Чёрная жемчужина','Морская ласточка','Северная звезда','Бесстрашная','Ветер странствий','Дельфин'];
+
+const INTRO_WHO = ['hero','sebastian',null,'sebastian'];
+const INTRO = [
+  ['Порт Тортуга, 1650 год. Ночь. Над гаванью горят звёзды, в бухте покачиваются корабли, а из таверны «Старый якорь» доносятся песни моряков. Ты — юнга, и здесь тебя знает каждый моряк.'],
+  ['Однажды вечером старый штурман Себастьян ставит на стол потёртый сундук.',
+   '<span class="speaker">«Это вещи картографа Альвареса. Десять лет назад он ушёл в плавание и не вернулся. Перед отъездом он просил отдать сундук тому, кто по-настоящему любит море. Думаю, это ты».</span>'],
+  ['В сундуке лежит компас. Его стрелка указывает не на север, а будто куда-то в прошлое. Под ним — огромный атлас мира. Только страницы почти пусты: вместо материков и морей — туман.'],
+  ['<span class="speaker">«Альварес верил, что этот компас переносит корабль во времена великих открытий, — шепчет Себастьян. — Пройди путями мореплавателей, и атлас оживёт. А может, ты найдёшь и самого картографа».</span>']
+];
+
+const CHAPTERS = [
+ {id:'c1', title:'Тортуга и Карибы', sub:'Христофор Колумб, 1492', ready:true,
+  reveal:[724,192,332,214,44,388,630],
+  route:[[-6.89,37.23],[-17.2,28.1],[-74.5,24.05],[-75.6,21.2],[-72.3,19.9]],
+  steps:[
+   {type:'story', scene:'tavern', who:'sebastian', text:['Себастьян не спешит отдавать компас.','<span class="speaker">«Прежде чем доверить тебе такую вещь, проверю, знаешь ли ты свой родной порт», — говорит он и хитро щурится.</span>']},
+   {id:'t1', type:'choice', who:'sebastian',
+    rv:{ids:[332], bbox:[[-80,15.5],[-66,23]], at:[-72.78,20.05], label:'Тортуга'},
+    q:'«Ну-ка, юнга, что значит по-испански слово „тортуга“?»',
+    opts:['Черепаха','Чайка','Сокровище','Скала'], ans:0,
+    hint:'Посмотри на очертания острова: длинный и горбатый, как панцирь.',
+    exp:['«Tortuga» по-испански — черепаха. По одной из версий, испанские моряки назвали так остров потому, что его вытянутый горбатый силуэт напоминает черепаший панцирь.',
+         'Тортуга лежит у северного берега большого острова Эспаньола. В XVII веке здесь была одна из самых известных баз пиратов и буканьеров Карибского моря.',
+         'Сегодня остров принадлежит государству Гаити.'],
+    card:{title:'Остров Тортуга', text:'«Черепаха» по-испански. Пиратская гавань XVII века у северного берега Эспаньолы, сейчас — часть Гаити.'}},
+   {id:'t2', type:'map', who:'sebastian', rv:{ids:[214]},
+    q:'«А теперь покажи на карте, где мы с тобой находимся».',
+    bbox:[[-86,12],[-62,27]], target:TORTUGA, tol:130, targetLabel:'Тортуга',
+    labels:[[-80.5,22.4,'Куба'],[-76,15,'Карибское море'],[-67,25,'Атлантический океан']],
+    hint:'Найди большой остров Эспаньола к востоку от Кубы и посмотри у его северо-западного берега.',
+    exp:['Тортугу отделяет от Эспаньолы узкий пролив. Рядом проходит Наветренный пролив между Кубой и Эспаньолой — короткий путь из Атлантического океана в Карибское море.',
+         'Пиратам такое место было очень удобно: отсюда хорошо видно корабли, идущие этим путём.'],
+    card:{title:'Наветренный пролив', text:'Пролив между Кубой и Эспаньолой: короткий путь из Атлантики в Карибское море. Тортуга совсем рядом.'}},
+   {type:'story', scene:'fog', who:'sailor', text:['Себастьян довольно хмыкает и отдаёт тебе компас. Ты поднимаешься на борт корабля «{ship}», и стрелка вдруг начинает вращаться всё быстрее…',
+     'Корабль окутывает густой туман. Когда он рассеивается, ты видишь чужой берег: белые дома, колокольню и три корабля у причала. На пристани говорят по-испански.',
+     '<span class="speaker">Мальчишка-матрос машет тебе рукой: «Ты новенькая? Давай к нам на „Пинту“! Адмирал Колумб отплывает на рассвете!»</span>',
+     'Компас показывает дату: 2 августа 1492 года.']},
+   {id:'t3', type:'choice', scene:'palos', who:'columbus',
+    rv:{ids:[], bbox:[[-88,8],[2,46]], route:[[-6.9,37.2],[-17.2,28.1],[-45,26.5],[-74.5,24.05]], at:[-40,32], label:'Курс на запад'},
+    q:'Колумб мечтает добраться до Индии и Китая — земель пряностей, шёлка и золота. Каким путём он решил туда плыть?',
+    opts:['На запад, через Атлантический океан','На юг, вокруг Африки','По суше, Великим шёлковым путём','На север, через Ледовитый океан'], ans:0,
+    hint:'Колумб был уверен, что Земля — шар. Значит, до востока можно добраться, если плыть…',
+    exp:['Колумб рассуждал так: раз Земля круглая, до Азии можно доплыть, если всё время держать курс на запад.',
+         'В том, что Земля — шар, образованные люди того времени не сомневались. Ошибка была в другом: Колумб считал Землю намного меньше, чем она есть, и думал, что Азия совсем близко. Об огромном материке посреди океана в Европе тогда не знали.',
+         'Экспедицию оплатили испанские правители — король Фердинанд и королева Изабелла.'],
+    card:{title:'Христофор Колумб', text:'Мореплаватель из Генуи на службе Испании. Искал западный путь в Азию — и открыл для европейцев Америку.'}},
+   {id:'t12', type:'choice',
+    rv:{ids:[], hl:[724], bbox:[[-10.5,35],[4.5,44.5]], at:[-3.6,37.18], label:'Гранада'},
+    q:'Пока Колумб готовит корабли, по Палосу разносится радостная новость. Этот 1492 год стал для Испании особенным ещё до плавания. Что произошло в январе?',
+    opts:['Пала Гранада — последнее мавританское государство на Пиренейском полуострове','Испания открыла морской путь в Индию','В Испании изобрели компас','Испания объединилась с Англией'], ans:0,
+    hint:'Это событие завершило многовековую Реконкисту — борьбу христианских королевств за полуостров.',
+    exp:['В январе 1492 года войска Фердинанда и Изабеллы взяли Гранаду. Так закончилась Реконкиста — борьба, которая длилась почти восемь веков.',
+         'Освободившись от войны, правители смогли наконец выслушать Колумба. Соглашение о его экспедиции подписали весной того же года.',
+         'Знаменитый дворец Альгамбра в Гранаде сохранился до наших дней.'],
+    card:{title:'Гранада, 1492', text:'Падение Гранады завершило Реконкисту. Вскоре после этого Фердинанд и Изабелла согласились снарядить экспедицию Колумба.'}},
+   {id:'t4', type:'map', who:'columbus', rv:{ids:[724]},
+    q:'Отметь на карте страну, из которой отплывает экспедиция. Её порт Палос находится на юге этой страны.',
+    bbox:[[-32,22],[22,56]], country:724, target:[-6.89,37.23], tol:350, targetLabel:'Палос',
+    labels:[[-24,40,'Атлантический океан'],[6,27,'Африка']],
+    hint:'Это страна на Пиренейском полуострове, на юго-западе Европы, по соседству с Португалией.',
+    exp:['Это Испания. 3 августа 1492 года из порта Палос вышли три корабля: «Санта-Мария», «Пинта» и «Нинья». В команде было около 90 человек.',
+         '«Пинта» и «Нинья» — каравеллы, лёгкие и быстрые суда. «Санта-Мария» была крупнее и тяжелее, на ней плыл сам Колумб.'],
+    card:{title:'Три корабля', text:'«Санта-Мария», «Пинта» и «Нинья» вышли из испанского порта Палос 3 августа 1492 года.'}},
+   {id:'t13', type:'choice',
+    q:'Ты осматриваешь «Пинту» и «Нинью». Капитан говорит, что каравелла — лучший корабль для дальних открытий. Чем она была так хороша?',
+    opts:['Лёгкая и быстрая, а косые паруса позволяли идти даже против ветра','На ней было больше всего пушек','Она могла плыть без парусов, на вёслах','Её корпус был сделан из железа'], ans:0,
+    hint:'Посмотри на форму парусов: не все они прямоугольные.',
+    exp:['Каравелла — небольшое, лёгкое и манёвренное судно. Её придумали португальские мореплаватели для разведки неизвестных берегов.',
+         'Главный секрет — косые, треугольные паруса. С ними корабль мог идти зигзагом, галсами, даже когда ветер дул почти навстречу.',
+         'Небольшая осадка позволяла каравелле подходить близко к берегу, не боясь сесть на мель.'],
+    card:{title:'Каравелла', text:'Лёгкое быстрое судно с косыми парусами, которые позволяли идти галсами против ветра. «Пинта» и «Нинья» — каравеллы.'}},
+   {id:'t5', type:'choice', scene:'ocean-day',
+    rv:{ids:[], bbox:[[-21,25.5],[-9,32]], at:[-15.6,28.3], label:'Канарские острова', hl:[724]},
+    q:'Через несколько дней у «Пинты» сломался руль. Колумб ведёт корабли к испанским островам у берегов Африки, чтобы починиться и запастись водой. Что это за острова?',
+    opts:['Канарские','Азорские','Британские','Мальдивские'], ans:0,
+    hint:'Эти острова и сегодня принадлежат Испании. А их название, как ни странно, связано не с птицами.',
+    exp:['Это Канарские острова. Флотилия простояла здесь около месяца: чинили «Пинту», пополняли запасы воды и еды. 6 сентября корабли покинули остров Гомера и ушли в открытый океан.',
+         'Отсюда удобно начинать путь на запад: в этих широтах постоянно дуют пассаты — устойчивые ветры, которые несут корабли от Африки к Америке.',
+         'Забавно, но острова названы не в честь канареек — скорее наоборот, птиц назвали по островам. А само название, по одной из версий, происходит от латинского слова «собака».'],
+    card:{title:'Пассаты', text:'Постоянные ветры тропиков. Дуют с северо-востока и помогли Колумбу пересечь Атлантику.'}},
+   {id:'t6', type:'choice', noShuffle:true,
+    rv:{ids:[], bbox:[[-88,12],[-25,44]], circle:[-60,30,9], at:[-60,30], label:'Саргассово море'},
+    q:'Посреди океана вода вдруг зазеленела от плавающих водорослей. Себастьян как-то говорил, что в Атлантике есть море, у которого нет ни одного берега. Верно ли это?',
+    opts:['Верно','Неверно'], ans:0,
+    hint:'Границы моря не обязательно проводить по суше…',
+    exp:['Верно! Это Саргассово море. Его границы — не берега, а океанские течения, которые кружат вокруг него, в том числе знаменитый Гольфстрим.',
+         'Название море получило от бурых водорослей саргассум, которые плавают на поверхности огромными полями. Моряки Колумба, увидев их, решили, что рядом мель или земля.'],
+    card:{title:'Саргассово море', text:'Море без берегов: его границы — океанские течения. Поверхность покрыта плавающими водорослями.'}},
+   {id:'t14', type:'choice', scene:'ocean-night',
+    q:'Ночь в открытом океане. Вокруг ни одного берега, только звёзды. Штурман смотрит на небо и находит север. По какой звезде?',
+    opts:['По Полярной звезде','По Солнцу','По Луне','По Венере'], ans:0,
+    hint:'Эта звезда почти не движется по небу и всегда указывает на север.',
+    exp:['Полярная звезда находится почти точно над Северным полюсом, поэтому весь звёздный небосвод словно вращается вокруг неё.',
+         'Моряки умели и больше: измеряя высоту Полярной звезды над горизонтом, они определяли, насколько далеко на север или юг находится корабль. Для этого служили квадрант и астролябия.',
+         'Найти её легко по ковшу Большой Медведицы: продолжи линию от двух крайних звёзд ковша.'],
+    card:{title:'Полярная звезда', text:'Почти не движется по небу и указывает на север. По её высоте над горизонтом моряки определяли широту.'}},
+   {id:'t15', type:'choice', noShuffle:true,
+    q:'Матросы волнуются: земли всё нет, а запасы тают. Говорят, адмирал записывает в журнал не всю правду о пройденном пути. Верно ли, что Колумб вёл два судовых журнала?',
+    opts:['Верно','Неверно'], ans:0,
+    hint:'Адмиралу нужно было успокоить команду, которая боялась уплыть слишком далеко.',
+    exp:['Верно. Судя по записям, дошедшим до нас, Колумб показывал команде журнал, где пройденное расстояние было меньше настоящего, а точные расчёты держал при себе.',
+         'Так он хотел, чтобы моряки не испугались, как далеко они ушли от дома.',
+         'Забавно, что «уменьшенные» цифры иногда оказывались ближе к правде: Колумб сам переоценивал скорость кораблей.'],
+    card:{title:'Два журнала', text:'Чтобы не пугать команду, Колумб показывал журнал с уменьшенным пройденным расстоянием, а настоящие расчёты держал при себе.'}},
+   {id:'t7', type:'order', scene:'ocean-night',
+    rv:{ids:[], bbox:[[-88,8],[2,46]], route:[[-6.9,37.2],[-17.2,28.1],[-45,26.5],[-74.5,24.05],[-75.6,21.2],[-72.3,19.9]], at:[-30,38], label:'Путь 1492 года'},
+    q:'Ты ведёшь судовой журнал. Расставь события плавания 1492 года по порядку.',
+    items:['Отплытие из порта Палос','Стоянка на Канарских островах','Матрос с «Пинты» кричит: «Земля!»','Высадка на острове Гуанахани','«Санта-Мария» садится на мель у Эспаньолы'],
+    hint:'Крушение корабля в этом списке — последнее событие: оно случилось в Рождество.',
+    exp:['Правильный порядок: 3 августа — отплытие; август и начало сентября — Канары; ночь на 12 октября — «Земля!»; 12 октября — высадка; 25 декабря — крушение «Санта-Марии».',
+         'Первым землю увидел впередсмотрящий «Пинты» Родриго де Триана, около двух часов ночи. Королева обещала награду тому, кто первым увидит землю, но Колумб забрал её себе: он сказал, что заметил огонёк ещё вечером.',
+         'Из досок разбитой «Санта-Марии» построили форт Ла-Навидад («Рождество») — первое поселение испанцев в Америке.'],
+    card:{title:'Ночь 12 октября', text:'Около двух часов ночи матрос Родриго де Триана с «Пинты» первым увидел землю Нового Света.'}},
+   {id:'t16', type:'choice',
+    q:'Корабли покинули Канарские острова 6 сентября, а землю увидели в ночь на 12 октября. Сколько примерно длился путь через океан?',
+    opts:['Около пяти недель','Три дня','Полгода','Два года'], ans:0,
+    hint:'Посчитай: от 6 сентября до 12 октября.',
+    exp:['Около пяти недель — 36 дней. Для людей того времени это было очень долго: никто ещё не уходил так далеко в открытый океан, не видя берега.',
+         'Колумбу помогли пассаты, которые всё это время дули в корму. Сегодня такой путь на паруснике занимает примерно три недели.'],
+    card:{title:'36 дней', text:'Столько длился путь от Канарских островов до первой земли Нового Света — с 6 сентября по 12 октября 1492 года.'}},
+   {id:'t8', type:'map', scene:'island', rv:{ids:[44]},
+    q:'Отметь на карте место, где Колумб впервые ступил на землю Нового Света.',
+    bbox:[[-86,16],[-62,30]], country:44, target:[-74.5,24.05], tol:250, targetLabel:'Сан-Сальвадор',
+    labels:[[-80,22.4,'Куба'],[-82.5,28.6,'Флорида'],[-66,27,'Атлантический океан']],
+    hint:'Это цепочка островов к северу от Кубы и к юго-востоку от полуострова Флорида.',
+    exp:['12 октября 1492 года Колумб высадился на острове, который местные жители — индейцы таино — называли Гуанахани. Колумб назвал его Сан-Сальвадор.',
+         'Сегодня это Багамские острова. Правда, историки до сих пор спорят, какой именно остров был Гуанахани: описание в судовом журнале Колумба неточное.'],
+    card:{title:'Сан-Сальвадор', text:'Первая земля Нового Света, на которую ступил Колумб, — 12 октября 1492 года. Сегодня это Багамы.'}},
+   {type:'story', who:'columbus', text:['Колумб уверен, что приплыл в Азию: где-то рядом должны быть Япония и Китай. Флотилия идёт дальше на юг, от острова к острову.',
+     'Местные жители рассказывают о большой земле с горами и реками. Колумб приказывает плыть туда.']},
+   {id:'t9', type:'choice',
+    rv:{ids:[192], bbox:[[-86,18.5],[-72,25]], at:[-79,21.6], label:'Куба'},
+    q:'На горизонте показался огромный остров. Колумб даже решил, что это часть материка Азии. Сейчас мы знаем: это самый большой остров Карибского моря. Как он называется?',
+    opts:['Куба','Ямайка','Эспаньола','Пуэрто-Рико'], ans:0,
+    hint:'Столица государства на этом острове — Гавана.',
+    exp:['Это Куба. Колумб доплыл до неё 28 октября 1492 года. Остров длинный и узкий: он протянулся больше чем на 1000 км.',
+         'Второй по величине остров Карибского моря — Эспаньола. Редкий случай: на одном острове находятся два государства — Гаити и Доминиканская Республика.'],
+    card:{title:'Куба', text:'Самый большой остров Карибского моря. Колумб доплыл до него 28 октября 1492 года и принял за часть Азии.'}},
+   {id:'t17', type:'choice', scene:'taino-village',
+    q:'Таино встречают гостей дружелюбно. Моряки удивлены: местные спят не на земле, а в сетках, подвешенных между деревьями. Какое слово пришло к нам из языка таино?',
+    opts:['Гамак','Компас','Якорь','Карта'], ans:0,
+    hint:'Это та самая подвесная сетка для сна.',
+    exp:['Слово «гамак» происходит от слова таино «hamaca». Моряки быстро оценили изобретение: в гамаке удобно спать на качающемся корабле.',
+         'Из языков индейцев Карибского моря пришли и другие слова, например «каноэ» и «ураган».'],
+    card:{title:'Слова таино', text:'Гамак, каноэ, ураган — эти слова пришли в европейские языки от индейцев Карибского моря.'}},
+   {id:'t18', type:'choice',
+    q:'На Кубе моряки пробуют местную еду. Одно растение особенно их удивило: в Европе его никто никогда не видел. Что это?',
+    opts:['Кукуруза','Пшеница','Виноград','Оливки'], ans:0,
+    hint:'Пшеница, виноград и оливки росли в Испании задолго до Колумба.',
+    exp:['Кукурузу европейцы впервые увидели именно в Америке. Индейцы выращивали её уже несколько тысяч лет.',
+         'После плаваний Колумба начался великий обмен между Старым и Новым Светом. Из Америки в Европу попали кукуруза, картофель, помидоры, какао, подсолнечник и тыква. А в Америку европейцы привезли лошадей, коров, пшеницу и сахарный тростник.'],
+    card:{title:'Колумбов обмен', text:'Из Америки пришли кукуруза, картофель, помидоры и какао, а в Америку — лошади, коровы и пшеница.'}},
+   {id:'t19', type:'choice', scene:'hispaniola',
+    rv:{ids:[214], bbox:[[-75,17],[-67.5,20.6]], at:[-71.2,19], label:'Эспаньола'},
+    q:'Колумб плывёт дальше на восток и находит большой гористый остров. Он даёт ему имя Эспаньола. Что означает это название?',
+    opts:['«Испанский остров»','«Остров пряностей»','«Остров черепах»','«Золотой остров»'], ans:0,
+    hint:'Вспомни, откуда отплыла экспедиция.',
+    exp:['La Isla Española — «Испанский остров». Колумбу казалось, что здешние долины похожи на родную Испанию.',
+         'Сегодня на Эспаньоле два государства: Гаити на западе и Доминиканская Республика на востоке. А у её северного берега лежит наша Тортуга!'],
+    card:{title:'Эспаньола', text:'«Испанский остров». Сегодня на нём два государства — Гаити и Доминиканская Республика.'}},
+   {id:'t10', type:'match', scene:'ocean-day',
+    rv:{ids:[630,388], bbox:[[-90,7],[-58,27]], at:[-74,16], label:'Карибское море'},
+    q:'Эти названия родом из эпохи Колумба. Сопоставь название и его происхождение: выбери строку, затем подходящий вариант ниже.',
+    pairs:[['Америка','В честь мореплавателя Америго Веспуччи'],['Индейцы','Колумб думал, что приплыл в Индию'],['Карибское море','По имени народа карибов'],['Сан-Сальвадор','«Святой Спаситель» по-испански']],
+    hint:'Начни с индейцев — об этом уже шла речь.',
+    exp:['Америку назвали не в честь Колумба, а в честь Америго Веспуччи. Он плавал к берегам Южной Америки и одним из первых написал, что это не Азия, а Новый Свет. В 1507 году картограф Мартин Вальдземюллер подписал новую землю на своей карте словом «Америка».',
+         'Карибы — один из народов, которые жили на островах, когда туда приплыли европейцы.'],
+    card:{title:'Имя Америки', text:'Материк назван в честь Америго Веспуччи — так его подписал картограф Мартин Вальдземюллер в 1507 году.'}},
+   {id:'t20', type:'map', scene:'eclipse',
+    rv:{ids:[388]},
+    q:'В последнем плавании корабли Колумба совсем прохудились, и ему пришлось почти год прожить на одном острове. Отметь на карте Ямайку.',
+    bbox:[[-86,15],[-66,24]], target:[-77.3,18.1], tol:120, targetLabel:'Ямайка', country:388,
+    labels:[[-79.5,22.3,'Куба'],[-71.5,19.6,'Эспаньола'],[-75,15.6,'Карибское море']],
+    hint:'Это остров к югу от восточной части Кубы и к западу от Эспаньолы.',
+    exp:['В 1503 году Колумб застрял на Ямайке, а местные жители перестали приносить его людям еду.',
+         'Тогда Колумб, зная из астрономического альманаха о скором лунном затмении, объявил, что Бог разгневан и скроет Луну. 29 февраля 1504 года Луна действительно потемнела, и испуганные жители снова начали помогать морякам.',
+         'Вот как пригодилось знание астрономии!'],
+    card:{title:'Лунное затмение', text:'В 1504 году на Ямайке Колумб «предсказал» лунное затмение, о котором знал из альманаха, и так получил помощь местных жителей.'}},
+   {id:'t11', type:'choice', who:'columbus', scene:'sunset-port',
+    rv:{ids:[340,558,188,591,862,780], bbox:[[-92,4],[-58,25]], at:[-80,12.5], label:'Земли четырёх плаваний'},
+    q:'Последний вопрос перед возвращением. Сколько всего плаваний к берегам Америки совершил Колумб?',
+    opts:['Четыре','Одно','Два','Семь'], ans:0,
+    hint:'Больше двух, но меньше пяти.',
+    exp:['Колумб совершил четыре экспедиции — с 1492 по 1504 год. Он открыл для европейцев многие острова Карибского моря и побережье Центральной и Южной Америки.',
+         'Удивительно, но до самой смерти в 1506 году Колумб так и не признал, что открыл новую часть света: он считал эти земли окраиной Азии.'],
+    card:{title:'Четыре плавания', text:'С 1492 по 1504 год Колумб четырежды плавал в Новый Свет, но до конца жизни считал его Азией.'}}
+  ],
+  outro:['Стрелка компаса снова закружилась, и туман вернул корабль «{ship}» в гавань Тортуги.',
+    'Ты открываешь атлас: на месте тумана проступили Карибские острова, берега Испании и путь трёх кораблей через океан.',
+    'А на полях страницы — надпись, сделанная почерком картографа:',
+    '<span class="speaker">«Если ты читаешь это, компас нашёл нового капитана. Ищи меня там, где Африка встречается с двумя океанами».</span>']
+ },
+ {id:'c2', title:'Вокруг Африки', sub:'Васко да Гама'},
+ {id:'c3', title:'Первая кругосветка', sub:'Фернан Магеллан'},
+ {id:'c4', title:'Южная Америка', sub:'Анды и Амазония'},
+ {id:'c5', title:'Австралия и Океания', sub:'Джеймс Кук'},
+ {id:'c6', title:'Ледяной юг', sub:'Беллинсгаузен и Лазарев'},
+ {id:'c7', title:'Север и Азия', sub:'Витус Беринг'},
+ {id:'c8', title:'Великий шёлковый путь', sub:'Казахстан и Центральная Азия'}
+];
+
+/* ===================== СОСТОЯНИЕ ===================== */
+const SAVE_KEY = 'atlasQuest_v1';
+function newState(){ return {introSeen:false, player:null, gold:0, ch:{}, journal:[], revealed:[]}; }
+function load(){ try{ const s = localStorage.getItem(SAVE_KEY); return s ? JSON.parse(s) : null; }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){} }
+let state = load() || newState();
+/* Вопросы в главах могли поменяться: незаконченные главы начинаем с начала (ответы и золото сохраняются) */
+const CONTENT_VER = 2;
+if(state.ver !== CONTENT_VER){
+  Object.values(state.ch || {}).forEach(c => { if(!c.done) c.idx = 0; });
+  state.ver = CONTENT_VER;
+}
+let cur = {hint:false};
+
+/* ===================== КАРТА МИРА ===================== */
+let world = null;
+const hasD3 = typeof d3 !== 'undefined' && typeof topojson !== 'undefined';
+const worldReady = hasD3
+  ? fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json')
+      .then(r => r.json())
+      .then(t => { world = topojson.feature(t, t.objects.countries).features; })
+      .catch(() => { world = null; })
+  : Promise.resolve();
+
+/* ===================== УТИЛИТЫ ===================== */
+const app = document.getElementById('app');
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fill(t){ return t.replace(/\{ship\}/g, state.player ? esc(state.player.ship) : 'корабля'); }
+function shuffle(a){ a = a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function paras(arr){ return arr.map(t => `<p>${fill(t)}</p>`).join(''); }
+function shipPaths(color){
+  const sail = `fill="${color}" stroke="#2b1d12" stroke-width=".8"`;
+  return `<g stroke="#2b1d12" stroke-width=".5" opacity=".7" fill="none">
+    <path d="M32 18 L8 54"/><path d="M62 6 L10 56"/><path d="M62 6 L112 58"/><path d="M90 14 L126 47"/><path d="M90 14 L114 58"/></g>
+  <line x1="108" y1="58" x2="128" y2="45" stroke="#3a2a1a" stroke-width="2.2"/>
+  <line x1="32" y1="56" x2="32" y2="16" stroke="#3a2a1a" stroke-width="2.4"/>
+  <line x1="62" y1="66" x2="62" y2="5" stroke="#3a2a1a" stroke-width="2.8"/>
+  <line x1="90" y1="62" x2="90" y2="13" stroke="#3a2a1a" stroke-width="2.6"/>
+  <path d="M93 20 L124 47 L98 52 Z" fill="#efe3c4" stroke="#2b1d12" stroke-width=".8"/>
+  <path d="M33 19 L33 49 L12 49 Z" ${sail}/>
+  <path d="M50 12 Q62 17 74 12 L76 28 Q62 33 48 28 Z" ${sail}/>
+  <path d="M46 31 Q62 38 78 31 L80 52 Q62 59 44 52 Z" ${sail}/>
+  <path d="M81 18 Q90 22 99 18 L100 31 Q90 35 80 31 Z" ${sail}/>
+  <path d="M78 34 Q90 40 102 34 L103 51 Q90 56 77 51 Z" ${sail}/>
+  <path d="M62 34 Q63 44 62 54 M90 37 Q91 44 90 52" stroke="#000" stroke-opacity=".18" stroke-width="2" fill="none"/>
+  <path d="M62 5 L77 2 L75 8 L77 13 L62 12 Z" fill="#161616"/>
+  <circle cx="68.5" cy="7" r="2.2" fill="#f1ead8"/><path d="M66.5 10 L70.5 12 M70.5 10 L66.5 12" stroke="#f1ead8" stroke-width=".9"/>
+  <path d="M90 13 L100 15 L90 17 Z" fill="${color}"/><path d="M32 16 L40 17.5 L32 19 Z" fill="${color}"/>
+  <path d="M4 50 L30 52 L30 64 L6 64 Z" fill="#6b4426" stroke="#2b1d12" stroke-width=".8"/>
+  <path d="M4 48 L30 50 L30 52 L4 50 Z" fill="#c99a3b"/>
+  <path d="M6 64 L114 59 Q110 76 97 84 L28 86 Q12 80 6 64 Z" fill="#5b3a21" stroke="#2b1d12" stroke-width=".9"/>
+  <path d="M92 58 L116 55 L114 60 L92 61 Z" fill="#6b4426" stroke="#2b1d12" stroke-width=".8"/>
+  <path d="M8 68 L112 63" stroke="#c99a3b" stroke-width="2"/>
+  <path d="M14 77 Q60 79 104 73" stroke="#3b2414" stroke-width="1.2" fill="none"/>
+  <g fill="#1d120a"><rect x="30" y="69" width="5" height="4" rx=".5"/><rect x="43" y="68.5" width="5" height="4" rx=".5"/><rect x="56" y="68" width="5" height="4" rx=".5"/><rect x="69" y="67.5" width="5" height="4" rx=".5"/><rect x="82" y="67" width="5" height="4" rx=".5"/></g>
+  <g fill="#ffd36b"><rect x="9" y="55" width="4" height="4"/><rect x="16" y="55" width="4" height="4"/><rect x="23" y="55" width="4" height="4"/></g>`;
+}
+function shipSvg(color, size){ return `<svg viewBox="0 0 130 92" width="${size}" height="${size}" aria-hidden="true">${shipPaths(color)}</svg>`; }
+function topbar(){
+  const p = state.player;
+  return `<div class="topbar">${shipSvg(p.color,44)}
+    <div class="who"><div class="ship">«${esc(p.ship)}»</div><div class="cap">Капитан ${esc(p.name)}</div></div>
+    <div class="gold">● ${state.gold} золотых</div>
+    <button class="restart" id="restartBtn" title="Начать игру сначала">⟲<span class="rtxt"> Сначала</span></button></div>`;
+}
+function allTasks(){ const r=[]; CHAPTERS.forEach(c => (c.steps||[]).forEach(s => { if(s.type!=='story') r.push(s); })); return r; }
+function goTop(){ window.scrollTo(0,0); }
+
+/* ===================== ЖИВОЙ ФОН ===================== */
+const SCENES = {
+  'night-port': {sky:'night',  f:['stars','moon','port','light','ship'], ship:[1290,648,.95]},
+  'compass':    {sky:'night',  f:['stars','moon','compass'],             ship:[1290,648,.95]},
+  'dawn-port':  {sky:'dawn',   f:['port','clouds','ship'],               ship:[1250,648,1], sun:[1480,600]},
+  'day-port':   {sky:'day',    f:['port','clouds','gulls','ship'],       ship:[1290,648,1], sun:[1330,150]},
+  'fog':        {sky:'fog',    f:['fog','ship'],                         ship:[1250,652,1]},
+  'day-sea':    {sky:'day',    f:['clouds','gulls','ship'],              ship:[1330,652,1.1], sun:[1360,140]},
+  'night-sea':  {sky:'night',  f:['stars','moon','ship'],                ship:[1300,652,1.05]},
+  'tropic':     {sky:'day',    f:['island','clouds','gulls','ship'],     ship:[300,652,1], sun:[220,150]},
+  'sunset':     {sky:'sunset', f:['port','clouds','light','ship'],       ship:[1290,648,1], sun:[1290,612]}
+};
+let curScene = null;
+/* Картинки: положите файлы в папку img рядом с игрой. Подходят .jpg, .png, .webp */
+const SCENE_IMG = {
+  'port-night':  {file:'port-night',  fb:'night-port'},
+  'tavern':      {file:'tavern',      fb:'night-port'},
+  'chest':       {file:'chest',       fb:'compass'},
+  'port-dawn':   {file:'port-dawn',   fb:'dawn-port'},
+  'port-day':    {file:'port-day',    fb:'day-port'},
+  'fog':         {file:'fog',         fb:'fog'},
+  'palos':       {file:'palos',       fb:'dawn-port'},
+  'ocean-day':   {file:'ocean-day',   fb:'day-sea'},
+  'ocean-night': {file:'ocean-night', fb:'night-sea'},
+  'island':      {file:'island',      fb:'tropic'},
+  'sunset-port': {file:'sunset-port', fb:'sunset'},
+  'cabin':       {file:'cabin',       fb:'night-sea'},
+  'map':         {file:'map',         fb:'night-sea'},
+  'taino-village':{file:'taino-village', fb:'tropic'},
+  'hispaniola':  {file:'hispaniola',  fb:'tropic'},
+  'eclipse':     {file:'eclipse',     fb:'night-sea'}
+};
+/* Если нужной картинки ещё нет — берём ближайшую подходящую */
+const SCENE_ALT = {
+  'taino-village':['island'], 'hispaniola':['island'], 'eclipse':['ocean-night'],
+  'chest':['tavern'], 'port-dawn':['port-day'], 'fog':['port-night'], 'palos':['port-day'],
+  'ocean-day':['port-day'], 'ocean-night':['port-night'], 'island':['port-day'],
+  'sunset-port':['port-night','port-day'], 'cabin':['map','tavern'], 'tavern':['port-night']
+};
+/* face — куда смотрит персонаж на картинке: L (влево) или R (вправо).
+   Слева на экране стоит героиня, справа — собеседник; картинки разворачиваются лицом друг к другу. */
+const CHARS = {
+  sebastian: {name:'Штурман Себастьян', file:'sebastian', face:'R'},
+  hero:      {name:'Ты',                file:'hero',      face:'L'},
+  sailor:    {name:'Юнга с «Пинты»',    file:'sailor',    face:'R'},
+  columbus:  {name:'Адмирал Колумб',    file:'columbus',  face:'R'}
+};
+let castR = null;
+function placePortrait(id, who, dim){
+  const el = document.getElementById(id);
+  el.dataset.want = who || '';
+  if(!who){ el.classList.remove('on'); return; }
+  findImg(CHARS[who].file).then(url => {
+    if(el.dataset.want !== who) return;
+    if(!url){ el.classList.remove('on'); return; }
+    const flip = (id === 'pL') ? CHARS[who].face === 'L' : CHARS[who].face === 'R';
+    const show = () => { el.classList.toggle('flip', flip); el.classList.toggle('dim', !!dim); el.classList.add('on'); };
+    if(el.dataset.url === url && el.classList.contains('on')){ show(); return; }
+    const had = el.classList.contains('on');
+    el.classList.remove('on');
+    setTimeout(() => { if(el.dataset.want !== who) return; el.src = url; el.dataset.url = url; show(); }, had ? 280 : 0);
+  });
+}
+/* left/right — кто стоит слева и справа; active — кто говорит ('L', 'R' или null — оба в полном свете) */
+function setCast(left, right, active){
+  castR = right || null;
+  placePortrait('pL', left, active === 'R');
+  placePortrait('pR', right, active === 'L');
+}
+function setSpeaker(who){
+  if(!who) return setCast(null, null, null);
+  if(who === 'hero') return setCast('hero', castR, 'L');
+  setCast('hero', who, 'R');
+}
+function speakerHtml(who){
+  if(!who) return '';
+  const c = CHARS[who];
+  const name = who === 'hero' && state.player ? 'Капитан ' + esc(state.player.name) : c.name;
+  return `<div class="speakerbar"><img class="ava" data-who="${who}" alt=""><b>${name}</b></div>`;
+}
+function fillAvatars(){
+  document.querySelectorAll('.ava').forEach(img => {
+    const f = CHARS[img.dataset.who].file;
+    findImg(f + '-face').then(u => u || findImg(f)).then(u => { if(u) img.src = u; else img.remove(); });
+  });
+}
+const imgCache = {}; let imgScene = null, imgLayer = 0;
+const vidCache = {};
+/* Точка, с которой ролик повторяется (подобрана по сходству с последними кадрами), — чтобы склейка была незаметной */
+const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2.96, 'fog':2.96, 'ocean-day':4.9, 'island':'hold', 'sunset-port':2.96,
+  'palos':2.92, 'ocean-night':2.96, 'taino-village':5.0, 'hispaniola':1.96, 'eclipse':2.96};
+/* Облегчённый режим для телефонов и слабых устройств */
+const LITE = matchMedia('(max-width:900px)').matches || matchMedia('(pointer:coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4;
+const XFADE = 1.4; /* длительность растворения на склейке, сек */
+/* Сюжетный ролик (высадка) проигрывается заново на каждом новом задании этой сцены */
+function replayHold(){
+  const v = document.querySelector('.simg.on .svid.hold, .simg.on .svid[data-hold]');
+  if(!v || !v.classList.contains('hold')) return;
+  v.classList.remove('hold'); v.currentTime = 0; v.play().catch(() => {});
+}
+function startVideoLoop(layer, src, key, alive){
+  const mk = () => {
+    const v = document.createElement('video');
+    v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = src; v.className = 'svid';
+    v.style.transition = `opacity ${XFADE}s ease`;
+    layer.appendChild(v); return v;
+  };
+  const A = mk();
+  const onPlaying = () => {
+    A.style.opacity = 1;
+    layer.classList.remove('cam-arrive','cam-sea','cam-kb'); layer.style.transform = 'none';
+    document.getElementById('fx').innerHTML = ''; curFx = 'video';
+  };
+  /* отрицательное значение — повторять только последние N секунд (ролик сначала идёт целиком) */
+  const loopVal = VIDEO_LOOP[key] || 0;
+  if(loopVal === 'hold'){
+    /* сюжетный ролик: проигрывается один раз и замирает на последнем кадре, дальше — медленный наезд */
+    const v = A;
+    v.dataset.hold = '1';
+    v.addEventListener('ended', () => { v.classList.add('hold'); });
+    v.addEventListener('timeupdate', () => { if(!alive()) v.pause(); });
+    v.addEventListener('playing', onPlaying, {once:true});
+    v.play().catch(() => {});
+    return;
+  }
+  if(false && LITE){ /* v1.5: на телефонах снова плавная склейка двух роликов, как на ПК */
+    /* телефон: одно видео; в конце растворяется в картинку сцены и начинается заново */
+    let fading = false;
+    A.addEventListener('timeupdate', () => {
+      if(!alive()){ A.pause(); return; }
+      if(!fading && A.duration && A.currentTime > A.duration - 1){ fading = true; A.style.opacity = 0; }
+    });
+    A.addEventListener('ended', () => {
+      A.currentTime = loopVal > 0 ? loopVal : 0;
+      A.play().catch(() => {});
+      setTimeout(() => { A.style.opacity = 1; fading = false; }, 120);
+    });
+    A.addEventListener('playing', onPlaying, {once:true});
+    A.play().catch(() => {});
+    return;
+  }
+  const B = mk();
+  let cur = A, other = B, swapping = false;
+  const onTime = () => {
+    if(!alive()){ A.pause(); B.pause(); return; }
+    if(swapping || !cur.duration || cur.currentTime < cur.duration - XFADE - .15) return;
+    swapping = true;
+    const nxt = other, prev = cur;
+    nxt.currentTime = loopVal < 0 ? Math.max(0, cur.duration + loopVal - XFADE) : loopVal;
+    nxt.play().then(() => {
+      nxt.style.zIndex = 2; prev.style.zIndex = 1;
+      nxt.style.opacity = 1;
+      setTimeout(() => { prev.style.opacity = 0; prev.pause(); cur = nxt; other = prev; swapping = false; }, XFADE * 1000 + 50);
+    }).catch(() => { swapping = false; });
+  };
+  A.addEventListener('timeupdate', onTime); B.addEventListener('timeupdate', onTime);
+  A.addEventListener('playing', onPlaying, {once:true});
+  A.play().catch(() => {});
+}
+function findVid(file){
+  if(FILES.vid){ if(vidCache[file] === undefined) vidCache[file] = Promise.resolve(FILES.vid.includes(file) ? `img/${file}.mp4` : null); return vidCache[file]; }
+  if(vidCache[file] !== undefined) return vidCache[file];
+  vidCache[file] = new Promise(res => {
+    const v = document.createElement('video'); let done = false;
+    const fin = x => { if(!done){ done = true; res(x); } };
+    v.addEventListener('loadedmetadata', () => fin(`img/${file}.mp4`), {once:true});
+    v.addEventListener('error', () => fin(null), {once:true});
+    setTimeout(() => fin(null), 3000);
+    v.preload = 'metadata'; v.muted = true; v.src = `img/${file}.mp4`;
+  });
+  return vidCache[file];
+}
+/* Как «двигается камера»: arrive — подплываем к порту, sea — качка на волнах, kb — медленный наезд */
+const SCENE_CAM = {'port-day':'cam-arrive','port-dawn':'cam-arrive','sunset-port':'cam-arrive','palos':'cam-arrive',
+  'ocean-day':'cam-sea','ocean-night':'cam-sea','fog':'cam-sea','island':'cam-arrive','port-night':'cam-kb'};
+/* Живые эффекты поверх картинки */
+const SCENE_FX = {'tavern':['flicker'],'chest':['flicker'],'fog':['sparks'],'port-day':['gulls'],'port-dawn':['gulls'],
+  'palos':['gulls'],'ocean-day':['gulls'],'island':['gulls'],'sunset-port':['gulls']};
+let curFx = null;
+function setFx(name){
+  const want = (SCENE_FX[name] || []).join(',');
+  if(want === curFx) return;
+  curFx = want;
+  const box = document.getElementById('fx');
+  let h = '';
+  (SCENE_FX[name] || []).forEach(k => {
+    if(k === 'flicker') h += '<div class="flicker"></div>';
+    if(k === 'glint') h += '<div class="glint"></div>';
+    if(k === 'sparks') for(let i=0;i<26;i++){
+      h += `<div class="spark" style="left:${(Math.random()*100).toFixed(1)}%;--dx:${(Math.random()*120-60).toFixed(0)}px;animation-duration:${(5+Math.random()*6).toFixed(1)}s;animation-delay:${(-Math.random()*10).toFixed(1)}s"></div>`;
+    }
+    if(k === 'gulls') for(let i=0;i<3;i++){
+      h += `<div class="gull" style="top:${(6+Math.random()*22).toFixed(0)}%;animation-duration:${(22+Math.random()*16).toFixed(0)}s;animation-delay:${(-Math.random()*30).toFixed(0)}s">
+        <svg viewBox="0 0 34 12" width="${24+i*6}"><path d="M1 8 Q9 0 17 8 Q25 0 33 8" fill="none" stroke="#2a2a2a" stroke-width="2.4" stroke-linecap="round"/></svg></div>`;
+    }
+  });
+  box.style.transition = 'opacity .4s'; box.style.opacity = 0;
+  setTimeout(() => { box.innerHTML = h; box.style.opacity = 1; }, 400);
+}
+/* Список файлов игры — заполняется автоматически (build.py), чтобы не перебирать расширения по сети */
+const FILES = /*FILES*/{"img": {"chest": "jpg", "columbus-face": "jpg", "columbus": "png", "eclipse": "jpg", "fog": "jpg", "hero-face": "jpg", "hero": "png", "hispaniola": "jpg", "island": "jpg", "map": "jpg", "ocean-day": "jpg", "ocean-night": "jpg", "palos": "jpg", "port-dawn": "jpg", "port-day": "jpg", "port-night": "jpg", "sailor-face": "jpg", "sailor": "png", "sebastian-face": "jpg", "sebastian": "png", "sunset-port": "jpg", "taino-village": "jpg", "tavern": "jpg"}, "vid": ["chest", "eclipse", "fog", "hispaniola", "island", "ocean-day", "ocean-night", "palos", "port-day", "port-night", "sunset-port", "taino-village", "tavern"], "snd": ["chest", "eclipse", "fog", "hispaniola", "island", "ocean-day", "ocean-night", "palos", "port-day", "port-night", "sunset-port", "taino-village", "tavern"]}/*/FILES*/;
+function findImg(file){
+  if(FILES.img){
+    if(imgCache[file] !== undefined) return imgCache[file];
+    const ext = FILES.img[file];
+    return imgCache[file] = Promise.resolve(ext ? `img/${file}.${ext}` : null);
+  }
+  if(imgCache[file] !== undefined) return imgCache[file];
+  imgCache[file] = new Promise(res => {
+    const exts = ['jpg','jpeg','png','webp'];
+    (function tryNext(i){
+      if(i >= exts.length) return res(null);
+      const url = `img/${file}.${exts[i]}`, im = new Image();
+      im.onload = () => res(url); im.onerror = () => tryNext(i+1); im.src = url;
+    })(0);
+  });
+  return imgCache[file];
+}
+/* Подписи сцен для показа перед текстом */
+const SCENE_PLACE = {
+  'port-night':'Тортуга, 1650 год', 'tavern':'Таверна «Старый якорь»', 'chest':'Сундук картографа',
+  'port-dawn':'Тортуга, рассвет', 'port-day':'Порт Тортуга', 'fog':'Сквозь время…',
+  'palos':'Палос, Испания · 2 августа 1492', 'ocean-day':'Атлантический океан', 'ocean-night':'Ночь на 12 октября 1492',
+  'island':'Остров Гуанахани · 12 октября 1492', 'sunset-port':'Возвращение в Тортугу',
+  'taino-village':'Деревня таино', 'hispaniola':'Эспаньола · декабрь 1492', 'eclipse':'Ямайка · 29 февраля 1504'
+};
+/* Какую часть кадра держать в центре на вертикальном экране (0% — левый край, 100% — правый) */
+const SCENE_FOCUS = {'port-day':'32%','port-night':'38%','tavern':'50%','chest':'34%','fog':'50%','palos':'45%',
+  'ocean-day':'40%','ocean-night':'55%','island':'50%','sunset-port':'78%','port-dawn':'72%','map':'50%',
+  'taino-village':'45%','hispaniola':'72%','eclipse':'55%'};
+const cineSeen = new Set();
+let cineTimer = 0, cineOn = false;
+function startCine(name){
+  const sec = innerWidth <= 900 ? 3.5 : 2.5;
+  document.querySelector('#cineCap .place').textContent = SCENE_PLACE[name] || '';
+  document.documentElement.style.setProperty('--cine', sec + 's');
+  const bar = document.querySelector('#cineCap .bar i'); bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = '';
+  document.body.classList.add('cine'); cineOn = true;
+  clearTimeout(cineTimer); cineTimer = setTimeout(endCine, sec * 1000);
+}
+function endCine(){
+  if(!cineOn) return;
+  cineOn = false; clearTimeout(cineTimer);
+  document.body.classList.remove('cine');
+  app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter');
+  setTimeout(fitPortraits, 650);
+}
+document.getElementById('cineTap').addEventListener('click', e => {
+  e.stopPropagation();
+  if(cineOn) endCine(); else document.body.classList.remove('peek');
+});
+document.getElementById('eyeBtn').onclick = e => { e.stopPropagation(); if(cineOn) endCine(); document.body.classList.toggle('peek'); };
+function showScene(name, opts){
+  const m = SCENE_IMG[name];
+  if(!m){ setScene(name); return; }
+  if(imgScene !== name){
+    document.documentElement.style.setProperty('--fx', SCENE_FOCUS[name] || '50%');
+    const hasVid = FILES.vid ? FILES.vid.includes(m.file) : false;
+    if(hasVid && !(opts && opts.cine === false) && !cineSeen.has(name) && SCENE_PLACE[name]){ cineSeen.add(name); startCine(name); }
+    else if(cineOn) endCine();
+  }
+  document.body.classList.remove('peek');
+  imgScene = name;
+  setAmbience(name);
+  const chain = [m.file, ...(SCENE_ALT[name] || []), 'port-night', 'port-day', 'tavern', 'map'];
+  (async () => { for(const f of chain){ const u = await findImg(f); if(u) return u; } return null; })().then(url => {
+    if(imgScene !== name) return;
+    if(!url){ setScene(m.fb); document.body.classList.remove('has-img'); return; }
+    setScene(m.fb);
+    document.body.classList.add('has-img');
+    const L = document.querySelectorAll('#scenebg .simg');
+    if(L[imgLayer].dataset.url === url && L[imgLayer].classList.contains('on')) return;
+    const cur = document.getElementById('curtain');
+    cur.classList.add('dark');
+    imgLayer = 1 - imgLayer;
+    const NL = L[imgLayer], OL = L[1-imgLayer];
+    NL.classList.remove('cam-arrive','cam-sea','cam-kb'); NL.style.transform = '';
+    void NL.offsetWidth;
+    NL.classList.add('pre', SCENE_CAM[name] || 'cam-kb');
+    setFx(name);
+    NL.style.backgroundImage = `url("${url}")`; NL.dataset.url = url;
+    NL.innerHTML = '';
+    findVid(m.file).then(v => {
+      if(!v || imgScene !== name || NL.dataset.url !== url) return;
+      startVideoLoop(NL, v, m.file, () => imgScene === name && NL.dataset.url === url);
+    });
+    setTimeout(() => {
+      NL.classList.add('on'); OL.classList.remove('on');
+      requestAnimationFrame(() => NL.classList.remove('pre'));
+      cur.classList.remove('dark');
+    }, 280);
+  });
+}
+function initBg(){
+  const st = document.getElementById('stars');
+  let s = '';
+  for(let i=0;i<70;i++){
+    const x = Math.random()*1600, y = Math.random()*520, r = Math.random()*1.6+.6;
+    s += `<circle class="star" cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${r.toFixed(1)}" style="animation-delay:${(-Math.random()*3).toFixed(2)}s;animation-duration:${(2+Math.random()*3).toFixed(1)}s"/>`;
+  }
+  st.innerHTML = s;
+  [['w1',630,12],['w2',705,10],['w3',795,8]].forEach(([id,y,a]) => {
+    let d = `M-200 ${y}`;
+    for(let x=-200; x<3400; x+=200) d += ` Q${x+50} ${y-a} ${x+100} ${y} T${x+200} ${y}`;
+    d += ' L3400 900 L-200 900 Z';
+    document.getElementById(id).setAttribute('d', d);
+  });
+  drawBgShip();
+}
+function drawBgShip(c){
+  const color = c || (state.player ? state.player.color : SAILS[0].c);
+  document.getElementById('shipbody').innerHTML = `<g transform="translate(-120,-182) scale(2.2)">${shipPaths(color)}</g>`;
+}
+function setScene(name){
+  const s = SCENES[name] || SCENES['day-sea'];
+  if(name !== curScene){
+    curScene = name;
+    const bl = document.body.classList;
+    [...bl].forEach(c => { if(c.startsWith('sky-') || (c.startsWith('has-') && c !== 'has-img')) bl.remove(c); });
+    bl.add('sky-' + s.sky, ...s.f.map(x => 'has-' + x));
+    const [x,y,k] = s.ship;
+    document.getElementById('shipmove').style.transform = `translate(${x}px,${y}px) scale(${k})`;
+    if(s.sun) document.getElementById('sun').style.transform = `translate(${s.sun[0]}px,${s.sun[1]}px)`;
+  }
+  drawBgShip();
+}
+
+/* ===================== ЭКРАНЫ ===================== */
+function restartGame(){
+  if(!confirm('Начать игру сначала? Прогресс, золото и судовой журнал будут стёрты.')) return;
+  const snd = state.sound;
+  try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+  state = newState(); state.sound = snd; save(); start(); goTop();
+}
+document.addEventListener('click', e => { if(e.target.closest('#restartBtn')) restartGame(); });
+
+/* ===================== ЗВУК ===================== */
+/* Фоновые звуки: положите файлы в папку snd рядом с игрой (.mp3, .ogg, .wav, .m4a) */
+/* У каждой сцены свой звук — дорожка из её видео. Если файла нет, звучит синтезированное море */
+const SCENE_SND = {
+  'port-night':'port-night', 'tavern':'tavern', 'chest':'chest', 'port-dawn':'port-day', 'port-day':'port-day',
+  'fog':'fog', 'palos':'port-day', 'ocean-day':'ocean-day', 'ocean-night':'ocean-night', 'island':'island',
+  'sunset-port':'sunset-port', 'map':'cabin', 'cabin':'cabin',
+  'palos':'palos', 'taino-village':'taino-village', 'hispaniola':'hispaniola', 'eclipse':'eclipse'
+};
+/* Пока файла нет, море и волшебный гул генерируются прямо в браузере */
+const SYNTH_FOR = {'ocean-night':'sea','island':'sea','port-day':'sea','port-night':'sea','ocean-day':'sea','sunset-port':'sea','fog':'magic'};
+const AMB_VOL = 0.45;
+const SND = {ctx:null, want:null, playing:null, el:null, synth:null, unlocked:false, cache:{}};
+function sndOn(){ return state.sound !== false; }
+function actx(){
+  if(!SND.ctx){ const C = window.AudioContext || window.webkitAudioContext; if(!C) return null; SND.ctx = new C(); }
+  if(SND.ctx.state === 'suspended') SND.ctx.resume();
+  return SND.ctx;
+}
+function findSnd(file){
+  if(FILES.snd){ if(SND.cache[file] === undefined) SND.cache[file] = Promise.resolve(FILES.snd.includes(file) ? `snd/${file}.mp3` : null); return SND.cache[file]; }
+  if(SND.cache[file] !== undefined) return SND.cache[file];
+  SND.cache[file] = new Promise(res => {
+    const exts = ['mp3','ogg','wav','m4a'];
+    (function tryNext(i){
+      if(i >= exts.length) return res(null);
+      const a = new Audio(); let done = false;
+      const ok = () => { if(done) return; done = true; res(`snd/${file}.${exts[i]}`); };
+      const bad = () => { if(done) return; done = true; tryNext(i+1); };
+      a.addEventListener('loadedmetadata', ok, {once:true});
+      a.addEventListener('error', bad, {once:true});
+      setTimeout(bad, 2500);
+      a.preload = 'metadata'; a.src = `snd/${file}.${exts[i]}`;
+    })(0);
+  });
+  return SND.cache[file];
+}
+function fadeEl(el, to, ms, after){
+  const from = el.volume, t0 = performance.now();
+  (function step(t){
+    const k = Math.min(1, Math.max(0, (t - t0) / ms));
+    el.volume = Math.max(0, Math.min(1, from + (to - from) * k));
+    if(k < 1) requestAnimationFrame(step); else if(after) after();
+  })(t0);
+}
+/* Бесшовный повтор: два плеера по очереди, конец одного растворяется в начало другого */
+function audioLoop(url){
+  const XF = 1.6;
+  const mk = () => { const a = new Audio(url); a.volume = 0; a.preload = 'auto'; return a; };
+  const A = mk(), B = mk();
+  let cur = A, other = B, swapping = false, dead = false;
+  const tick = () => {
+    if(dead || swapping || !cur.duration || cur.currentTime < cur.duration - XF - .1) return;
+    swapping = true;
+    const nxt = other, prev = cur;
+    nxt.currentTime = 0; nxt.volume = 0;
+    nxt.play().then(() => {
+      fadeEl(nxt, AMB_VOL, XF * 1000);
+      fadeEl(prev, 0, XF * 1000, () => { prev.pause(); cur = nxt; other = prev; swapping = false; });
+    }).catch(() => { swapping = false; });
+  };
+  A.addEventListener('timeupdate', tick); B.addEventListener('timeupdate', tick);
+  A.play().then(() => fadeEl(A, AMB_VOL, 1800)).catch(() => {});
+  return { stop(ms){ dead = true; [A,B].forEach(a => { if(!a.paused) fadeEl(a, 0, ms, () => a.pause()); }); } };
+}
+function stopSynth(){
+  const s = SND.synth; SND.synth = null;
+  if(!s || !SND.ctx) return;
+  const c = SND.ctx;
+  s.out.gain.cancelScheduledValues(c.currentTime);
+  s.out.gain.setTargetAtTime(0, c.currentTime, .5);
+  setTimeout(() => s.nodes.forEach(n => { try{ n.stop(); }catch(e){} }), 2500);
+}
+function startSynth(kind){
+  const c = actx(); if(!c) return;
+  const out = c.createGain(); out.gain.value = 0; out.connect(c.destination);
+  const nodes = [];
+  if(kind === 'sea'){
+    const len = c.sampleRate * 4, buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    let last = 0; for(let i=0;i<len;i++){ const w = Math.random()*2-1; last = (last + .02*w)/1.02; d[i] = last*3.5; }
+    const src = c.createBufferSource(); src.buffer = buf; src.loop = true;
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 650;
+    const swell = c.createGain(); swell.gain.value = .55;
+    const lfo = c.createOscillator(); lfo.frequency.value = .11;
+    const lfoG = c.createGain(); lfoG.gain.value = .45;
+    lfo.connect(lfoG); lfoG.connect(swell.gain);
+    src.connect(lp); lp.connect(swell); swell.connect(out);
+    src.start(); lfo.start(); nodes.push(src, lfo);
+    out.gain.setTargetAtTime(.5, c.currentTime, .8);
+  } else if(kind === 'magic'){
+    [196, 246.9, 293.7, 392].forEach((f,i) => {
+      const o = c.createOscillator(); o.type = 'sine'; o.frequency.value = f; o.detune.value = (i%2 ? 7 : -7);
+      const g = c.createGain(); g.gain.value = .05;
+      const l = c.createOscillator(); l.frequency.value = .15 + i*.07;
+      const lg = c.createGain(); lg.gain.value = .035; l.connect(lg); lg.connect(g.gain);
+      o.connect(g); g.connect(out); o.start(); l.start(); nodes.push(o, l);
+    });
+    out.gain.setTargetAtTime(.6, c.currentTime, 1);
+  }
+  SND.synth = {kind, out, nodes};
+}
+function setAmbience(scene){
+  SND.want = SCENE_SND[scene] || null;
+  applyAmbience();
+}
+function applyAmbience(){
+  const want = sndOn() && SND.unlocked ? SND.want : null;
+  if(want === SND.playing) return;
+  SND.playing = want;
+  if(SND.el){ const old = SND.el; SND.el = null; old.stop(1500); }
+  stopSynth();
+  if(!want) return;
+  findSnd(want).then(url => {
+    if(SND.playing !== want) return;
+    if(url){ SND.el = audioLoop(url); }
+    else if(SYNTH_FOR[want]){ startSynth(SYNTH_FOR[want]); }
+  });
+}
+function sfx(kind){
+  if(!sndOn() || !SND.unlocked) return;
+  const c = actx(); if(!c) return;
+  const t = c.currentTime;
+  const tone = (f, at, dur, type, vol) => {
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t+at); g.gain.linearRampToValueAtTime(vol || .18, t+at+.015);
+    g.gain.exponentialRampToValueAtTime(.0001, t+at+dur);
+    o.connect(g); g.connect(c.destination); o.start(t+at); o.stop(t+at+dur+.05);
+  };
+  if(kind === 'click') tone(880, 0, .06, 'triangle', .05);
+  if(kind === 'ok'){ tone(784,0,.35); tone(988,.09,.35); tone(1175,.18,.5); }
+  if(kind === 'bad'){ tone(220,0,.35,'triangle',.2); tone(174,.14,.45,'triangle',.18); }
+  if(kind === 'coin'){ tone(1568,0,.12,'square',.05); tone(2093,.07,.25,'square',.05); }
+  if(kind === 'fanfare'){ [523,659,784,1047].forEach((f,i) => tone(f, i*.12, .5, 'triangle', .14)); tone(1047,.5,.9,'sine',.12); }
+}
+function drawSndBtn(){ document.getElementById('sndBtn').textContent = sndOn() ? '🔊' : '🔇'; }
+document.getElementById('sndBtn').onclick = e => {
+  e.stopPropagation();
+  state.sound = !sndOn(); save(); drawSndBtn();
+  SND.unlocked = true; actx(); applyAmbience();
+};
+/* Браузер разрешает звук только после первого нажатия — включаем его по первому клику */
+document.addEventListener('click', e => {
+  if(!SND.unlocked){ SND.unlocked = true; actx(); applyAmbience(); }
+  if(e.target.closest('.btn,.chip,.mrow,.sw')) sfx('click');
+});
+/* Анимация появления карточек при каждой смене экрана */
+/* На телефоне герои стоят под карточкой и занимают только свободное место; если места нет — прячутся */
+function fitPortraits(){
+  const root = document.documentElement;
+  if(innerWidth > 900 || innerHeight <= 520){ document.body.classList.remove('noport'); return; }
+  let bottom = 0;
+  [...app.children].forEach(el => { if(!el.classList.contains('foot')) bottom = Math.max(bottom, el.getBoundingClientRect().bottom); });
+  const avail = innerHeight - bottom - 6;
+  if(avail < 170){ document.body.classList.add('noport'); }
+  else { document.body.classList.remove('noport'); root.style.setProperty('--ph', Math.round(Math.min(avail, innerHeight * .6)) + 'px'); }
+}
+let fitT = 0;
+const fitSoon = () => { cancelAnimationFrame(fitT); fitT = requestAnimationFrame(fitPortraits); };
+new ResizeObserver(fitSoon).observe(app);
+addEventListener('resize', fitSoon); addEventListener('scroll', fitSoon, {passive:true});
+setInterval(() => { if(innerWidth <= 900) fitPortraits(); }, 400); /* подстраховка: текст в карточке может меняться без смены экрана */
+if(matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches || navigator.standalone) document.body.classList.add('standalone');
+new MutationObserver(() => { app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter'); setTimeout(fitPortraits, 650); })
+  .observe(app, {childList:true});
+
+function canFS(){ const d = document.documentElement; return !!(d.requestFullscreen || d.webkitRequestFullscreen); }
+function isFS(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function enterFS(){
+  const d = document.documentElement;
+  try{
+    const p = (d.requestFullscreen || d.webkitRequestFullscreen).call(d, {navigationUI:'hide'});
+    if(p && p.then) p.then(lockLand).catch(() => {}); else lockLand();
+  }catch(e){}
+}
+/* Телефон: игра идёт в горизонтальном положении */
+const IS_PHONE = Math.min(screen.width, screen.height) < 600 && matchMedia('(pointer:coarse)').matches;
+function lockLand(){ if(IS_PHONE && screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {}); }
+if(IS_PHONE) document.body.classList.add('phone');
+document.getElementById('rotSkip').onclick = e => { e.stopPropagation(); document.body.classList.add('rotok'); };
+function toggleFS(){
+  if(isFS()){ (document.exitFullscreen || document.webkitExitFullscreen).call(document); } else enterFS();
+}
+document.getElementById('fsBtn').onclick = e => { e.stopPropagation(); toggleFS(); };
+if(!canFS()) document.getElementById('fsBtn').style.display = 'none';
+
+/* ===== Установка как приложение (PWA) ===== */
+let installEvt = null;
+const isStandalone = () => matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); installEvt = e;
+  const b = document.getElementById('instBtn'); if(b) b.style.display = '';
+});
+window.addEventListener('appinstalled', () => { installEvt = null; const w = document.getElementById('instWrap'); if(w) w.remove(); });
+function installHtml(){
+  if(isStandalone() || location.protocol === 'file:') return '';
+  if(isIOS) return `<div id="instWrap" class="small-note" style="margin-top:10px">Чтобы установить игру на iPhone: кнопка «Поделиться» → «На экран Домой».</div>`;
+  return `<div id="instWrap"><button class="btn ghost" id="instBtn" style="${installEvt ? '' : 'display:none'}">📲 Установить на устройство</button></div>`;
+}
+function bindInstall(){
+  const b = document.getElementById('instBtn'); if(!b) return;
+  b.onclick = async () => {
+    if(!installEvt) return;
+    installEvt.prompt();
+    const r = await installEvt.userChoice;
+    installEvt = null;
+    if(r.outcome === 'accepted'){ const w = document.getElementById('instWrap'); if(w) w.remove(); }
+  };
+}
+if('serviceWorker' in navigator && location.protocol !== 'file:'){
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+
+function renderTitle(){
+  showScene('port-night', {cine:false});
+  setCast(null, 'hero', null); /* слева в этой сцене костёр — ставим героиню к причалу справа */
+  const has = state.introSeen;
+  const who = state.player ? `, капитан ${esc(state.player.name)}` : '';
+  app.innerHTML = `<div class="card title-card">
+    <h1>Атлас пропавшего картографа</h1>
+    <div class="sub">Приключение юнги из Тортуги</div>
+    <button class="btn" id="go">${has ? 'Продолжить' + who : 'Начать приключение'}</button>
+    ${has ? '<button class="btn ghost" id="newg">Новая игра</button>' : ''}
+    ${installHtml()}
+    <div class="small-note">Игра откроется во весь экран. Включите звук на устройстве.</div>
+    <div class="small-note" style="opacity:.55;margin-top:6px">версия ${GAME_VERSION}</div>
+  </div>`;
+  document.getElementById('go').onclick = () => { if(canFS()) enterFS(); goTop(); begin(); };
+  const ng = document.getElementById('newg'); if(ng) ng.onclick = () => { if(canFS()) enterFS(); restartGame(); };
+  bindInstall();
+}
+function begin(){
+  if(!state.introSeen) return renderIntro(0);
+  if(!state.player) return renderRegister();
+  renderHub();
+}
+const GAME_VERSION = '1.7';
+let titled = false;
+function start(){
+  drawSndBtn();
+  if(!curScene) initBg();
+  if(!titled){ titled = true; return renderTitle(); }
+  if(!state.introSeen) return renderIntro(0);
+  if(!state.player) return renderRegister();
+  renderHub();
+}
+
+function renderIntro(i){
+  const last = i === INTRO.length-1;
+  showScene(i === 0 ? 'port-night' : (i === 1 ? 'tavern' : 'chest'));
+  const CAST = [[null,'hero','R'], ['hero','sebastian','R'], ['hero','sebastian',null], ['hero','sebastian','R']];
+  setCast(...CAST[i]);
+  app.innerHTML = `<div class="card story">
+    ${i===0 ? '<h1 class="center">Атлас пропавшего картографа</h1>' : ''}
+    ${i>0 ? speakerHtml(INTRO_WHO[i]) : ''}
+    ${paras(INTRO[i])}
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <span class="muted">${i+1} / ${INTRO.length}</span>
+      <button class="btn" id="next">${last ? 'Открыть судовой журнал' : 'Дальше'}</button>
+    </div></div>`;
+  fillAvatars();
+  document.getElementById('next').onclick = () => {
+    if(last){ state.introSeen = true; save(); renderRegister(); } else renderIntro(i+1);
+    goTop();
+  };
+}
+
+function renderRegister(){
+  let color = SAILS[0].c;
+  showScene('port-dawn'); drawBgShip(color); setSpeaker('sebastian');
+  app.innerHTML = `<div class="card">
+    <h2>Судовой журнал</h2>
+    ${speakerHtml('sebastian')}
+    <p class="muted">Себастьян протягивает перо: «Каждый капитан записывает своё имя и имя своего корабля».</p>
+    <label for="nm">Имя капитана</label>
+    <input type="text" id="nm" maxlength="30" autocomplete="off" placeholder="Как тебя зовут?">
+    <label for="sh">Название корабля</label>
+    <input type="text" id="sh" maxlength="30" autocomplete="off" placeholder="Придумай или выбери ниже">
+    <div class="chips">${SHIP_IDEAS.map(s => `<button class="chip" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+    <label>Цвет парусов</label>
+    <div class="row" style="align-items:center;margin-top:4px">
+      <div class="swatches">${SAILS.map((s,k) => `<div class="sw${k===0?' sel':''}" data-c="${s.c}" title="${s.n}" style="background:${s.c}"></div>`).join('')}</div>
+      <div id="prev">${shipSvg(color,64)}</div>
+    </div>
+    <div class="row"><button class="btn wide" id="go" disabled>Поднять паруса!</button></div>
+  </div>`;
+  fillAvatars();
+  const nm = document.getElementById('nm'), sh = document.getElementById('sh'), go = document.getElementById('go');
+  const check = () => { go.disabled = !(nm.value.trim() && sh.value.trim()); };
+  nm.oninput = check; sh.oninput = check;
+  app.querySelectorAll('.chip').forEach(b => b.onclick = () => { sh.value = b.dataset.s; check(); });
+  app.querySelectorAll('.sw').forEach(s => s.onclick = () => {
+    app.querySelectorAll('.sw').forEach(x => x.classList.remove('sel'));
+    s.classList.add('sel'); color = s.dataset.c;
+    document.getElementById('prev').innerHTML = shipSvg(color,64); drawBgShip(color);
+  });
+  go.onclick = () => {
+    state.player = {name:nm.value.trim(), ship:sh.value.trim(), color};
+    save(); renderHub(); goTop();
+  };
+}
+
+function renderHub(){
+  const tasksTotal = allTasks().length;
+  showScene('port-day');
+  setSpeaker(null);
+  app.innerHTML = `${topbar()}
+    <div class="card">
+      <h2>Атлас мира</h2>
+      <div class="mapbox" id="hubmap"><p class="muted center" style="padding:30px">Разворачиваем атлас…</p></div>
+      <p class="muted" style="margin-top:8px;font-size:15px">${state.revealed.length ? `Открыто земель: ${state.revealed.length}. Отвечай верно, и туман будет рассеиваться дальше.` : 'Атлас пока скрыт туманом. Каждый верный ответ откроет на нём новые земли.'}</p>
+    </div>
+    <div class="card">
+      <h2>Плавания</h2>
+      ${CHAPTERS.map((c,k) => {
+        const cs = state.ch[c.id];
+        if(!c.ready) return `<div class="chapter locked"><div class="num">${k+1}</div><div class="info"><div class="t">${c.title}</div><div class="s">${c.sub} · скоро</div></div></div>`;
+        const done = cs && cs.done;
+        const inProg = cs && !cs.done && cs.idx > 0;
+        const label = done ? 'Пройти ещё раз' : (inProg ? 'Продолжить' : 'Отплыть');
+        return `<div class="chapter"><div class="num">${k+1}</div><div class="info"><div class="t">${c.title}</div>
+          <div class="s">${c.sub}</div>${done ? `<div class="badge">✓ Пройдено: ${score(c)} из ${c.steps.filter(s=>s.type!=='story').length}</div>` : ''}</div>
+          <button class="btn small" data-ch="${c.id}">${label}</button></div>`;
+      }).join('')}
+    </div>
+    <div class="row"><button class="btn ghost wide" id="jr" style="color:var(--parch);border-color:var(--parch)">Судовой журнал · ${state.journal.length} из ${tasksTotal}</button></div>
+    <div class="foot"><button class="linkbtn" id="reset">Начать игру заново</button></div>`;
+  app.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => startChapter(b.dataset.ch));
+  document.getElementById('jr').onclick = () => { renderJournal(); goTop(); };
+  document.getElementById('reset').onclick = restartGame;
+  worldReady.then(drawHubMap);
+}
+
+function score(c){ const cs = state.ch[c.id]; if(!cs) return 0; return Object.values(cs.best || cs.answers || {}).filter(v => v === true).length; }
+
+function drawHubMap(){
+  const box = document.getElementById('hubmap'); if(!box) return;
+  if(!world){ box.innerHTML = '<p class="muted center" style="padding:30px">Для карты нужен интернет. Задания без карты работают и так.</p>'; return; }
+  const w = box.clientWidth, h = Math.round(w*0.56);
+  const rev = new Set(state.revealed);
+  const fresh = new Set(state.newRev || []);
+  const found = world.filter(f => rev.has(+f.id));
+  let proj;
+  if(found.length){
+    /* приближаем атлас к открытым землям, оставляя вокруг «туман» неизвестного мира */
+    const b = d3.geoBounds({type:'FeatureCollection', features:found.concat([{type:'Feature',geometry:{type:'Point',coordinates:TORTUGA}}])});
+    const pad = 14;
+    const bb = [[Math.max(-180, b[0][0]-pad), Math.max(-70, b[0][1]-pad)], [Math.min(180, b[1][0]+pad), Math.min(80, b[1][1]+pad)]];
+    proj = d3.geoMercator().fitExtent([[6,6],[w-6,h-6]], {type:'MultiPoint', coordinates:bb}).clipExtent([[0,0],[w,h]]);
+  } else {
+    proj = d3.geoNaturalEarth1().fitExtent([[4,4],[w-4,h-4]], {type:'Sphere'});
+  }
+  const path = d3.geoPath(proj);
+  const svg = d3.select(box).html('').append('svg').attr('width',w).attr('height',h).style('cursor','default');
+  svg.append('rect').attr('class','sea').attr('width',w).attr('height',h);
+  svg.append('path').datum(d3.geoGraticule10()).attr('class','grat').attr('d',path);
+  svg.selectAll('.land').data(world).join('path')
+    .attr('class', d => 'land ' + (fresh.has(+d.id) ? 'newrev' : (rev.has(+d.id) ? 'revealed' : 'fog'))).attr('d',path);
+  if(fresh.size){
+    setTimeout(() => { svg.selectAll('.land.newrev').classed('go', true); sfx('coin'); }, 700);
+    state.newRev = []; save();
+  }
+  CHAPTERS.forEach(c => {
+    if(c.route && state.ch[c.id] && state.ch[c.id].done){
+      svg.append('path').datum({type:'LineString', coordinates:c.route}).attr('class','route').attr('d',path);
+    }
+  });
+  const [x,y] = proj(TORTUGA);
+  svg.append('g').attr('transform', `translate(${x-17},${y-22}) scale(.26)`).html(shipPaths(state.player.color));
+}
+
+function startChapter(id){
+  const cs = state.ch[id];
+  if(cs && cs.done){ state.ch[id] = {idx:0, answers:{}, done:true, replay:true, best:cs.best || cs.answers}; }
+  else if(!cs){ state.ch[id] = {idx:0, answers:{}, done:false}; }
+  save(); renderChapter(id); goTop();
+}
+
+function renderChapter(id){
+  const c = CHAPTERS.find(x => x.id === id), cs = state.ch[id];
+  const tasks = c.steps.filter(s => s.type !== 'story');
+  if(cs.idx >= c.steps.length) return finishChapter(c);
+  const step = c.steps[cs.idx];
+  let sc = 'ocean-day'; for(let k=cs.idx;k>=0;k--){ if(c.steps[k].scene){ sc = c.steps[k].scene; break; } }
+  showScene(sc);
+  if(sc === 'island') replayHold();
+  if(step.who) setSpeaker(step.who); else setCast('hero', null, 'L');
+  const doneCount = c.steps.slice(0, cs.idx).filter(s => s.type !== 'story').length;
+  const bar = `<div class="progress"><div style="width:${Math.round(doneCount/tasks.length*100)}%"></div></div>`;
+  if(step.type === 'story'){
+    app.innerHTML = `${topbar()}${bar}<div class="card story">${speakerHtml(step.who)}${paras(step.text)}
+      <div class="row"><button class="btn" id="next">Дальше</button></div></div>`;
+    fillAvatars();
+    document.getElementById('next').onclick = () => { cs.idx++; save(); renderChapter(id); goTop(); };
+    return;
+  }
+  cur = {hint:false, chapter:id};
+  const num = tasks.indexOf(step) + 1;
+  app.innerHTML = `${topbar()}${bar}<div class="card">
+    ${speakerHtml(step.who)}
+    <div class="tasknum">Задание ${num} из ${tasks.length}</div>
+    <div class="q">${fill(step.q)}</div>
+    <div id="hintbox"><button class="btn ghost small" id="hintBtn">Спросить штурмана</button>
+      <span class="muted" style="font-size:14px"> подсказка уменьшит награду до 5 золотых</span></div>
+    <div id="body" style="margin-top:12px"></div>
+    <div id="feedback"></div></div>
+    <div class="foot"><button class="linkbtn" id="tohub">Вернуться в порт (прогресс сохранится)</button></div>`;
+  fillAvatars();
+  document.getElementById('hintBtn').onclick = () => {
+    cur.hint = true; setSpeaker('sebastian');
+    document.getElementById('hintbox').innerHTML = `<div class="hint">Себастьян: «${step.hint}»</div>`;
+  };
+  document.getElementById('tohub').onclick = () => { renderHub(); goTop(); };
+  const body = document.getElementById('body');
+  ({choice:renderChoice, map:renderMapTask, order:renderOrder, match:renderMatch})[step.type](step, body);
+}
+
+function answer(task, ok, rightText){
+  const cs = state.ch[cur.chapter];
+  const first = !(task.id in cs.answers);
+  let reward = 0, newCard = false;
+  if(first){
+    cs.answers[task.id] = ok;
+    if(ok === true && !cs.replay){ reward = cur.hint ? 5 : 10; state.gold += reward; }
+    if(reward) setTimeout(() => sfx('coin'), 450);
+    if(task.card && !state.journal.includes(task.id)){ state.journal.push(task.id); newCard = true; }
+    if(ok === true && task.rv) revealIds(task.rv.ids);
+    save();
+  }
+  const hb = document.getElementById('hintbox'); if(hb && !cur.hint) hb.innerHTML = '';
+  sfx(ok === true ? 'ok' : (ok === false ? 'bad' : 'click'));
+  const cls = ok === true ? 'ok' : (ok === false ? 'bad' : 'neutral');
+  const title = ok === true ? 'Верно!' : (ok === false ? 'Не совсем…' : 'Вот что важно знать');
+  document.getElementById('feedback').innerHTML = `<div class="fb ${cls}">
+    <h3>${title}</h3>
+    ${ok === false && rightText ? `<p><b>Правильный ответ:</b> ${rightText}</p>` : ''}
+    ${ok === true && task.rv && task.rv.bbox ? '<div class="mapbox revealbox" id="rvmap"><span class="rv-cap">Атлас оживает</span></div>' : ''}
+    ${task.exp.map(t => `<p>${t}</p>`).join('')}
+    ${reward ? `<p class="reward">+${reward} золотых</p>` : ''}
+    ${newCard ? `<p class="newcard">В журнал добавлена карточка «${task.card.title}»</p>` : ''}
+    <button class="btn" id="cont">Дальше</button></div>`;
+  document.getElementById('cont').onclick = () => { cs.idx++; save(); renderChapter(cur.chapter); goTop(); };
+  document.getElementById('feedback').scrollIntoView({behavior:'smooth', block:'start'});
+  if(ok === true && task.rv && task.rv.bbox) worldReady.then(() => drawReveal(task.rv));
+}
+
+/* ===================== ОТКРЫТИЕ НОВЫХ ЗЕМЕЛЬ ===================== */
+function revealIds(ids){
+  state.newRev = state.newRev || [];
+  (ids || []).forEach(id => {
+    if(!state.revealed.includes(id)){ state.revealed.push(id); state.newRev.push(id); }
+  });
+}
+function drawReveal(rv){
+  const box = document.getElementById('rvmap'); if(!box) return;
+  if(!world){ box.remove(); return; }
+  const w = box.clientWidth, h = Math.round(w * 0.5);
+  const proj = d3.geoMercator().fitExtent([[12,12],[w-12,h-12]], {type:'MultiPoint', coordinates:rv.bbox}).clipExtent([[0,0],[w,h]]);
+  const path = d3.geoPath(proj);
+  const svg = d3.select(box).append('svg').attr('width', w).attr('height', h);
+  svg.append('path').datum(d3.geoGraticule().step([5,5])()).attr('class','grat').attr('d', path);
+  svg.selectAll('.rv-land').data(world).join('path').attr('class','rv-land').attr('d', path);
+  const ids = (rv.hl || []).concat(rv.ids || []);
+  const hits = svg.selectAll('.rv-hit').data(world.filter(f => ids.includes(+f.id))).join('path').attr('class','rv-hit').attr('d', path);
+  hits.each(function(){
+    const L = this.getTotalLength ? this.getTotalLength() : 0;
+    d3.select(this).attr('stroke-dasharray', L).attr('stroke-dashoffset', L)
+      .transition().duration(1600).ease(d3.easeCubicInOut).attr('stroke-dashoffset', 0)
+      .on('end', function(){ d3.select(this).attr('stroke-dasharray', null).classed('filled', true); });
+  });
+  let delay = ids.length ? 1300 : 200;
+  if(rv.circle){
+    const c = d3.geoCircle().center([rv.circle[0], rv.circle[1]]).radius(rv.circle[2])();
+    const cp = svg.append('path').datum(c).attr('class','rv-circle').attr('d', path).style('opacity', 0);
+    setTimeout(() => { cp.transition().duration(900).style('opacity', 1).on('end', () => cp.classed('filled', true)); }, 200);
+    delay = 1000;
+  }
+  if(rv.route){
+    const rp = svg.append('path').datum({type:'LineString', coordinates:rv.route}).attr('class','rv-route').attr('d', path);
+    const L = rp.node().getTotalLength();
+    rp.attr('stroke-dasharray', `${L} ${L}`).attr('stroke-dashoffset', L)
+      .transition().duration(2600).ease(d3.easeCubicInOut).attr('stroke-dashoffset', 0)
+      .on('end', () => rp.attr('stroke-dasharray', '7 5'));
+    delay = 2300;
+  }
+  if(rv.at){
+    const [x, y] = proj(rv.at);
+    setTimeout(() => {
+      if(!rv.route && !rv.circle){
+        svg.append('circle').attr('class','rv-pulse').attr('cx', x).attr('cy', y).attr('r', 6);
+        svg.append('circle').attr('class','rv-dot').attr('cx', x).attr('cy', y).attr('r', 5);
+      }
+      const anchor = x > w * .7 ? 'end' : (x < w * .3 ? 'start' : 'middle');
+      const t = svg.append('text').attr('class','rv-label').attr('x', x + (anchor === 'start' ? 10 : anchor === 'end' ? -10 : 0))
+        .attr('y', y - 12).attr('text-anchor', anchor).text(rv.label);
+      requestAnimationFrame(() => t.classed('on', true));
+      sfx('coin');
+    }, delay);
+  }
+}
+
+/* ---------- Типы заданий ---------- */
+function renderChoice(task, body){
+  const order = task.noShuffle ? task.opts.map((_,i) => i) : shuffle(task.opts.map((_,i) => i));
+  body.innerHTML = order.map(i => `<button class="opt" data-i="${i}">${esc(task.opts[i])}</button>`).join('');
+  body.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i, ok = i === task.ans;
+    body.querySelectorAll('.opt').forEach(x => { x.disabled = true; if(+x.dataset.i === task.ans) x.classList.add('right'); });
+    if(!ok) b.classList.add('wrong');
+    answer(task, ok, esc(task.opts[task.ans]));
+  });
+}
+
+function renderOrder(task, body){
+  const items = shuffle(task.items.map((t,i) => ({t,i})));
+  let seq = [], locked = false;
+  function draw(result){
+    body.innerHTML = `<div>${task.items.map((_,k) => {
+        const it = seq[k];
+        const cls = result ? (it && it.i === k ? ' ok' : ' no') : '';
+        return `<div class="slot${cls}">${k+1}. ${it ? esc(it.t) : '<span class="muted">…</span>'}</div>`;
+      }).join('')}</div>
+      ${locked ? '' : `<p class="muted" style="font-size:15px;margin:10px 0 4px">Нажимай события по порядку:</p>
+      <div class="chips">${items.filter(x => !seq.includes(x)).map(x => `<button class="chip" data-i="${x.i}">${esc(x.t)}</button>`).join('')}</div>
+      <div class="row"><button class="btn ghost small" id="ores">Сбросить</button>
+      <button class="btn small" id="ochk" ${seq.length < items.length ? 'disabled' : ''}>Проверить</button></div>`}`;
+    if(locked) return;
+    body.querySelectorAll('.chip').forEach(b => b.onclick = () => { seq.push(items.find(x => x.i === +b.dataset.i)); draw(); });
+    document.getElementById('ores').onclick = () => { seq = []; draw(); };
+    document.getElementById('ochk').onclick = () => {
+      locked = true;
+      const ok = seq.every((it,k) => it.i === k);
+      draw(true);
+      answer(task, ok, task.items.map(esc).join(' → '));
+    };
+  }
+  draw();
+}
+
+function renderMatch(task, body){
+  const P = task.pairs, right = shuffle(P.map((_,j) => j));
+  let sel = 0, asg = {}, locked = false;
+  function draw(result){
+    body.innerHTML = P.map((p,i) => {
+      const cls = result ? (asg[i] === i ? ' ok' : ' no') : (sel === i && !locked ? ' sel' : '');
+      return `<button class="mrow${cls}" data-l="${i}"><b>${esc(p[0])}</b><span>${asg[i] != null ? esc(P[asg[i]][1]) : '— выбери вариант ниже —'}</span></button>`;
+    }).join('') + (locked ? '' : `<div class="chips">${right.map(j => `<button class="chip${Object.values(asg).includes(j) ? ' used' : ''}" data-r="${j}">${esc(P[j][1])}</button>`).join('')}</div>
+      <div class="row"><button class="btn small" id="mchk" ${Object.keys(asg).length < P.length ? 'disabled' : ''}>Проверить</button></div>`);
+    if(locked) return;
+    body.querySelectorAll('.mrow').forEach(b => b.onclick = () => { sel = +b.dataset.l; draw(); });
+    body.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+      const j = +b.dataset.r;
+      Object.keys(asg).forEach(k => { if(asg[k] === j) delete asg[k]; });
+      asg[sel] = j;
+      const nxt = P.findIndex((_,i) => asg[i] == null);
+      if(nxt >= 0) sel = nxt;
+      draw();
+    });
+    document.getElementById('mchk').onclick = () => {
+      locked = true;
+      const ok = P.every((_,i) => asg[i] === i);
+      draw(true);
+      answer(task, ok, P.map(p => `${esc(p[0])} — ${esc(p[1])}`).join('; '));
+    };
+  }
+  draw();
+}
+
+function renderMapTask(task, body){
+  body.innerHTML = '<p class="muted">Загружаем карту…</p>';
+  worldReady.then(() => {
+    if(!world){
+      body.innerHTML = `<p class="muted">Карта не загрузилась — для неё нужен интернет.</p><button class="btn small" id="skip">Пропустить задание</button>`;
+      document.getElementById('skip').onclick = () => { document.getElementById('skip').disabled = true; answer(task, null, ''); };
+      return;
+    }
+    body.innerHTML = `<div class="mapbox" id="tmap"></div>
+      <p class="muted" style="font-size:15px;margin:8px 0 0">Нажми на карту, чтобы поставить отметку, затем подтверди.</p>
+      <div class="row"><button class="btn small" id="mok" disabled>Подтвердить</button></div>`;
+    const box = document.getElementById('tmap');
+    const w = box.clientWidth, h = Math.round(w*0.72);
+    const proj = d3.geoMercator().fitExtent([[10,10],[w-10,h-10]], {type:'MultiPoint', coordinates:task.bbox}).clipExtent([[0,0],[w,h]]);
+    const path = d3.geoPath(proj);
+    const svg = d3.select(box).append('svg').attr('width',w).attr('height',h);
+    svg.append('rect').attr('class','sea').attr('width',w).attr('height',h);
+    svg.append('path').datum(d3.geoGraticule().step([5,5])()).attr('class','grat').attr('d',path);
+    svg.selectAll('.land').data(world).join('path').attr('class','land plain').attr('d',path);
+    (task.labels || []).forEach(([lon,lat,t]) => { const [x,y] = proj([lon,lat]); svg.append('text').attr('class','maplabel').attr('x',x).attr('y',y).attr('text-anchor','middle').text(t); });
+    const mk = svg.append('g').style('display','none');
+    mk.append('circle').attr('r',9).attr('fill','none').attr('stroke','#9c4a24').attr('stroke-width',2.5);
+    mk.append('circle').attr('r',3).attr('fill','#9c4a24');
+    let pick = null, done = false;
+    svg.on('click', ev => {
+      if(done) return;
+      const [x,y] = d3.pointer(ev);
+      pick = proj.invert([x,y]);
+      mk.style('display',null).attr('transform', `translate(${x},${y})`);
+      document.getElementById('mok').disabled = false;
+    });
+    document.getElementById('mok').onclick = () => {
+      if(!pick || done) return;
+      done = true; document.getElementById('mok').disabled = true;
+      const km = d3.geoDistance(pick, task.target) * 6371;
+      let ok = km <= task.tol;
+      if(!ok && task.country){ const f = world.find(f => +f.id === task.country); if(f && d3.geoContains(f, pick)) ok = true; }
+      const [tx,ty] = proj(task.target), [px,py] = proj(pick);
+      if(!ok) svg.append('line').attr('x1',px).attr('y1',py).attr('x2',tx).attr('y2',ty).attr('stroke','#a23b2f').attr('stroke-width',1.5).attr('stroke-dasharray','4 3');
+      svg.append('circle').attr('cx',tx).attr('cy',ty).attr('r',7).attr('fill', '#2f7a4a').attr('stroke','#fff').attr('stroke-width',2);
+      svg.append('text').attr('x',tx+10).attr('y',ty-8).attr('font-weight','700').attr('font-size',14).attr('fill','#1d4d2f').text(task.targetLabel);
+      answer(task, ok, `зелёная точка на карте — ${esc(task.targetLabel)}${ok ? '' : ` (твоя отметка в ${Math.round(km)} км от неё)`}`);
+    };
+  });
+}
+
+function finishChapter(c){
+  showScene('sunset-port');
+  setCast('hero', 'sebastian', 'L');
+  setTimeout(() => sfx('fanfare'), 300);
+  const cs = state.ch[c.id];
+  const tasks = c.steps.filter(s => s.type !== 'story');
+  const right = Object.values(cs.answers).filter(v => v === true).length;
+  let bonus = 0;
+  if(!cs.done){
+    cs.done = true; bonus = 20; state.gold += bonus;
+    revealIds(c.reveal);
+  }
+  if(cs.replay){
+    const prevBest = cs.best ? Object.values(cs.best).filter(v => v === true).length : 0;
+    if(right > prevBest) cs.best = Object.assign({}, cs.answers);
+  } else { cs.best = Object.assign({}, cs.answers); }
+  save();
+  app.innerHTML = `${topbar()}<div class="card story">
+    <h2>Глава пройдена!</h2>
+    ${speakerHtml('hero')}
+    ${paras(c.outro)}
+    <p><b>Верных ответов: ${right} из ${tasks.length}</b>${bonus ? ` · <span style="color:var(--gold);font-weight:700">+${bonus} золотых за плавание</span>` : ''}</p>
+    <div class="row"><button class="btn" id="hub">Открыть атлас</button></div></div>`;
+  fillAvatars();
+  document.getElementById('hub').onclick = () => { renderHub(); goTop(); };
+}
+
+function renderJournal(){
+  const all = allTasks().filter(t => t.card);
+  showScene('map');
+  setSpeaker(null);
+  app.innerHTML = `${topbar()}<div class="card">
+    <h2>Судовой журнал</h2>
+    <p class="muted">Собрано карточек: ${state.journal.length} из ${all.length}</p>
+    <div class="jgrid">${all.map(t => state.journal.includes(t.id)
+      ? `<div class="jcard"><h3>${t.card.title}</h3><p>${t.card.text}</p></div>`
+      : `<div class="jcard locked">Ещё не открыто</div>`).join('')}</div>
+    <div class="row"><button class="btn" id="back">Назад в порт</button></div></div>`;
+  document.getElementById('back').onclick = () => { renderHub(); goTop(); };
+}
+
+start();
+</script>
+</body>
+</html>
