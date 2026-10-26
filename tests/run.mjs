@@ -180,7 +180,9 @@ for (const key of BY_ENGINE[ENGINE]) {
       await ctx.setOffline(false);
     }
   } catch (e) {
-    fail('сбой проверки', String(e.message || e).split('\n')[0]);
+    const lines = String(e.message || e).split('\n');
+    const why = lines.filter(l => /intercepts pointer|not visible|outside of the viewport|not stable|waiting for/.test(l)).slice(-2).map(l => l.trim()).join(' / ');
+    fail('сбой проверки', lines[0] + (why ? ' — ' + why : ''));
     await shot('Момент сбоя');
   }
   if (jsErrors.length) fail('1 открывается', 'ошибки в коде: ' + [...new Set(jsErrors)].slice(0, 3).join(' | ')); else ok('1 открывается');
