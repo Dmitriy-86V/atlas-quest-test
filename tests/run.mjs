@@ -126,7 +126,11 @@ for (const key of BY_ENGINE[ENGINE]) {
       const label = st.type === 'story' ? 'сюжет' : `задание ${n + 1}`;
       let media = vid ? 'видео' : 'картинка';
       if (wantVid && !vid) fail('4 глава', `${label} (${scene}): видео есть в папке, но не показано`);
-      if (vid && vid.err) fail('4 глава', `${label} (${scene}): ошибка воспроизведения видео (${vid.err})`);
+      if (vid && vid.err) {
+        /* Тестовая сборка Firefox не умеет H.264 (обычный Firefox на Windows/Android умеет) — это ограничение теста */
+        if (ENGINE === 'firefox' && vid.err === 4) { if (!res.warnings.some(w => w.startsWith('видео'))) res.warnings.push('видео H.264 не поддерживается тестовой сборкой Firefox — игра показывает картинки сцен (обычный Firefox видео показывает)'); }
+        else fail('4 глава', `${label} (${scene}): ошибка воспроизведения видео (${vid.err})`);
+      }
       if (ENGINE === 'chrome' && vid && !vid.err && vid.t < 0.2) {
         await page.waitForTimeout(1200);
         const t2 = await page.evaluate(() => { const v = document.querySelector('.simg.on .svid'); return v ? v.currentTime : 0; });
@@ -143,6 +147,7 @@ for (const key of BY_ENGINE[ENGINE]) {
         else {
           const xy = await page.evaluate(t => { const s = document.querySelector('#tmap svg'); const w = +s.getAttribute('width'), h = +s.getAttribute('height');
             return d3.geoMercator().fitExtent([[10, 10], [w - 10, h - 10]], { type: 'MultiPoint', coordinates: t.bbox })(t.target); }, st);
+          await page.locator('#tmap svg').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
           const box = await page.locator('#tmap svg').boundingBox();
           await page.mouse.click(box.x + xy[0], box.y + xy[1]); await page.click('#mok');
         }
