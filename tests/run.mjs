@@ -21,6 +21,9 @@ const PROFILES = {
   'tablet-landscape':  { w: 1280, h: 800,  mobile: true,  name: 'Планшет горизонтально' },
   'laptop':            { w: 1366, h: 768,  mobile: false, name: 'Ноутбук' },
   'monitor':           { w: 1920, h: 1080, mobile: false, name: 'Большой монитор' },
+  /* Chrome, который представляется Mi Браузером: проверяем защиту игры (картинки вместо видео + подсказка) */
+  'mi-browser':        { w: 915,  h: 412,  mobile: true,  name: 'Mi Браузер (защита), телефон горизонтально',
+    ua: 'Mozilla/5.0 (Linux; U; Android 14; ru-ru; 23090RA98G Build/UP1A.231005.007) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/122.0.6261.119 Mobile Safari/537.36 XiaoMi/MiuiBrowser/14.36.0-gn', mi: true },
 };
 const BY_ENGINE = {
   chrome:  Object.keys(PROFILES),
@@ -62,6 +65,7 @@ for (const key of BY_ENGINE[ENGINE]) {
   const ok = check => { if (res.checks[check] !== 'fail') res.checks[check] = 'ok'; };
   const ctxOpts = { viewport: { width: P.w, height: P.h }, deviceScaleFactor: 1 };
   if (P.mobile && ENGINE !== 'firefox') Object.assign(ctxOpts, { isMobile: true, hasTouch: true, screen: { width: Math.min(P.w, P.h), height: Math.max(P.w, P.h) } });
+  if (P.ua) ctxOpts.userAgent = P.ua;
   const ctx = await browser.newContext(ctxOpts);
   const page = await ctx.newPage();
   const jsErrors = [], missing = [];
@@ -90,6 +94,11 @@ for (const key of BY_ENGINE[ENGINE]) {
     else if (rotVisible) fail('6 поверните телефон', 'подсказка появилась там, где не нужна');
     else ok('6 поверните телефон');
 
+    // Mi Браузер: игра должна узнать его и показать подсказку «Открыть в Chrome»
+    if (P.mi) {
+      const hint = await page.locator('.mi-hint a').count();
+      if (hint) ok('9 mi-браузер'); else fail('9 mi-браузер', 'нет подсказки «Открыть в Chrome»');
+    }
     // 3. Титульный экран
     if (await page.locator('.title-card h1').isVisible()) ok('3 экраны'); else fail('3 экраны', 'нет титульного экрана');
     await overlap('титульный экран'); await shot('Титульный экран');
@@ -121,7 +130,8 @@ for (const key of BY_ENGINE[ENGINE]) {
       await page.waitForTimeout(900);
       const scene = await page.evaluate(() => imgScene);
       const sceneFile = await page.evaluate(s => (SCENE_IMG[s] || {}).file, scene);
-      const wantVid = FILES.vid.includes(sceneFile);
+      const wantVid = !P.mi && FILES.vid.includes(sceneFile);
+      if (P.mi) { const anyVid = await page.locator('.svid').count(); if (anyVid) fail('9 mi-браузер', `${st.type === 'story' ? 'сюжет' : 'задание ' + (n + 1)}: в Mi Браузере появилось видео`); else ok('9 mi-браузер'); }
       const vid = await page.evaluate(() => { const v = document.querySelector('.simg.on .svid'); return v ? { t: v.currentTime, err: v.error ? v.error.code : 0 } : null; });
       const label = st.type === 'story' ? 'сюжет' : `задание ${n + 1}`;
       let media = vid ? 'видео' : 'картинка';

@@ -1,6 +1,6 @@
 /* Офлайн-режим игры: файлы сохраняются на устройстве после первого открытия.
    При выходе новой версии поменяйте VERSION — старый кэш удалится. */
-const VERSION = 'atlas-v6';
+const VERSION = 'atlas-v7';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 /* картинки и звуки скачиваются сразу, чтобы игра работала без интернета (видео — нет, они тяжёлые) */
 const ASSETS = ["./img/chest.jpg", "./img/columbus-face.jpg", "./img/columbus.png", "./img/eclipse.jpg", "./img/fog.jpg", "./img/hero-face.jpg", "./img/hero.png", "./img/hispaniola.jpg", "./img/island.jpg", "./img/map.jpg", "./img/ocean-day.jpg", "./img/ocean-night.jpg", "./img/palos.jpg", "./img/port-dawn.jpg", "./img/port-day.jpg", "./img/port-night.jpg", "./img/sailor-face.jpg", "./img/sailor.png", "./img/sebastian-face.jpg", "./img/sebastian.png", "./img/sunset-port.jpg", "./img/taino-village.jpg", "./img/tavern.jpg", "./snd/chest.mp3", "./snd/eclipse.mp3", "./snd/fog.mp3", "./snd/hispaniola.mp3", "./snd/island.mp3", "./snd/ocean-day.mp3", "./snd/ocean-night.mp3", "./snd/palos.mp3", "./snd/port-day.mp3", "./snd/port-night.mp3", "./snd/sunset-port.mp3", "./snd/taino-village.mp3", "./snd/tavern.mp3"];

@@ -174,7 +174,8 @@ body.standalone #fsBtn{display:none!important}
   #pR{right:44vw!important;left:auto!important;object-position:bottom center!important}
   body.noport .portrait.on{opacity:1!important}
   .portrait.dim{opacity:1!important;filter:brightness(.55) saturate(.7)!important}
-  #app{width:44vw!important;max-width:none!important;margin:0 0 0 auto!important;padding:8px 10px 24px 6px!important}
+  #app{width:44vw!important;max-width:none!important;margin:0!important;padding:8px 10px 24px 6px!important;
+    position:fixed!important;top:0;right:0;bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
   body{font-size:15px}
   .card{padding:12px 14px!important;margin-bottom:10px;border-radius:12px}
   h2{font-size:20px} h3{font-size:17px}
@@ -271,6 +272,8 @@ body.standalone #eyeBtn{right:64px}
 .svid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease}
 .svid.hold{animation:holdZoom 40s ease-out forwards}
 @keyframes holdZoom{from{transform:scale(1)}to{transform:scale(1.08) translate(-1%,-1%)}}
+.mi-hint{margin:12px 0 4px;padding:10px;border-radius:10px;background:#fff3d6;border:1px solid var(--gold);font-size:14px;color:var(--ink2)}
+.mi-hint .btn{display:inline-block;margin-top:8px;text-decoration:none;min-width:0}
 /* мини-карта открытия */
 .revealbox{margin:12px 0 14px;position:relative}
 .revealbox .rv-cap{position:absolute;left:10px;top:8px;font-family:'Philosopher',serif;font-weight:700;color:#6b3a1a;font-size:14px;letter-spacing:.04em;text-transform:uppercase;opacity:.8}
@@ -714,7 +717,9 @@ function topbar(){
     <button class="restart" id="restartBtn" title="Начать игру сначала">⟲<span class="rtxt"> Сначала</span></button></div>`;
 }
 function allTasks(){ const r=[]; CHAPTERS.forEach(c => (c.steps||[]).forEach(s => { if(s.type!=='story') r.push(s); })); return r; }
-function goTop(){ window.scrollTo(0,0); }
+function goTop(){ window.scrollTo(0,0); if(app) app.scrollTop = 0; }
+/* Ссылка, открывающая эту же страницу в Chrome на Android */
+function chromeLink(){ return 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end'; }
 
 /* ===================== ЖИВОЙ ФОН ===================== */
 const SCENES = {
@@ -875,7 +880,11 @@ function startVideoLoop(layer, src, key, alive){
   A.addEventListener('playing', onPlaying, {once:true});
   A.play().catch(() => {});
 }
+/* Mi Браузер (Xiaomi) показывает видео своим плеером поверх всей страницы и прячет игру.
+   В нём игра работает без видео — с картинками сцен — и предлагает открыть себя в Chrome. */
+const IS_MI_BROWSER = /MiuiBrowser|XiaoMi\/Mi|MiBrowser|com\.mi\.globalbrowser/i.test(navigator.userAgent);
 function findVid(file){
+  if(IS_MI_BROWSER) return Promise.resolve(null);
   if(FILES.vid){ if(vidCache[file] === undefined) vidCache[file] = Promise.resolve(FILES.vid.includes(file) ? `img/${file}.mp4` : null); return vidCache[file]; }
   if(vidCache[file] !== undefined) return vidCache[file];
   vidCache[file] = new Promise(res => {
@@ -1277,6 +1286,7 @@ function renderTitle(){
     <button class="btn" id="go">${has ? 'Продолжить' + who : 'Начать приключение'}</button>
     ${has ? '<button class="btn ghost" id="newg">Новая игра</button>' : ''}
     ${installHtml()}
+    ${IS_MI_BROWSER ? `<div class="mi-hint">В этом браузере видео сцен не показываются.<br><a class="btn ghost" href="${chromeLink()}">Открыть в Chrome</a></div>` : ''}
     <div class="small-note">Игра откроется во весь экран. Включите звук на устройстве.</div>
     <div class="small-note" style="opacity:.55;margin-top:6px">версия ${GAME_VERSION}</div>
   </div>`;
@@ -1289,7 +1299,7 @@ function begin(){
   if(!state.player) return renderRegister();
   renderHub();
 }
-const GAME_VERSION = '1.7';
+const GAME_VERSION = '1.8';
 let titled = false;
 function start(){
   drawSndBtn();
