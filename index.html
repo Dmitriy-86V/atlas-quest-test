@@ -810,7 +810,9 @@ function fillAvatars(){
 const imgCache = {}; let imgScene = null, imgLayer = 0;
 const vidCache = {};
 /* Точка, с которой ролик повторяется (подобрана по сходству с последними кадрами), — чтобы склейка была незаметной */
-const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2.96, 'fog':2.96, 'ocean-day':4.9, 'island':'hold', 'sunset-port':2.96,
+/* С какой секунды начинать ролик при первом показе (в начале некоторых роликов рывок камеры) */
+const VIDEO_START = {'ocean-day':0.6};
+const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2.96, 'fog':2.96, 'ocean-day':5.5, 'island':'hold', 'sunset-port':2.96,
   'palos':2.92, 'ocean-night':2.96, 'taino-village':5.0, 'hispaniola':1.96, 'eclipse':2.96};
 /* Облегчённый режим для телефонов и слабых устройств */
 const LITE = matchMedia('(max-width:900px)').matches || matchMedia('(pointer:coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4;
@@ -829,6 +831,7 @@ function startVideoLoop(layer, src, key, alive){
     layer.appendChild(v); return v;
   };
   const A = mk();
+  if(VIDEO_START[key]) A.addEventListener('loadedmetadata', () => { if(A.currentTime < VIDEO_START[key]) A.currentTime = VIDEO_START[key]; }, {once:true});
   const onPlaying = () => {
     A.style.opacity = 1;
     layer.classList.remove('cam-arrive','cam-sea','cam-kb'); layer.style.transform = 'none';
