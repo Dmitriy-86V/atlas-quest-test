@@ -106,15 +106,15 @@ input[type=text]{width:100%;font:inherit;padding:12px;border:1.5px solid var(--l
 .jcard h3{font-size:17px;margin-bottom:4px}
 .jcard p{font-size:15px;margin:0}
 .atlasfog{position:absolute;inset:0;pointer-events:none;border-radius:inherit;overflow:hidden}
-.atlasfog i{position:absolute;inset:-30%;background:
+.atlasfog i{position:absolute;inset:0;background-size:170% 170%;background-image:
   radial-gradient(closest-side at 30% 40%,rgba(255,250,238,.85),transparent),
   radial-gradient(closest-side at 70% 60%,rgba(255,250,238,.75),transparent),
   radial-gradient(closest-side at 50% 25%,rgba(240,232,212,.7),transparent),
   radial-gradient(closest-side at 20% 75%,rgba(240,232,212,.7),transparent);
-  animation:fogdrift 26s ease-in-out infinite alternate}
+  background-repeat:no-repeat;animation:fogdrift 26s ease-in-out infinite alternate}
 .atlasfog i+i{animation-duration:34s;animation-direction:alternate-reverse;opacity:.8}
 .atlasfog.edge{-webkit-mask:radial-gradient(ellipse at center,transparent 38%,#000 78%);mask:radial-gradient(ellipse at center,transparent 38%,#000 78%)}
-@keyframes fogdrift{from{transform:translate(-8%,-4%) scale(1)}to{transform:translate(8%,5%) scale(1.12)}}
+@keyframes fogdrift{from{background-position:20% 30%}to{background-position:80% 70%}}
 @media (prefers-reduced-motion:reduce){.atlasfog i{animation:none}}
 .herocard{display:flex;gap:14px;align-items:center;background:var(--paper);border:1.5px solid var(--gold);border-radius:12px;padding:12px 14px;margin:12px 0}
 .herocard img{width:72px;height:72px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--gold)}
