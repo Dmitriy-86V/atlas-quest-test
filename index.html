@@ -1158,6 +1158,10 @@ function startVideoLoop(layer, src, key, alive){
 /* Mi Браузер (Xiaomi) показывает видео своим плеером поверх всей страницы и прячет игру.
    В нём игра работает без видео — с картинками сцен — и предлагает открыть себя в Chrome. */
 const IS_MI_BROWSER = /MiuiBrowser|XiaoMi\/Mi|MiBrowser|com\.mi\.globalbrowser/i.test(navigator.userAgent);
+/* Освобождаем видеодекодер у ушедшей сцены: на iPhone их число ограничено, и после многих сцен новые ролики перестают открываться */
+function releaseVids(el){
+  el.querySelectorAll('video').forEach(v => { try{ v.pause(); v.removeAttribute('src'); v.load(); }catch(e){} v.remove(); });
+}
 function findVid(file){
   if(IS_MI_BROWSER) return Promise.resolve(null);
   if(FILES.vid){ if(vidCache[file] === undefined) vidCache[file] = Promise.resolve(FILES.vid.includes(file) ? `img/${file}.mp4` : null); return vidCache[file]; }
@@ -1288,13 +1292,14 @@ function showScene(name, opts){
     NL.classList.add('pre', SCENE_CAM[name] || 'cam-kb');
     setFx(name);
     NL.style.backgroundImage = `url("${url}")`; NL.dataset.url = url;
-    NL.innerHTML = '';
+    releaseVids(NL); NL.innerHTML = '';
     findVid(m.file).then(v => {
       if(!v || imgScene !== name || NL.dataset.url !== url) return;
       startVideoLoop(NL, v, m.file, () => imgScene === name && NL.dataset.url === url);
     });
     setTimeout(() => {
       NL.classList.add('on'); OL.classList.remove('on');
+      setTimeout(() => { if(!OL.classList.contains('on')) releaseVids(OL); }, 1500);
       requestAnimationFrame(() => NL.classList.remove('pre'));
       cur.classList.remove('dark');
     }, 280);

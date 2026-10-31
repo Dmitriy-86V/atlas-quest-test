@@ -151,7 +151,7 @@ for (const key of BY_ENGINE[ENGINE]) {
         if (t2 < 0.2) res.warnings.push(`${label} (${scene}): видео не начало играть`); else media = 'видео ▶';
       } else if (vid && vid.t >= 0.2) media = 'видео ▶';
       res.tasks.push(`${label}: ${scene} — ${media}`);
-      if (st.type === 'story') { await overlap(label); if (st.hero) await shot(`${label}: карточка «${st.hero}»`); await page.click('#next'); continue; }
+      if (st.type === 'story') { await overlap(label); if (st.hero) await shot(`${label}: карточка «${st.hero}»`); await page.locator('#next').scrollIntoViewIfNeeded(); await page.click('#next'); continue; }
       n++;
       await overlap(`${label} до ответа`);
       if (st.type === 'choice') await page.click(`.opt[data-i="${st.ans}"]`);
@@ -176,7 +176,7 @@ for (const key of BY_ENGINE[ENGINE]) {
         if (!(await page.locator('#rvmap svg').count())) fail('4 глава', `${label}: не прорисовался фрагмент карты`);
       }
       if ([1, 4, 11, 13, 18].includes(n)) { await overlap(`${label} после ответа`); await shot(`${label}: ${st.type} (после ответа)`); }
-      await page.click('#cont');
+      await page.locator('#cont').scrollIntoViewIfNeeded(); await page.click('#cont');
     }
     if (n === ch.total) ok('4 глава'); else fail('4 глава', `${PFX}пройдено заданий: ${n} из ${ch.total}`);
     await overlap(PFX + 'финал главы'); await shot(PFX + 'Финал главы');
