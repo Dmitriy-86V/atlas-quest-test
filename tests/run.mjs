@@ -99,6 +99,24 @@ for (const key of BY_ENGINE[ENGINE]) {
       const hint = await page.locator('.mi-hint a').count();
       if (hint) ok('9 mi-браузер'); else fail('9 mi-браузер', 'нет подсказки «Открыть в Chrome»');
     }
+    // Диагностика: каждый ролик по отдельности на чистой странице (только Safari, ноутбук)
+    if (ENGINE === 'webkit' && key === 'laptop') {
+      const probe = await ctx.newPage();
+      await probe.goto(BASE + 'manifest.webmanifest');
+      const vids = await page.evaluate(() => FILES.vid);
+      for (const v of vids) {
+        const r = await probe.evaluate(src => new Promise(res => {
+          const el = document.createElement('video'); el.muted = true; el.preload = 'auto';
+          const t = setTimeout(() => res('нет ответа'), 8000);
+          el.onloadeddata = () => { clearTimeout(t); res('ok'); el.removeAttribute('src'); el.load(); };
+          el.onerror = () => { clearTimeout(t); res('ошибка ' + (el.error ? el.error.code : '?')); };
+          el.src = src; document.body.appendChild(el);
+        }), BASE + 'img/' + v + '.mp4');
+        if (r !== 'ok') res.warnings.push(`проба ролика ${v}: ${r}`);
+      }
+      res.warnings.push(`проба роликов по отдельности завершена (${vids.length} шт.)`);
+      await probe.close();
+    }
     // 3. Титульный экран
     if (await page.locator('.title-card h1').isVisible()) ok('3 экраны'); else fail('3 экраны', 'нет титульного экрана');
     await overlap('титульный экран'); await shot('Титульный экран');
