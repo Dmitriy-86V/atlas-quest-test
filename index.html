@@ -1593,7 +1593,7 @@ function renderTitle(){
     ${installHtml()}
     ${IS_MI_BROWSER ? `<div class="mi-hint">В этом браузере видео сцен не показываются.<br><a class="btn ghost" href="${chromeLink()}">Открыть в Chrome</a></div>` : ''}
     <div class="small-note">Игра откроется во весь экран. Включите звук на устройстве.</div>
-    <div class="small-note" style="opacity:.55;margin-top:6px">версия ${GAME_VERSION}</div>
+    <div class="small-note" style="opacity:.55;margin-top:6px">версия ${VER_LABEL}</div>
   </div>`;
   document.getElementById('go').onclick = () => { if(canFS()) enterFS(); goTop(); begin(); };
   const ng = document.getElementById('newg'); if(ng) ng.onclick = () => { if(canFS()) enterFS(); restartGame(); };
@@ -1605,6 +1605,7 @@ function begin(){
   renderHub();
 }
 const GAME_VERSION = '1.9';
+const VER_LABEL = GAME_VERSION + (/atlas-quest-test/.test(location.pathname) ? ' · тест' : '');
 let titled = false;
 function start(){
   drawSndBtn();
@@ -1696,7 +1697,7 @@ function renderHub(){
       }).join('')}
     </div>
     <div class="row"><button class="btn ghost wide" id="jr" style="color:var(--parch);border-color:var(--parch)">Судовой журнал · ${state.journal.length} из ${tasksTotal}</button></div>
-    <div class="foot"><button class="linkbtn" id="reset">Начать игру заново</button></div>`;
+    <div class="foot"><button class="linkbtn" id="reset">Начать игру заново</button><div style="opacity:.7;margin-top:6px;font-size:14px">Версия ${VER_LABEL}</div></div>`;
   app.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => startChapter(b.dataset.ch));
   document.getElementById('jr').onclick = () => { renderJournal(); goTop(); };
   document.getElementById('reset').onclick = restartGame;
@@ -1938,9 +1939,12 @@ function renderMatch(task, body){
       const cls = result ? (asg[i] === i ? ' ok' : ' no') : (sel === i && !locked ? ' sel' : '');
       return `<button class="mrow${cls}" data-l="${i}"><b>${esc(p[0])}</b><span>${asg[i] != null ? esc(P[asg[i]][1]) : '— выбери вариант ниже —'}</span></button>`;
     }).join('') + (locked ? '' : `<div class="chips">${right.map(j => `<button class="chip${Object.values(asg).includes(j) ? ' used' : ''}" data-r="${j}">${esc(P[j][1])}</button>`).join('')}</div>
-      <div class="row"><button class="btn small" id="mchk" ${Object.keys(asg).length < P.length ? 'disabled' : ''}>Проверить</button></div>`);
+      <div class="row"><button class="btn ghost small" id="mres">Сбросить</button>
+      <button class="btn small" id="mchk" ${Object.keys(asg).length < P.length ? 'disabled' : ''}>Проверить</button></div>`);
     if(locked) return;
-    body.querySelectorAll('.mrow').forEach(b => b.onclick = () => { sel = +b.dataset.l; draw(); });
+    /* повторное нажатие на выбранную строку снимает её вариант */
+    body.querySelectorAll('.mrow').forEach(b => b.onclick = () => { const i = +b.dataset.l; if(sel === i && asg[i] != null) delete asg[i]; sel = i; draw(); });
+    document.getElementById('mres').onclick = () => { asg = {}; sel = 0; draw(); };
     body.querySelectorAll('.chip').forEach(b => b.onclick = () => {
       const j = +b.dataset.r;
       Object.keys(asg).forEach(k => { if(asg[k] === j) delete asg[k]; });
