@@ -1413,7 +1413,9 @@ function audioLoop(url){
   };
   A.addEventListener('timeupdate', tick); B.addEventListener('timeupdate', tick);
   A.play().then(() => fadeEl(A, AMB_VOL, 1800)).catch(() => {});
-  return { stop(ms){ dead = true; [A,B].forEach(a => { if(!a.paused) fadeEl(a, 0, ms, () => a.pause()); }); } };
+  /* после остановки освобождаем плееры: в Safari число одновременно открытых медиа ограничено */
+  const free = a => { try{ a.pause(); a.removeAttribute('src'); a.load(); }catch(e){} };
+  return { stop(ms){ dead = true; [A,B].forEach(a => { if(!a.paused) fadeEl(a, 0, ms, () => free(a)); else free(a); }); } };
 }
 function stopSynth(){
   const s = SND.synth; SND.synth = null;
