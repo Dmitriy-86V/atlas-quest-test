@@ -115,6 +115,16 @@ for (const key of BY_ENGINE[ENGINE]) {
         if (r !== 'ok') res.warnings.push(`проба ролика ${v}: ${r}`);
       }
       res.warnings.push(`проба роликов по отдельности завершена (${vids.length} шт.)`);
+      for (const f of (fs.existsSync('tests/probe') ? fs.readdirSync('tests/probe') : []).filter(x => x.endsWith('.mp4'))) {
+        const r = await probe.evaluate(src => new Promise(res => {
+          const el = document.createElement('video'); el.muted = true; el.preload = 'auto';
+          const t = setTimeout(() => res('нет ответа'), 8000);
+          el.onloadeddata = () => { clearTimeout(t); res('ok'); el.removeAttribute('src'); el.load(); };
+          el.onerror = () => { clearTimeout(t); res('ошибка ' + (el.error ? el.error.code : '?')); };
+          el.src = src; document.body.appendChild(el);
+        }), BASE + 'tests/probe/' + f);
+        res.warnings.push(`проба варианта ${f}: ${r}`);
+      }
       await probe.close();
     }
     // 3. Титульный экран
