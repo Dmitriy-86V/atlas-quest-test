@@ -119,21 +119,25 @@ for (const key of BY_ENGINE[ENGINE]) {
     if (await page.locator('[data-ch=c1]').isVisible()) ok('3 экраны'); else fail('3 экраны', 'порт не открылся');
     await overlap('порт'); await shot('Порт с атласом');
 
-    // 4. Глава целиком
-    await page.click('[data-ch=c1]'); await page.waitForTimeout(500);
+    // 4. Главы целиком: каждая доступная глава по очереди
+    const chs = await page.evaluate(() => CHAPTERS.filter(c => c.ready).map(c => ({ id: c.id, idx: CHAPTERS.indexOf(c), total: c.steps.filter(s => s.type !== 'story').length })));
+    for (const ch of chs) {
+    const CH = ch.id, CI = ch.idx, PFX = chs.length > 1 ? `гл.${CI + 1} ` : '';
+    await page.evaluate(() => typeof endCine === 'function' && endCine());
+    await page.click(`[data-ch=${CH}]`); await page.waitForTimeout(500);
     let n = 0, guard = 0;
-    while (guard++ < 60) {
+    while (guard++ < 80) {
       await page.waitForTimeout(250);
       if (await page.locator('h2:has-text("Глава пройдена")').count()) break;
       await page.evaluate(() => typeof endCine === 'function' && endCine());
-      const st = await page.evaluate(() => CHAPTERS[0].steps[state.ch.c1.idx]);
+      const st = await page.evaluate(([ci, id]) => CHAPTERS[ci].steps[state.ch[id].idx], [CI, CH]);
       await page.waitForTimeout(900);
       const scene = await page.evaluate(() => imgScene);
       const sceneFile = await page.evaluate(s => (SCENE_IMG[s] || {}).file, scene);
       const wantVid = !P.mi && FILES.vid.includes(sceneFile);
       if (P.mi) { const anyVid = await page.locator('.svid').count(); if (anyVid) fail('9 mi-браузер', `${st.type === 'story' ? 'сюжет' : 'задание ' + (n + 1)}: в Mi Браузере появилось видео`); else ok('9 mi-браузер'); }
       const vid = await page.evaluate(() => { const v = document.querySelector('.simg.on .svid'); return v ? { t: v.currentTime, err: v.error ? v.error.code : 0 } : null; });
-      const label = st.type === 'story' ? 'сюжет' : `задание ${n + 1}`;
+      const label = PFX + (st.type === 'story' ? 'сюжет' : `задание ${n + 1}`);
       let media = vid ? 'видео' : 'картинка';
       if (wantVid && !vid) fail('4 глава', `${label} (${scene}): видео есть в папке, но не показано`);
       if (vid && vid.err) {
@@ -147,7 +151,7 @@ for (const key of BY_ENGINE[ENGINE]) {
         if (t2 < 0.2) res.warnings.push(`${label} (${scene}): видео не начало играть`); else media = 'видео ▶';
       } else if (vid && vid.t >= 0.2) media = 'видео ▶';
       res.tasks.push(`${label}: ${scene} — ${media}`);
-      if (st.type === 'story') { await overlap(label); await page.click('#next'); continue; }
+      if (st.type === 'story') { await overlap(label); if (st.hero) await shot(`${label}: карточка «${st.hero}»`); await page.click('#next'); continue; }
       n++;
       await overlap(`${label} до ответа`);
       if (st.type === 'choice') await page.click(`.opt[data-i="${st.ans}"]`);
@@ -174,9 +178,10 @@ for (const key of BY_ENGINE[ENGINE]) {
       if ([1, 4, 11, 13, 18].includes(n)) { await overlap(`${label} после ответа`); await shot(`${label}: ${st.type} (после ответа)`); }
       await page.click('#cont');
     }
-    if (n === 20) ok('4 глава'); else fail('4 глава', `пройдено заданий: ${n} из 20`);
-    await overlap('финал главы'); await shot('Финал главы');
+    if (n === ch.total) ok('4 глава'); else fail('4 глава', `${PFX}пройдено заданий: ${n} из ${ch.total}`);
+    await overlap(PFX + 'финал главы'); await shot(PFX + 'Финал главы');
     await page.click('#hub'); await page.waitForTimeout(800);
+    }
     await page.click('#jr'); await page.waitForTimeout(600);
     if (await page.locator('.jcard').count() >= 20) ok('3 экраны'); else fail('3 экраны', 'журнал неполный');
     await overlap('судовой журнал'); await shot('Судовой журнал');
