@@ -1,0 +1,810 @@
+{
+ "engine": "webkit",
+ "profiles": [
+  {
+   "key": "iphone-portrait",
+   "name": "iPhone вертикально",
+   "checks": {
+    "1 открывается": "ok",
+    "6 поверните телефон": "ok",
+    "3 экраны": "ok",
+    "5 наложения": "ok",
+    "4 глава": "ok",
+    "сбой проверки": "fail",
+    "2 файлы": "ok"
+   },
+   "problems": [
+    "[сбой проверки] page.click: Timeout 30000ms exceeded. — -   waiting for element to be visible, enabled and stable / -   element is outside of the viewport"
+   ],
+   "warnings": [],
+   "shots": [
+    {
+     "f": "shots/iphone-portrait-01.jpg",
+     "label": "Подсказка повернуть"
+    },
+    {
+     "f": "shots/iphone-portrait-02.jpg",
+     "label": "Титульный экран"
+    },
+    {
+     "f": "shots/iphone-portrait-03.jpg",
+     "label": "Вступление: таверна"
+    },
+    {
+     "f": "shots/iphone-portrait-04.jpg",
+     "label": "Регистрация"
+    },
+    {
+     "f": "shots/iphone-portrait-05.jpg",
+     "label": "Порт с атласом"
+    },
+    {
+     "f": "shots/iphone-portrait-06.jpg",
+     "label": "гл.1 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-07.jpg",
+     "label": "гл.1 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-08.jpg",
+     "label": "гл.1 задание 11: order (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-09.jpg",
+     "label": "гл.1 задание 13: map (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-10.jpg",
+     "label": "гл.1 задание 18: match (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-11.jpg",
+     "label": "гл.1 Финал главы"
+    },
+    {
+     "f": "shots/iphone-portrait-12.jpg",
+     "label": "гл.2 сюжет: карточка «vasco»"
+    },
+    {
+     "f": "shots/iphone-portrait-13.jpg",
+     "label": "гл.2 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-14.jpg",
+     "label": "гл.2 сюжет: карточка «dias»"
+    },
+    {
+     "f": "shots/iphone-portrait-15.jpg",
+     "label": "гл.2 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-16.jpg",
+     "label": "гл.2 сюжет: карточка «alenquer»"
+    },
+    {
+     "f": "shots/iphone-portrait-17.jpg",
+     "label": "гл.2 задание 11: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-18.jpg",
+     "label": "гл.2 задание 13: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-19.jpg",
+     "label": "гл.2 задание 18: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-portrait-20.jpg",
+     "label": "гл.2 сюжет: карточка «pilot»"
+    },
+    {
+     "f": "shots/iphone-portrait-21.jpg",
+     "label": "Момент сбоя"
+    }
+   ],
+   "tasks": [
+    "гл.1 сюжет: tavern — видео ▶",
+    "гл.1 задание 1: tavern — видео ▶",
+    "гл.1 задание 2: tavern — видео ▶",
+    "гл.1 сюжет: fog — видео ▶",
+    "гл.1 задание 3: palos — видео ▶",
+    "гл.1 задание 4: palos — видео ▶",
+    "гл.1 задание 5: palos — видео ▶",
+    "гл.1 задание 6: palos — видео ▶",
+    "гл.1 задание 7: ocean-day — видео ▶",
+    "гл.1 задание 8: ocean-day — видео ▶",
+    "гл.1 задание 9: ocean-night — видео ▶",
+    "гл.1 задание 10: ocean-night — видео ▶",
+    "гл.1 задание 11: ocean-night — видео ▶",
+    "гл.1 задание 12: ocean-night — видео ▶",
+    "гл.1 задание 13: island — видео ▶",
+    "гл.1 сюжет: island — видео ▶",
+    "гл.1 задание 14: island — видео ▶",
+    "гл.1 задание 15: taino-village — видео ▶",
+    "гл.1 задание 16: taino-village — видео ▶",
+    "гл.1 задание 17: hispaniola — видео ▶",
+    "гл.1 задание 18: ocean-day — видео ▶",
+    "гл.1 задание 19: eclipse — видео ▶",
+    "гл.1 задание 20: sunset-port — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: chest — видео ▶",
+    "гл.2 сюжет: fog — видео ▶",
+    "гл.2 сюжет: palace — видео ▶",
+    "гл.2 задание 1: palace — видео ▶",
+    "гл.2 задание 2: palace — видео ▶",
+    "гл.2 сюжет: map-room — видео ▶",
+    "гл.2 задание 3: map-room — видео ▶",
+    "гл.2 задание 4: map-room — видео ▶",
+    "гл.2 сюжет: lisbon — видео ▶",
+    "гл.2 задание 5: lisbon — видео ▶",
+    "гл.2 задание 6: lisbon — видео ▶",
+    "гл.2 сюжет: cape-verde — видео ▶",
+    "гл.2 задание 7: cape-verde — видео ▶",
+    "гл.2 задание 8: cape-verde — видео ▶",
+    "гл.2 сюжет: southern-sky — видео ▶",
+    "гл.2 задание 9: southern-sky — видео ▶",
+    "гл.2 задание 10: southern-sky — видео ▶",
+    "гл.2 задание 11: southern-sky — видео ▶",
+    "гл.2 сюжет: cape-storm — видео ▶",
+    "гл.2 задание 12: cape-storm — видео ▶",
+    "гл.2 задание 13: penguin-coast — видео ▶",
+    "гл.2 сюжет: penguin-coast — видео ▶",
+    "гл.2 задание 14: penguin-coast — видео ▶",
+    "гл.2 задание 15: penguin-coast — видео ▶",
+    "гл.2 задание 16: penguin-coast — видео ▶",
+    "гл.2 задание 17: ocean-day — видео ▶",
+    "гл.2 задание 18: ocean-day — видео ▶",
+    "гл.2 сюжет: malindi — видео ▶"
+   ]
+  },
+  {
+   "key": "iphone-landscape",
+   "name": "iPhone горизонтально",
+   "checks": {
+    "1 открывается": "ok",
+    "6 поверните телефон": "ok",
+    "3 экраны": "ok",
+    "5 наложения": "ok",
+    "4 глава": "ok",
+    "2 файлы": "ok"
+   },
+   "problems": [],
+   "warnings": [],
+   "shots": [
+    {
+     "f": "shots/iphone-landscape-01.jpg",
+     "label": "Титульный экран"
+    },
+    {
+     "f": "shots/iphone-landscape-02.jpg",
+     "label": "Вступление: таверна"
+    },
+    {
+     "f": "shots/iphone-landscape-03.jpg",
+     "label": "Регистрация"
+    },
+    {
+     "f": "shots/iphone-landscape-04.jpg",
+     "label": "Порт с атласом"
+    },
+    {
+     "f": "shots/iphone-landscape-05.jpg",
+     "label": "гл.1 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-06.jpg",
+     "label": "гл.1 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-07.jpg",
+     "label": "гл.1 задание 11: order (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-08.jpg",
+     "label": "гл.1 задание 13: map (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-09.jpg",
+     "label": "гл.1 задание 18: match (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-10.jpg",
+     "label": "гл.1 Финал главы"
+    },
+    {
+     "f": "shots/iphone-landscape-11.jpg",
+     "label": "гл.2 сюжет: карточка «vasco»"
+    },
+    {
+     "f": "shots/iphone-landscape-12.jpg",
+     "label": "гл.2 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-13.jpg",
+     "label": "гл.2 сюжет: карточка «dias»"
+    },
+    {
+     "f": "shots/iphone-landscape-14.jpg",
+     "label": "гл.2 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-15.jpg",
+     "label": "гл.2 сюжет: карточка «alenquer»"
+    },
+    {
+     "f": "shots/iphone-landscape-16.jpg",
+     "label": "гл.2 задание 11: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-17.jpg",
+     "label": "гл.2 задание 13: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-18.jpg",
+     "label": "гл.2 задание 18: choice (после ответа)"
+    },
+    {
+     "f": "shots/iphone-landscape-19.jpg",
+     "label": "гл.2 сюжет: карточка «pilot»"
+    },
+    {
+     "f": "shots/iphone-landscape-20.jpg",
+     "label": "гл.2 Финал главы"
+    },
+    {
+     "f": "shots/iphone-landscape-21.jpg",
+     "label": "Судовой журнал"
+    }
+   ],
+   "tasks": [
+    "гл.1 сюжет: tavern — видео ▶",
+    "гл.1 задание 1: tavern — видео ▶",
+    "гл.1 задание 2: tavern — видео ▶",
+    "гл.1 сюжет: fog — видео ▶",
+    "гл.1 задание 3: palos — видео ▶",
+    "гл.1 задание 4: palos — видео ▶",
+    "гл.1 задание 5: palos — видео ▶",
+    "гл.1 задание 6: palos — видео ▶",
+    "гл.1 задание 7: ocean-day — видео ▶",
+    "гл.1 задание 8: ocean-day — видео ▶",
+    "гл.1 задание 9: ocean-night — видео ▶",
+    "гл.1 задание 10: ocean-night — видео ▶",
+    "гл.1 задание 11: ocean-night — видео ▶",
+    "гл.1 задание 12: ocean-night — видео ▶",
+    "гл.1 задание 13: island — видео ▶",
+    "гл.1 сюжет: island — видео ▶",
+    "гл.1 задание 14: island — видео ▶",
+    "гл.1 задание 15: taino-village — видео ▶",
+    "гл.1 задание 16: taino-village — видео ▶",
+    "гл.1 задание 17: hispaniola — видео ▶",
+    "гл.1 задание 18: ocean-day — видео ▶",
+    "гл.1 задание 19: eclipse — видео ▶",
+    "гл.1 задание 20: sunset-port — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: chest — видео ▶",
+    "гл.2 сюжет: fog — видео ▶",
+    "гл.2 сюжет: palace — видео ▶",
+    "гл.2 задание 1: palace — видео ▶",
+    "гл.2 задание 2: palace — видео ▶",
+    "гл.2 сюжет: map-room — видео ▶",
+    "гл.2 задание 3: map-room — видео ▶",
+    "гл.2 задание 4: map-room — видео ▶",
+    "гл.2 сюжет: lisbon — видео ▶",
+    "гл.2 задание 5: lisbon — видео ▶",
+    "гл.2 задание 6: lisbon — видео ▶",
+    "гл.2 сюжет: cape-verde — видео ▶",
+    "гл.2 задание 7: cape-verde — видео ▶",
+    "гл.2 задание 8: cape-verde — видео ▶",
+    "гл.2 сюжет: southern-sky — видео ▶",
+    "гл.2 задание 9: southern-sky — видео ▶",
+    "гл.2 задание 10: southern-sky — видео ▶",
+    "гл.2 задание 11: southern-sky — видео ▶",
+    "гл.2 сюжет: cape-storm — видео ▶",
+    "гл.2 задание 12: cape-storm — видео ▶",
+    "гл.2 задание 13: penguin-coast — видео ▶",
+    "гл.2 сюжет: penguin-coast — видео ▶",
+    "гл.2 задание 14: penguin-coast — видео ▶",
+    "гл.2 задание 15: penguin-coast — видео ▶",
+    "гл.2 задание 16: penguin-coast — видео ▶",
+    "гл.2 задание 17: ocean-day — видео ▶",
+    "гл.2 задание 18: ocean-day — видео ▶",
+    "гл.2 сюжет: malindi — видео ▶",
+    "гл.2 задание 19: malindi — видео ▶",
+    "гл.2 задание 20: malindi — видео ▶",
+    "гл.2 сюжет: calicut — видео ▶",
+    "гл.2 задание 21: calicut — видео ▶",
+    "гл.2 задание 22: calicut — видео ▶"
+   ]
+  },
+  {
+   "key": "tablet-portrait",
+   "name": "Планшет вертикально",
+   "checks": {
+    "1 открывается": "ok",
+    "6 поверните телефон": "ok",
+    "3 экраны": "ok",
+    "5 наложения": "ok",
+    "4 глава": "ok",
+    "2 файлы": "ok"
+   },
+   "problems": [],
+   "warnings": [],
+   "shots": [
+    {
+     "f": "shots/tablet-portrait-01.jpg",
+     "label": "Титульный экран"
+    },
+    {
+     "f": "shots/tablet-portrait-02.jpg",
+     "label": "Вступление: таверна"
+    },
+    {
+     "f": "shots/tablet-portrait-03.jpg",
+     "label": "Регистрация"
+    },
+    {
+     "f": "shots/tablet-portrait-04.jpg",
+     "label": "Порт с атласом"
+    },
+    {
+     "f": "shots/tablet-portrait-05.jpg",
+     "label": "гл.1 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-06.jpg",
+     "label": "гл.1 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-07.jpg",
+     "label": "гл.1 задание 11: order (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-08.jpg",
+     "label": "гл.1 задание 13: map (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-09.jpg",
+     "label": "гл.1 задание 18: match (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-10.jpg",
+     "label": "гл.1 Финал главы"
+    },
+    {
+     "f": "shots/tablet-portrait-11.jpg",
+     "label": "гл.2 сюжет: карточка «vasco»"
+    },
+    {
+     "f": "shots/tablet-portrait-12.jpg",
+     "label": "гл.2 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-13.jpg",
+     "label": "гл.2 сюжет: карточка «dias»"
+    },
+    {
+     "f": "shots/tablet-portrait-14.jpg",
+     "label": "гл.2 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-15.jpg",
+     "label": "гл.2 сюжет: карточка «alenquer»"
+    },
+    {
+     "f": "shots/tablet-portrait-16.jpg",
+     "label": "гл.2 задание 11: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-17.jpg",
+     "label": "гл.2 задание 13: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-18.jpg",
+     "label": "гл.2 задание 18: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-portrait-19.jpg",
+     "label": "гл.2 сюжет: карточка «pilot»"
+    },
+    {
+     "f": "shots/tablet-portrait-20.jpg",
+     "label": "гл.2 Финал главы"
+    },
+    {
+     "f": "shots/tablet-portrait-21.jpg",
+     "label": "Судовой журнал"
+    }
+   ],
+   "tasks": [
+    "гл.1 сюжет: tavern — видео ▶",
+    "гл.1 задание 1: tavern — видео ▶",
+    "гл.1 задание 2: tavern — видео ▶",
+    "гл.1 сюжет: fog — видео ▶",
+    "гл.1 задание 3: palos — видео ▶",
+    "гл.1 задание 4: palos — видео ▶",
+    "гл.1 задание 5: palos — видео ▶",
+    "гл.1 задание 6: palos — видео ▶",
+    "гл.1 задание 7: ocean-day — видео ▶",
+    "гл.1 задание 8: ocean-day — видео ▶",
+    "гл.1 задание 9: ocean-night — видео ▶",
+    "гл.1 задание 10: ocean-night — видео ▶",
+    "гл.1 задание 11: ocean-night — видео ▶",
+    "гл.1 задание 12: ocean-night — видео ▶",
+    "гл.1 задание 13: island — видео ▶",
+    "гл.1 сюжет: island — видео ▶",
+    "гл.1 задание 14: island — видео ▶",
+    "гл.1 задание 15: taino-village — видео ▶",
+    "гл.1 задание 16: taino-village — видео ▶",
+    "гл.1 задание 17: hispaniola — видео ▶",
+    "гл.1 задание 18: ocean-day — видео ▶",
+    "гл.1 задание 19: eclipse — видео ▶",
+    "гл.1 задание 20: sunset-port — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: chest — видео ▶",
+    "гл.2 сюжет: fog — видео ▶",
+    "гл.2 сюжет: palace — видео ▶",
+    "гл.2 задание 1: palace — видео ▶",
+    "гл.2 задание 2: palace — видео ▶",
+    "гл.2 сюжет: map-room — видео ▶",
+    "гл.2 задание 3: map-room — видео ▶",
+    "гл.2 задание 4: map-room — видео ▶",
+    "гл.2 сюжет: lisbon — видео ▶",
+    "гл.2 задание 5: lisbon — видео ▶",
+    "гл.2 задание 6: lisbon — видео ▶",
+    "гл.2 сюжет: cape-verde — видео ▶",
+    "гл.2 задание 7: cape-verde — видео ▶",
+    "гл.2 задание 8: cape-verde — видео ▶",
+    "гл.2 сюжет: southern-sky — видео ▶",
+    "гл.2 задание 9: southern-sky — видео ▶",
+    "гл.2 задание 10: southern-sky — видео ▶",
+    "гл.2 задание 11: southern-sky — видео ▶",
+    "гл.2 сюжет: cape-storm — видео ▶",
+    "гл.2 задание 12: cape-storm — видео ▶",
+    "гл.2 задание 13: penguin-coast — видео ▶",
+    "гл.2 сюжет: penguin-coast — видео ▶",
+    "гл.2 задание 14: penguin-coast — видео ▶",
+    "гл.2 задание 15: penguin-coast — видео ▶",
+    "гл.2 задание 16: penguin-coast — видео ▶",
+    "гл.2 задание 17: ocean-day — видео ▶",
+    "гл.2 задание 18: ocean-day — видео ▶",
+    "гл.2 сюжет: malindi — видео ▶",
+    "гл.2 задание 19: malindi — видео ▶",
+    "гл.2 задание 20: malindi — видео ▶",
+    "гл.2 сюжет: calicut — видео ▶",
+    "гл.2 задание 21: calicut — видео ▶",
+    "гл.2 задание 22: calicut — видео ▶"
+   ]
+  },
+  {
+   "key": "tablet-landscape",
+   "name": "Планшет горизонтально",
+   "checks": {
+    "1 открывается": "ok",
+    "6 поверните телефон": "ok",
+    "3 экраны": "ok",
+    "5 наложения": "ok",
+    "4 глава": "ok",
+    "2 файлы": "ok"
+   },
+   "problems": [],
+   "warnings": [],
+   "shots": [
+    {
+     "f": "shots/tablet-landscape-01.jpg",
+     "label": "Титульный экран"
+    },
+    {
+     "f": "shots/tablet-landscape-02.jpg",
+     "label": "Вступление: таверна"
+    },
+    {
+     "f": "shots/tablet-landscape-03.jpg",
+     "label": "Регистрация"
+    },
+    {
+     "f": "shots/tablet-landscape-04.jpg",
+     "label": "Порт с атласом"
+    },
+    {
+     "f": "shots/tablet-landscape-05.jpg",
+     "label": "гл.1 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-06.jpg",
+     "label": "гл.1 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-07.jpg",
+     "label": "гл.1 задание 11: order (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-08.jpg",
+     "label": "гл.1 задание 13: map (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-09.jpg",
+     "label": "гл.1 задание 18: match (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-10.jpg",
+     "label": "гл.1 Финал главы"
+    },
+    {
+     "f": "shots/tablet-landscape-11.jpg",
+     "label": "гл.2 сюжет: карточка «vasco»"
+    },
+    {
+     "f": "shots/tablet-landscape-12.jpg",
+     "label": "гл.2 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-13.jpg",
+     "label": "гл.2 сюжет: карточка «dias»"
+    },
+    {
+     "f": "shots/tablet-landscape-14.jpg",
+     "label": "гл.2 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-15.jpg",
+     "label": "гл.2 сюжет: карточка «alenquer»"
+    },
+    {
+     "f": "shots/tablet-landscape-16.jpg",
+     "label": "гл.2 задание 11: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-17.jpg",
+     "label": "гл.2 задание 13: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-18.jpg",
+     "label": "гл.2 задание 18: choice (после ответа)"
+    },
+    {
+     "f": "shots/tablet-landscape-19.jpg",
+     "label": "гл.2 сюжет: карточка «pilot»"
+    },
+    {
+     "f": "shots/tablet-landscape-20.jpg",
+     "label": "гл.2 Финал главы"
+    },
+    {
+     "f": "shots/tablet-landscape-21.jpg",
+     "label": "Судовой журнал"
+    }
+   ],
+   "tasks": [
+    "гл.1 сюжет: tavern — видео ▶",
+    "гл.1 задание 1: tavern — видео ▶",
+    "гл.1 задание 2: tavern — видео ▶",
+    "гл.1 сюжет: fog — видео ▶",
+    "гл.1 задание 3: palos — видео ▶",
+    "гл.1 задание 4: palos — видео ▶",
+    "гл.1 задание 5: palos — видео ▶",
+    "гл.1 задание 6: palos — видео ▶",
+    "гл.1 задание 7: ocean-day — видео ▶",
+    "гл.1 задание 8: ocean-day — видео ▶",
+    "гл.1 задание 9: ocean-night — видео ▶",
+    "гл.1 задание 10: ocean-night — видео ▶",
+    "гл.1 задание 11: ocean-night — видео ▶",
+    "гл.1 задание 12: ocean-night — видео ▶",
+    "гл.1 задание 13: island — видео ▶",
+    "гл.1 сюжет: island — видео ▶",
+    "гл.1 задание 14: island — видео ▶",
+    "гл.1 задание 15: taino-village — видео ▶",
+    "гл.1 задание 16: taino-village — видео ▶",
+    "гл.1 задание 17: hispaniola — видео ▶",
+    "гл.1 задание 18: ocean-day — видео ▶",
+    "гл.1 задание 19: eclipse — видео ▶",
+    "гл.1 задание 20: sunset-port — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: chest — видео ▶",
+    "гл.2 сюжет: fog — видео ▶",
+    "гл.2 сюжет: palace — видео ▶",
+    "гл.2 задание 1: palace — видео ▶",
+    "гл.2 задание 2: palace — видео ▶",
+    "гл.2 сюжет: map-room — видео ▶",
+    "гл.2 задание 3: map-room — видео ▶",
+    "гл.2 задание 4: map-room — видео ▶",
+    "гл.2 сюжет: lisbon — видео ▶",
+    "гл.2 задание 5: lisbon — видео ▶",
+    "гл.2 задание 6: lisbon — видео ▶",
+    "гл.2 сюжет: cape-verde — видео ▶",
+    "гл.2 задание 7: cape-verde — видео ▶",
+    "гл.2 задание 8: cape-verde — видео ▶",
+    "гл.2 сюжет: southern-sky — видео ▶",
+    "гл.2 задание 9: southern-sky — видео ▶",
+    "гл.2 задание 10: southern-sky — видео ▶",
+    "гл.2 задание 11: southern-sky — видео ▶",
+    "гл.2 сюжет: cape-storm — видео ▶",
+    "гл.2 задание 12: cape-storm — видео ▶",
+    "гл.2 задание 13: penguin-coast — видео ▶",
+    "гл.2 сюжет: penguin-coast — видео ▶",
+    "гл.2 задание 14: penguin-coast — видео ▶",
+    "гл.2 задание 15: penguin-coast — видео ▶",
+    "гл.2 задание 16: penguin-coast — видео ▶",
+    "гл.2 задание 17: ocean-day — видео ▶",
+    "гл.2 задание 18: ocean-day — видео ▶",
+    "гл.2 сюжет: malindi — видео ▶",
+    "гл.2 задание 19: malindi — видео ▶",
+    "гл.2 задание 20: malindi — видео ▶",
+    "гл.2 сюжет: calicut — видео ▶",
+    "гл.2 задание 21: calicut — видео ▶",
+    "гл.2 задание 22: calicut — видео ▶"
+   ]
+  },
+  {
+   "key": "laptop",
+   "name": "Ноутбук",
+   "checks": {
+    "1 открывается": "ok",
+    "6 поверните телефон": "ok",
+    "3 экраны": "ok",
+    "5 наложения": "ok",
+    "4 глава": "ok",
+    "2 файлы": "ok"
+   },
+   "problems": [],
+   "warnings": [
+    "проба роликов по отдельности завершена (22 шт.)"
+   ],
+   "shots": [
+    {
+     "f": "shots/laptop-01.jpg",
+     "label": "Титульный экран"
+    },
+    {
+     "f": "shots/laptop-02.jpg",
+     "label": "Вступление: таверна"
+    },
+    {
+     "f": "shots/laptop-03.jpg",
+     "label": "Регистрация"
+    },
+    {
+     "f": "shots/laptop-04.jpg",
+     "label": "Порт с атласом"
+    },
+    {
+     "f": "shots/laptop-05.jpg",
+     "label": "гл.1 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/laptop-06.jpg",
+     "label": "гл.1 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/laptop-07.jpg",
+     "label": "гл.1 задание 11: order (после ответа)"
+    },
+    {
+     "f": "shots/laptop-08.jpg",
+     "label": "гл.1 задание 13: map (после ответа)"
+    },
+    {
+     "f": "shots/laptop-09.jpg",
+     "label": "гл.1 задание 18: match (после ответа)"
+    },
+    {
+     "f": "shots/laptop-10.jpg",
+     "label": "гл.1 Финал главы"
+    },
+    {
+     "f": "shots/laptop-11.jpg",
+     "label": "гл.2 сюжет: карточка «vasco»"
+    },
+    {
+     "f": "shots/laptop-12.jpg",
+     "label": "гл.2 задание 1: choice (после ответа)"
+    },
+    {
+     "f": "shots/laptop-13.jpg",
+     "label": "гл.2 сюжет: карточка «dias»"
+    },
+    {
+     "f": "shots/laptop-14.jpg",
+     "label": "гл.2 задание 4: choice (после ответа)"
+    },
+    {
+     "f": "shots/laptop-15.jpg",
+     "label": "гл.2 сюжет: карточка «alenquer»"
+    },
+    {
+     "f": "shots/laptop-16.jpg",
+     "label": "гл.2 задание 11: choice (после ответа)"
+    },
+    {
+     "f": "shots/laptop-17.jpg",
+     "label": "гл.2 задание 13: choice (после ответа)"
+    },
+    {
+     "f": "shots/laptop-18.jpg",
+     "label": "гл.2 задание 18: choice (после ответа)"
+    },
+    {
+     "f": "shots/laptop-19.jpg",
+     "label": "гл.2 сюжет: карточка «pilot»"
+    },
+    {
+     "f": "shots/laptop-20.jpg",
+     "label": "гл.2 Финал главы"
+    },
+    {
+     "f": "shots/laptop-21.jpg",
+     "label": "Судовой журнал"
+    }
+   ],
+   "tasks": [
+    "гл.1 сюжет: tavern — видео ▶",
+    "гл.1 задание 1: tavern — видео ▶",
+    "гл.1 задание 2: tavern — видео ▶",
+    "гл.1 сюжет: fog — видео ▶",
+    "гл.1 задание 3: palos — видео ▶",
+    "гл.1 задание 4: palos — видео ▶",
+    "гл.1 задание 5: palos — видео ▶",
+    "гл.1 задание 6: palos — видео ▶",
+    "гл.1 задание 7: ocean-day — видео ▶",
+    "гл.1 задание 8: ocean-day — видео ▶",
+    "гл.1 задание 9: ocean-night — видео ▶",
+    "гл.1 задание 10: ocean-night — видео ▶",
+    "гл.1 задание 11: ocean-night — видео ▶",
+    "гл.1 задание 12: ocean-night — видео ▶",
+    "гл.1 задание 13: island — видео ▶",
+    "гл.1 сюжет: island — видео ▶",
+    "гл.1 задание 14: island — видео ▶",
+    "гл.1 задание 15: taino-village — видео ▶",
+    "гл.1 задание 16: taino-village — видео ▶",
+    "гл.1 задание 17: hispaniola — видео ▶",
+    "гл.1 задание 18: ocean-day — видео ▶",
+    "гл.1 задание 19: eclipse — видео ▶",
+    "гл.1 задание 20: sunset-port — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: tavern — видео ▶",
+    "гл.2 сюжет: chest — видео ▶",
+    "гл.2 сюжет: fog — видео ▶",
+    "гл.2 сюжет: palace — видео ▶",
+    "гл.2 задание 1: palace — видео ▶",
+    "гл.2 задание 2: palace — видео ▶",
+    "гл.2 сюжет: map-room — видео ▶",
+    "гл.2 задание 3: map-room — видео ▶",
+    "гл.2 задание 4: map-room — видео ▶",
+    "гл.2 сюжет: lisbon — видео ▶",
+    "гл.2 задание 5: lisbon — видео ▶",
+    "гл.2 задание 6: lisbon — видео ▶",
+    "гл.2 сюжет: cape-verde — видео ▶",
+    "гл.2 задание 7: cape-verde — видео ▶",
+    "гл.2 задание 8: cape-verde — видео ▶",
+    "гл.2 сюжет: southern-sky — видео ▶",
+    "гл.2 задание 9: southern-sky — видео ▶",
+    "гл.2 задание 10: southern-sky — видео ▶",
+    "гл.2 задание 11: southern-sky — видео ▶",
+    "гл.2 сюжет: cape-storm — видео ▶",
+    "гл.2 задание 12: cape-storm — видео ▶",
+    "гл.2 задание 13: penguin-coast — видео ▶",
+    "гл.2 сюжет: penguin-coast — видео ▶",
+    "гл.2 задание 14: penguin-coast — видео ▶",
+    "гл.2 задание 15: penguin-coast — видео ▶",
+    "гл.2 задание 16: penguin-coast — видео ▶",
+    "гл.2 задание 17: ocean-day — видео ▶",
+    "гл.2 задание 18: ocean-day — видео ▶",
+    "гл.2 сюжет: malindi — видео ▶",
+    "гл.2 задание 19: malindi — видео ▶",
+    "гл.2 задание 20: malindi — видео ▶",
+    "гл.2 сюжет: calicut — видео ▶",
+    "гл.2 задание 21: calicut — видео ▶",
+    "гл.2 задание 22: calicut — видео ▶"
+   ]
+  }
+ ]
+}
