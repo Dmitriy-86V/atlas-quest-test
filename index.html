@@ -1651,6 +1651,7 @@ function begin(){
   if(!state.introSeen) return renderIntro(0);
   if(!state.player) return renderRegister();
   renderHub();
+  showWhatsNew();
 }
 const GAME_VERSION = '1.10';
 const VER_LABEL = GAME_VERSION + (/atlas-quest-test/.test(location.pathname) ? ' · тест' : '');
@@ -1672,12 +1673,14 @@ const WHATS_NEW = {
 };
 function showWhatsNew(){
   if(!state.player || state.seenVer === GAME_VERSION) return;
+  if(cineOn || document.getElementById('whatsnew')){ setTimeout(showWhatsNew, 600); return; } /* ждём конца заставки сцены */
   const w = WHATS_NEW[GAME_VERSION];
   state.seenVer = GAME_VERSION; save();
   if(!w) return;
   const d = document.createElement('div');
   d.id = 'whatsnew';
-  d.innerHTML = `<div class="card story wn-card"><h2>${w.title}</h2>${w.text.map(t => `<p>${t}</p>`).join('')}
+  const lock = !(state.ch.c1 && state.ch.c1.done) ? '<p><i>Глава 2 откроется, когда пройдёшь главу 1.</i></p>' : '';
+  d.innerHTML = `<div class="card story wn-card"><h2>${w.title}</h2>${w.text.map(t => `<p>${t}</p>`).join('')}${lock}
     <div class="row"><button class="btn" id="wnOk">Отлично, в путь!</button></div></div>`;
   document.body.appendChild(d);
   document.getElementById('wnOk').onclick = () => d.remove();
