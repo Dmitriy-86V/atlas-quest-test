@@ -505,7 +505,9 @@ const CHAPTERS = [
     card:{title:'Наветренный пролив', text:'Пролив между Кубой и Эспаньолой: короткий путь из Атлантики в Карибское море. Тортуга совсем рядом.'}},
    {type:'story', who:'sebastian', text:['Себастьян довольно хмыкает и стучит трубкой по столу.',
      '<span class="speaker">«Вот теперь вижу: ты знаешь, где стоит твой корабль. Значит, не заблудишься и в чужих морях. Компас — твой»</span>.']},
-   {type:'story', scene:'chest', who:'sebastian', text:['Себастьян открывает потёртый сундук картографа и бережно кладёт тебе на ладонь медный компас. Стрелка не замирает на севере — она медленно поворачивается, будто ищет дорогу.',
+   {type:'story', scene:'chest-open', who:'sebastian', text:['Себастьян ставит на стол потёртый сундук картографа и поворачивает в замке старый ключ.',
+     '<span class="speaker">«Помоги-ка, юнга, крышка тяжёлая»</span>. Вы вместе поднимаете крышку — и изнутри льётся тёплый золотой свет.']},
+   {type:'story', scene:'chest', who:'sebastian', text:['В сундуке лежат огромный атлас и медный компас. Себастьян бережно кладёт компас тебе на ладонь. Стрелка не замирает на севере — она медленно поворачивается, будто ищет дорогу.',
      '<span class="speaker">«Альварес говорил: компас сам знает, куда вести. Держи его крепко — и не бойся тумана»</span>.']},
    {type:'story', scene:'fog', text:['Ты поднимаешься на борт корабля «{ship}». Стрелка вращается всё быстрее, над палубой закручивается золотой вихрь, и корабль тонет в густом тумане…']},
    {type:'story', scene:'palos', who:'sailor', text:['Туман рассеивается. Перед тобой чужой берег: белые дома, колокольня и три корабля у причала. На пристани говорят по-испански. Компас показывает дату: 2 августа 1492 года. Ты в испанском порту Палос.',
@@ -1045,6 +1047,8 @@ const SCENE_IMG = {
   'taino-village':{file:'taino-village', fb:'tropic'},
   'hispaniola':  {file:'hispaniola',  fb:'tropic'},
   'eclipse':     {file:'eclipse',     fb:'night-sea'},
+  'chest-closed':{file:'chest-closed', fb:'night-port'},
+  'chest-open':  {file:'chest-open',  fb:'night-port'},
   'palace':      {file:'palace',      fb:'day-port'},
   'map-room':    {file:'map-room',    fb:'day-port'},
   'lisbon':      {file:'lisbon',      fb:'day-port'},
@@ -1061,6 +1065,7 @@ const SCENE_ALT = {
   'chest':['tavern'], 'port-dawn':['port-day'], 'fog':['port-night'], 'palos':['port-day'],
   'ocean-day':['port-day'], 'ocean-night':['port-night'], 'island':['port-day'],
   'sunset-port':['port-night','port-day'], 'cabin':['map','tavern'], 'tavern':['port-night'],
+  'chest-closed':['tavern'], 'chest-open':['chest-closed','tavern'],
   'palace':['port-day'], 'map-room':['tavern'], 'lisbon':['palos','port-day'], 'cape-verde':['ocean-day'],
   'southern-sky':['ocean-night'], 'cape-storm':['ocean-night'], 'penguin-coast':['island','ocean-day'],
   'malindi':['island'], 'calicut':['island']
@@ -1142,11 +1147,11 @@ const vidCache = {};
 /* Точка, с которой ролик повторяется (подобрана по сходству с последними кадрами), — чтобы склейка была незаметной */
 /* С какой секунды начинать ролик при первом показе (в начале некоторых роликов рывок камеры) */
 const VIDEO_START = {'ocean-day':0.6};
-/* v1.10: ролик идёт целиком один раз, дальше повторяются последние 2 секунды «туда-обратно» (склеено в самом файле с 6-й секунды) */
-const VIDEO_LOOP = {'chest':6, 'port-day':6, 'port-night':6, 'tavern':6, 'fog':6, 'ocean-day':6, 'island':6, 'sunset-port':6,
-  'palos':6, 'ocean-night':6, 'taino-village':6, 'hispaniola':6, 'eclipse':6,
+/* Точки повтора роликов главы 1 (как в v1.8). Сюжетные ролики (island и глава 2): действие один раз, потом повтор последних секунд вперёд через растворение */
+const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2.96, 'fog':2.96, 'ocean-day':5.5, 'island':5.3, 'sunset-port':2.96,
+  'palos':2.92, 'ocean-night':2.96, 'taino-village':5.0, 'hispaniola':1.96, 'eclipse':2.96,
   /* глава 2: сюжетные ролики замирают на последнем кадре; циклы склеены заранее (конец ролика = его начало) */
-  'palace':6, 'map-room':6, 'lisbon':6, 'cape-verde':6, 'malindi':6, 'calicut':6,
+  'chest-open':5.3, 'palace':5.3, 'map-room':5.3, 'lisbon':5.3, 'cape-verde':5.3, 'malindi':5.3, 'calicut':5.3,
   'southern-sky':0, 'cape-storm':0, 'penguin-coast':0};
 /* Облегчённый режим для телефонов и слабых устройств */
 const LITE = matchMedia('(max-width:900px)').matches || matchMedia('(pointer:coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4;
@@ -1291,7 +1296,7 @@ const SCENE_PLACE = {
   'palos':'Палос, Испания · 2 августа 1492', 'ocean-day':'Атлантический океан', 'ocean-night':'Ночь на 12 октября 1492',
   'island':'Остров Гуанахани · 12 октября 1492', 'sunset-port':'Возвращение в Тортугу',
   'taino-village':'Деревня таино', 'hispaniola':'Эспаньола · декабрь 1492', 'eclipse':'Ямайка · 29 февраля 1504',
-  'palace':'Лиссабон, королевский дворец · 1497', 'map-room':'Лиссабон, мастерская картографов',
+  'chest-open':'Сундук картографа', 'palace':'Лиссабон, королевский дворец · 1497', 'map-room':'Лиссабон, мастерская картографов',
   'lisbon':'Рештелу, Лиссабон · 8 июля 1497', 'cape-verde':'Острова Зелёного Мыса · июль 1497',
   'southern-sky':'Южная Атлантика · октябрь 1497', 'cape-storm':'Мыс Доброй Надежды · 22 ноября 1497',
   'penguin-coast':'Бухта Сан-Браш · декабрь 1497', 'malindi':'Малинди, Восточная Африка · апрель 1498',
@@ -1418,7 +1423,7 @@ const SCENE_SND = {
   'fog':'fog', 'palos':'port-day', 'ocean-day':'ocean-day', 'ocean-night':'ocean-night', 'island':'island',
   'sunset-port':'sunset-port', 'map':'cabin', 'cabin':'cabin',
   'palos':'palos', 'taino-village':'island', 'hispaniola':'hispaniola', 'eclipse':'ocean-night', /* в звуке деревни и Ямайки была речь — берём чистый фон соседних сцен */
-  'palace':'palace', 'map-room':'map-room', 'lisbon':'lisbon', 'cape-verde':'cape-verde', 'southern-sky':'southern-sky',
+  'chest-closed':'tavern', 'chest-open':'tavern', 'palace':'palace', 'map-room':'map-room', 'lisbon':'lisbon', 'cape-verde':'cape-verde', 'southern-sky':'southern-sky',
   'cape-storm':'cape-storm', 'penguin-coast':'penguin-coast', 'malindi':'malindi', 'calicut':'calicut'
 };
 /* Пока файла нет, море и волшебный гул генерируются прямо в браузере */
@@ -1688,7 +1693,7 @@ function showWhatsNew(){
 
 function renderIntro(i){
   const last = i === INTRO.length-1;
-  showScene(i === 0 ? 'port-night' : 'chest');
+  showScene(i === 0 ? 'port-night' : (i === 1 ? 'chest-closed' : 'chest'));
   const CAST = [[null,'hero','R'], ['hero','sebastian','R'], ['hero','sebastian',null], ['hero','sebastian','R']];
   setCast(...CAST[i]);
   app.innerHTML = `<div class="card story">
