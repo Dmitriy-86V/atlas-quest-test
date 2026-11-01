@@ -1111,7 +1111,7 @@ let castR = null;
 function placePortrait(id, who, dim){
   const el = document.getElementById(id);
   el.dataset.want = who || '';
-  if(!who){ el.classList.remove('on'); return; }
+  if(!who){ el.classList.remove('on','dim'); return; } /* dim тоже снимаем: он делает портрет видимым */
   findImg(CHARS[who].file).then(url => {
     if(el.dataset.want !== who) return;
     if(!url){ el.classList.remove('on'); return; }
@@ -1124,8 +1124,11 @@ function placePortrait(id, who, dim){
   });
 }
 /* left/right — кто стоит слева и справа; active — кто говорит ('L', 'R' или null — оба в полном свете) */
+/* сцены, где герои уже нарисованы на картинке, — портреты по бокам не показываем */
+const NOPORT_SCENES = ['chest-closed', 'chest-open'];
 function setCast(left, right, active){
   castR = right || null;
+  if(NOPORT_SCENES.includes(imgScene)){ placePortrait('pL', null); placePortrait('pR', null); return; }
   placePortrait('pL', left, active === 'R');
   placePortrait('pR', right, active === 'L');
 }
