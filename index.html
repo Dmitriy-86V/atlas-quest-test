@@ -326,6 +326,8 @@ body.standalone #eyeBtn{right:64px}
 .simg{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;filter:blur(0) brightness(1);transition:opacity 1.4s ease, filter 1.8s ease;animation:kb 40s ease-in-out infinite alternate}
 .simg.on{opacity:1}
 .svig{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 40%,rgba(0,0,0,.45) 100%)}
+/* без наезда камеры: вся композиция в кадре */
+.simg.cam-still{inset:0;animation:none}
 @keyframes kb{from{transform:scale(1) translate(0,0)}to{transform:scale(1.07) translate(-1.5%,-1%)}}
 /* ===== Живой фон ===== */
 body{background:#0b1a2e}
@@ -476,8 +478,10 @@ const INTRO = [
   ['Порт Тортуга, 1650 год. Ночь. Над гаванью горят звёзды, в бухте покачиваются корабли, а из таверны «Старый якорь» доносятся песни моряков. Ты — юнга, и здесь тебя знает каждый моряк.'],
   ['Однажды вечером старый штурман Себастьян ставит на стол потёртый сундук.',
    '<span class="speaker">«Это вещи картографа Альвареса. Десять лет назад он ушёл в плавание и не вернулся. Перед отъездом он просил отдать сундук тому, кто по-настоящему любит море. Думаю, это ты».</span>'],
-  ['В сундуке лежит компас. Его стрелка указывает не на север, а будто куда-то в прошлое. Под ним — огромный атлас мира. Только страницы почти пусты: вместо материков и морей — туман.'],
-  ['<span class="speaker">«Альварес верил, что этот компас переносит корабль во времена великих открытий, — шепчет Себастьян. — Пройди путями мореплавателей, и атлас оживёт. А может, ты найдёшь и самого картографа».</span>']
+  ['Себастьян кладёт ладонь на тяжёлую крышку, но не спешит её открывать.',
+   'Он рассказывает, что внутри хранятся компас Альвареса и его атлас мира. Стрелка того компаса будто бы указывает не на север, а куда-то в прошлое, а на страницах атласа вместо материков и морей — туман.'],
+  ['<span class="speaker">«Альварес верил, что этот компас переносит корабль во времена великих открытий, — шепчет Себастьян. — Пройди путями мореплавателей, и атлас оживёт. А может, ты найдёшь и самого картографа».</span>',
+   '<span class="speaker">«Только открою я сундук, когда пойму, что ты по-настоящему знаешь море. Приходи в таверну — устрою тебе проверку»</span>.']
 ];
 
 const CHAPTERS = [
@@ -1173,7 +1177,7 @@ function startVideoLoop(layer, src, key, alive){
   if(VIDEO_START[key]) A.addEventListener('loadedmetadata', () => { if(A.currentTime < VIDEO_START[key]) A.currentTime = VIDEO_START[key]; }, {once:true});
   const onPlaying = () => {
     A.style.opacity = 1;
-    layer.classList.remove('cam-arrive','cam-sea','cam-kb'); layer.style.transform = 'none';
+    layer.classList.remove('cam-arrive','cam-sea','cam-kb','cam-still'); layer.style.transform = 'none';
     document.getElementById('fx').innerHTML = ''; curFx = 'video';
   };
   /* отрицательное значение — повторять только последние N секунд (ролик сначала идёт целиком) */
@@ -1244,7 +1248,7 @@ function findVid(file){
   return vidCache[file];
 }
 /* Как «двигается камера»: arrive — подплываем к порту, sea — качка на волнах, kb — медленный наезд */
-const SCENE_CAM = {'port-day':'cam-arrive','port-dawn':'cam-arrive','sunset-port':'cam-arrive','palos':'cam-arrive',
+const SCENE_CAM = {'chest-closed':'cam-still','chest-open':'cam-still','port-day':'cam-arrive','port-dawn':'cam-arrive','sunset-port':'cam-arrive','palos':'cam-arrive',
   'ocean-day':'cam-sea','ocean-night':'cam-sea','fog':'cam-sea','island':'cam-arrive','port-night':'cam-kb'};
 /* Живые эффекты поверх картинки */
 const SCENE_FX = {'tavern':['flicker'],'chest':['flicker'],'fog':['sparks'],'port-day':['gulls'],'port-dawn':['gulls'],
@@ -1296,7 +1300,7 @@ const SCENE_PLACE = {
   'palos':'Палос, Испания · 2 августа 1492', 'ocean-day':'Атлантический океан', 'ocean-night':'Ночь на 12 октября 1492',
   'island':'Остров Гуанахани · 12 октября 1492', 'sunset-port':'Возвращение в Тортугу',
   'taino-village':'Деревня таино', 'hispaniola':'Эспаньола · декабрь 1492', 'eclipse':'Ямайка · 29 февраля 1504',
-  'chest-open':'Сундук картографа', 'palace':'Лиссабон, королевский дворец · 1497', 'map-room':'Лиссабон, мастерская картографов',
+  'chest-closed':'Таверна «Старый якорь»', 'chest-open':'Сундук картографа', 'palace':'Лиссабон, королевский дворец · 1497', 'map-room':'Лиссабон, мастерская картографов',
   'lisbon':'Рештелу, Лиссабон · 8 июля 1497', 'cape-verde':'Острова Зелёного Мыса · июль 1497',
   'southern-sky':'Южная Атлантика · октябрь 1497', 'cape-storm':'Мыс Доброй Надежды · 22 ноября 1497',
   'penguin-coast':'Бухта Сан-Браш · декабрь 1497', 'malindi':'Малинди, Восточная Африка · апрель 1498',
@@ -1309,6 +1313,8 @@ const SCENE_FOCUS = {'chest-closed':'55%','chest-open':'55%','port-day':'32%','p
   'palace':'55%','map-room':'50%','lisbon':'62%','cape-verde':'40%','southern-sky':'30%','cape-storm':'30%',
   'penguin-coast':'38%','malindi':'28%','calicut':'38%'};
 const cineSeen = new Set();
+/* сцены-картинки, перед которыми тоже показываем фон пару секунд до текста */
+const CINE_IMG = ['chest-closed'];
 let cineTimer = 0, cineOn = false;
 function startCine(name){
   const sec = innerWidth <= 900 ? 3.5 : 2.5;
@@ -1336,7 +1342,7 @@ function showScene(name, opts){
   if(imgScene !== name){
     document.documentElement.style.setProperty('--fx', SCENE_FOCUS[name] || '50%');
     const hasVid = FILES.vid ? FILES.vid.includes(m.file) : false;
-    if(hasVid && !(opts && opts.cine === false) && !cineSeen.has(name) && SCENE_PLACE[name]){ cineSeen.add(name); startCine(name); }
+    if((hasVid || CINE_IMG.includes(name)) && !(opts && opts.cine === false) && !cineSeen.has(name) && SCENE_PLACE[name]){ cineSeen.add(name); startCine(name); }
     else if(cineOn) endCine();
   }
   document.body.classList.remove('peek');
@@ -1354,7 +1360,7 @@ function showScene(name, opts){
     cur.classList.add('dark');
     imgLayer = 1 - imgLayer;
     const NL = L[imgLayer], OL = L[1-imgLayer];
-    NL.classList.remove('cam-arrive','cam-sea','cam-kb'); NL.style.transform = '';
+    NL.classList.remove('cam-arrive','cam-sea','cam-kb','cam-still'); NL.style.transform = '';
     void NL.offsetWidth;
     NL.classList.add('pre', SCENE_CAM[name] || 'cam-kb');
     setFx(name);
@@ -1653,8 +1659,8 @@ function renderTitle(){
   bindInstall();
 }
 function begin(){
-  if(!state.introSeen) return renderIntro(0);
   if(!state.player) return renderRegister();
+  if(!state.introSeen) return renderIntro(0);
   renderHub();
   showWhatsNew();
 }
@@ -1665,8 +1671,8 @@ function start(){
   drawSndBtn();
   if(!curScene) initBg();
   if(!titled){ titled = true; return renderTitle(); }
-  if(!state.introSeen) return renderIntro(0);
   if(!state.player) return renderRegister();
+  if(!state.introSeen) return renderIntro(0);
   renderHub();
   showWhatsNew();
 }
@@ -1694,7 +1700,7 @@ function showWhatsNew(){
 
 function renderIntro(i){
   const last = i === INTRO.length-1;
-  showScene(i === 0 ? 'port-night' : (i === 1 ? 'chest-closed' : 'chest'));
+  showScene(i === 0 ? 'port-night' : 'chest-closed');
   const CAST = [[null,'hero','R'], ['hero','sebastian','R'], ['hero','sebastian',null], ['hero','sebastian','R']];
   setCast(...CAST[i]);
   app.innerHTML = `<div class="card story">
@@ -1703,11 +1709,11 @@ function renderIntro(i){
     ${paras(INTRO[i])}
     <div class="row" style="justify-content:space-between;align-items:center">
       <span class="muted">${i+1} / ${INTRO.length}</span>
-      <button class="btn" id="next">${last ? 'Открыть судовой журнал' : 'Дальше'}</button>
+      <button class="btn" id="next">${last ? 'Открыть атлас' : 'Дальше'}</button>
     </div></div>`;
   fillAvatars();
   document.getElementById('next').onclick = () => {
-    if(last){ state.introSeen = true; save(); renderRegister(); } else renderIntro(i+1);
+    if(last){ state.introSeen = true; save(); renderHub(); } else renderIntro(i+1);
     goTop();
   };
 }
@@ -1718,7 +1724,7 @@ function renderRegister(){
   app.innerHTML = `<div class="card">
     <h2>Судовой журнал</h2>
     ${speakerHtml('sebastian')}
-    <p class="muted">Себастьян протягивает перо: «Каждый капитан записывает своё имя и имя своего корабля».</p>
+    <p class="muted">Порт Тортуга, 1650 год. Старый штурман Себастьян раскрывает судовой журнал и протягивает перо: «Добро пожаловать на Тортугу! Каждый капитан записывает своё имя и имя своего корабля».</p>
     <label for="nm">Имя капитана</label>
     <input type="text" id="nm" maxlength="30" autocomplete="off" placeholder="Как тебя зовут?">
     <label for="sh">Название корабля</label>
@@ -1743,7 +1749,7 @@ function renderRegister(){
   });
   go.onclick = () => {
     state.player = {name:nm.value.trim(), ship:sh.value.trim(), color}; state.seenVer = GAME_VERSION;
-    save(); renderHub(); goTop();
+    save(); if(!state.introSeen) renderIntro(0); else renderHub(); goTop();
   };
 }
 
@@ -1992,7 +1998,7 @@ function renderChoice(task, body){
   body.innerHTML = order.map(i => `<button class="opt" data-i="${i}">${esc(task.opts[i])}</button>`).join('');
   body.querySelectorAll('.opt').forEach(b => b.onclick = () => {
     const i = +b.dataset.i, ok = i === task.ans;
-    body.querySelectorAll('.opt').forEach(x => { x.disabled = true; if(+x.dataset.i === task.ans) x.classList.add('right'); });
+    body.querySelectorAll('.opt').forEach(x => { x.disabled = true; if(+x.dataset.i === task.ans && (ok || !task.retry)) x.classList.add('right'); });
     if(!ok) b.classList.add('wrong');
     answer(task, ok, esc(task.opts[task.ans]));
   });
@@ -2094,6 +2100,7 @@ function renderMapTask(task, body){
       let ok = km <= task.tol;
       if(!ok && task.country){ const f = world.find(f => +f.id === task.country); if(f && d3.geoContains(f, pick)) ok = true; }
       const [tx,ty] = proj(task.target), [px,py] = proj(pick);
+      if(!ok && task.retry){ answer(task, ok, ''); return; } /* проверочный вопрос: правильное место не показываем */
       if(!ok) svg.append('line').attr('x1',px).attr('y1',py).attr('x2',tx).attr('y2',ty).attr('stroke','#a23b2f').attr('stroke-width',1.5).attr('stroke-dasharray','4 3');
       svg.append('circle').attr('cx',tx).attr('cy',ty).attr('r',7).attr('fill', '#2f7a4a').attr('stroke','#fff').attr('stroke-width',2);
       svg.append('text').attr('x',tx+10).attr('y',ty-8).attr('font-weight','700').attr('font-size',14).attr('fill','#1d4d2f').text(task.targetLabel);

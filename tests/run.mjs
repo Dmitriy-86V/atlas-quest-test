@@ -131,18 +131,19 @@ for (const key of BY_ENGINE[ENGINE]) {
     if (await page.locator('.title-card h1').isVisible()) ok('3 экраны'); else fail('3 экраны', 'нет титульного экрана');
     await overlap('титульный экран'); await shot('Титульный экран');
 
-    // Вступление
-    await page.click('#go'); await page.waitForTimeout(400);
-    for (let i = 0; i < 4; i++) {
-      await page.evaluate(() => typeof endCine === 'function' && endCine());
-      if (i === 1) { await overlap('вступление (таверна)'); await shot('Вступление: таверна'); }
-      await page.click('#next'); await page.waitForTimeout(350);
-    }
-    // Регистрация
+    // Регистрация (теперь сразу после титульного экрана)
+    await page.click('#go'); await page.waitForTimeout(600);
     await page.evaluate(() => typeof endCine === 'function' && endCine());
     await page.fill('#nm', 'Тест'); await page.fill('#sh', 'Проверка');
     await overlap('регистрация'); await shot('Регистрация');
-    await page.click('#go'); await page.waitForTimeout(1200);
+    await page.click('#go'); await page.waitForTimeout(500);
+    // Вступление
+    for (let i = 0; i < 4; i++) {
+      await page.evaluate(() => typeof endCine === 'function' && endCine());
+      if (i === 1) { await overlap('вступление (сундук)'); await shot('Вступление: сундук'); }
+      await page.click('#next'); await page.waitForTimeout(350);
+    }
+    await page.waitForTimeout(800);
     await page.evaluate(() => typeof endCine === 'function' && endCine());
     if (await page.locator('[data-ch=c1]').isVisible()) ok('3 экраны'); else fail('3 экраны', 'порт не открылся');
     await overlap('порт'); await shot('Порт с атласом');
