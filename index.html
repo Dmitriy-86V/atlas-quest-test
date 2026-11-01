@@ -116,6 +116,8 @@ input[type=text]{width:100%;font:inherit;padding:12px;border:1.5px solid var(--l
 .atlasfog.edge{-webkit-mask:radial-gradient(ellipse at center,transparent 38%,#000 78%);mask:radial-gradient(ellipse at center,transparent 38%,#000 78%)}
 @keyframes fogdrift{from{background-position:20% 30%}to{background-position:80% 70%}}
 @media (prefers-reduced-motion:reduce){.atlasfog i{animation:none}}
+#whatsnew{position:fixed;inset:0;z-index:60;background:rgba(10,20,28,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#whatsnew .wn-card{max-width:520px;width:100%;max-height:90vh;overflow:auto;margin:0}
 .herocard{display:flex;gap:14px;align-items:center;background:var(--paper);border:1.5px solid var(--gold);border-radius:12px;padding:12px 14px;margin:12px 0}
 .herocard img{width:72px;height:72px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--gold)}
 .herocard .hc-ico{width:72px;height:72px;border-radius:50%;flex:none;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:34px;background:#efe2c4}
@@ -1660,6 +1662,25 @@ function start(){
   if(!state.introSeen) return renderIntro(0);
   if(!state.player) return renderRegister();
   renderHub();
+  showWhatsNew();
+}
+/* Окно «Что нового» — один раз после обновления, только для тех, кто уже играл */
+const WHATS_NEW = {
+  '1.10': {title:'Вышло обновление!', text:['Открыта <b>глава 2 «Вокруг Африки»</b>: плавание Васко да Гамы в Индию, мыс Доброй Надежды, пингвины, муссоны и рынок пряностей в Каликуте.',
+    'Глава 1 тоже обновилась: новые сцены, вопросы и карточки мореплавателей в судовом журнале.',
+    'Незаконченные главы начнутся сначала, а золото и журнал сохранены.']}
+};
+function showWhatsNew(){
+  if(!state.player || state.seenVer === GAME_VERSION) return;
+  const w = WHATS_NEW[GAME_VERSION];
+  state.seenVer = GAME_VERSION; save();
+  if(!w) return;
+  const d = document.createElement('div');
+  d.id = 'whatsnew';
+  d.innerHTML = `<div class="card story wn-card"><h2>${w.title}</h2>${w.text.map(t => `<p>${t}</p>`).join('')}
+    <div class="row"><button class="btn" id="wnOk">Отлично, в путь!</button></div></div>`;
+  document.body.appendChild(d);
+  document.getElementById('wnOk').onclick = () => d.remove();
 }
 
 function renderIntro(i){
@@ -1712,7 +1733,7 @@ function renderRegister(){
     document.getElementById('prev').innerHTML = shipSvg(color,64); drawBgShip(color);
   });
   go.onclick = () => {
-    state.player = {name:nm.value.trim(), ship:sh.value.trim(), color};
+    state.player = {name:nm.value.trim(), ship:sh.value.trim(), color}; state.seenVer = GAME_VERSION;
     save(); renderHub(); goTop();
   };
 }
