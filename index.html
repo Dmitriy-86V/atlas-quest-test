@@ -1129,7 +1129,7 @@ function placePortrait(id, who, dim){
 }
 /* left/right — кто стоит слева и справа; active — кто говорит ('L', 'R' или null — оба в полном свете) */
 /* сцены, где герои уже нарисованы на картинке, — портреты по бокам не показываем */
-const NOPORT_SCENES = ['chest-closed', 'chest-open'];
+const NOPORT_SCENES = ['chest-closed', 'chest-open', 'southern-sky'];
 function setCast(left, right, active){
   castR = right || null;
   if(NOPORT_SCENES.includes(imgScene)){ placePortrait('pL', null); placePortrait('pR', null); return; }
