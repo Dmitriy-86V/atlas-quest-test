@@ -290,8 +290,9 @@ body.standalone #eyeBtn{right:64px}
 #fx .glint{position:absolute;left:0;right:0;bottom:0;height:35%;background:repeating-linear-gradient(100deg,rgba(255,255,255,0) 0 40px,rgba(255,255,255,.07) 40px 46px,rgba(255,255,255,0) 46px 90px);background-size:300px 100%;animation:glint 6s linear infinite;mix-blend-mode:screen}
 @keyframes glint{to{background-position:300px 0}}
 .svid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s ease}
-.svid.hold{animation:holdZoom 40s ease-out forwards}
-@keyframes holdZoom{from{transform:scale(1)}to{transform:scale(1.08) translate(-1%,-1%)}}
+.svid.hold{animation:holdBreathe 18s ease-in-out infinite alternate}
+@keyframes holdBreathe{from{transform:scale(1) translate(0,0)}to{transform:scale(1.045) translate(-.8%,-.6%)}}
+@media (prefers-reduced-motion:reduce){.svid.hold{animation:none}}
 .mi-hint{margin:12px 0 4px;padding:10px;border-radius:10px;background:#fff3d6;border:1px solid var(--gold);font-size:14px;color:var(--ink2)}
 .mi-hint .btn{display:inline-block;margin-top:8px;text-decoration:none;min-width:0}
 /* мини-карта открытия */
@@ -471,7 +472,7 @@ const SAILS = [
   {c:'#262626', n:'Чёрный'}, {c:'#b03a2e', n:'Алый'}, {c:'#2e7d5b', n:'Изумрудный'}, {c:'#2c6e9e', n:'Лазурный'},
   {c:'#c9962b', n:'Золотой'}, {c:'#6b4c9a', n:'Фиолетовый'}
 ];
-const SHIP_IDEAS = ['Чёрная жемчужина','Морская ласточка','Северная звезда','Бесстрашная','Ветер странствий','Дельфин'];
+const SHIP_IDEAS = ['Чёрная жемчужина','Морская ласточка','Северная звезда','Бесстрашная','Ветер странствий','Дельфин','Разящий','Перехватчик'];
 
 const INTRO_WHO = ['hero','sebastian',null,'sebastian'];
 const INTRO = [
@@ -679,11 +680,13 @@ const CHAPTERS = [
          'Колумб записал, что увидел «иной мир», но всё равно надеялся, что Азия где-то совсем рядом.'],
     card:{title:'Третье и четвёртое плавания', text:'1498 — Тринидад и берег Южной Америки (Венесуэла). 1502–1504 — побережье Центральной Америки от Гондураса до Панамы.'}},
    {id:'t11', type:'choice', who:'columbus',
-    rv:{ids:[340,558,188,591,862,780], bbox:[[-92,4],[-58,25]], at:[-80,12.5], label:'Земли четырёх плаваний'},
+    rv:{hl:[44,192,332,214,388,630,28,212,780,862], ids:[340,558,188,591], bbox:[[-92,4],[-58,27]], at:[-75,15.2], label:'Земли четырёх плаваний'},
     q:'«А сколько же всего раз я плавал в эти земли?» — улыбается Колумб. Сколько плаваний к берегам Америки он совершил?',
     opts:['Четыре','Одно','Два','Семь'], ans:0,
     hint:'Больше двух, но меньше пяти.',
-    exp:['Колумб совершил четыре экспедиции — с 1492 по 1504 год. Он открыл для европейцев многие острова Карибского моря и побережье Центральной и Южной Америки.',
+    exp:['Колумб совершил четыре экспедиции — с 1492 по 1504 год. На карте подсвечены земли всех четырёх плаваний:',
+         '<b>1-е (1492–1493):</b> Багамские острова (Сан-Сальвадор), Куба, Эспаньола (сегодня Гаити и Доминиканская Республика).<br><b>2-е (1493–1496):</b> Малые Антильские острова (Доминика, Гваделупа, Антигуа и другие), Пуэрто-Рико, Ямайка.<br><b>3-е (1498):</b> остров Тринидад и побережье Южной Америки (Венесуэла).<br><b>4-е (1502–1504):</b> побережье Центральной Америки — Гондурас, Никарагуа, Коста-Рика, Панама.',
+         'Некоторые острова, например Гваделупа и Мартиника, сегодня принадлежат Франции, поэтому на карте они отдельно не выделены.',
          'Удивительно, но до самой смерти в 1506 году Колумб так и не признал, что открыл новую часть света: он считал эти земли окраиной Азии.'],
     card:{title:'Четыре плавания', text:'С 1492 по 1504 год Колумб четырежды плавал в Новый Свет, но до конца жизни считал его Азией.'}},
    {type:'story', scene:'chest', who:'hero', text:['Ночью, когда все спят, компас в твоём кармане вдруг становится тёплым. Стрелка вздрагивает и поворачивается — туда, где за океаном лежит Тортуга.']},
@@ -806,7 +809,8 @@ const CHAPTERS = [
     hint:'Флот описал в океане огромную дугу, чтобы поймать попутные ветры.',
     exp:['Верно. Флот да Гамы провёл в открытом океане около трёх месяцев — 93 дня — и прошёл тысячи километров, не видя берега. До того времени так долго без земли не плавал никто из европейцев. Даже Колумб шёл через Атлантику «всего» 36 дней.',
          'Такой путь называли «вольта ду мар» — «поворот через море». Корабли уходили по большой дуге на юго-запад, чтобы обойти встречные ветры у берегов Африки.',
-         '7 ноября 1497 года моряки наконец увидели землю — бухту на юге Африки, недалеко от мыса Доброй Надежды.'],
+         '7 ноября 1497 года моряки наконец увидели землю — бухту на юге Африки, недалеко от мыса Доброй Надежды.',
+         'Дуга проходила так далеко на запад, что флот оказался примерно в тысяче километров от Южной Америки (точный путь неизвестен). А в 1500 году следующий португальский флот под командой Педру Кабрала пошёл в Индию тем же путём, взял чуть западнее — и наткнулся на Бразилию. Так Бразилия стала португальской.'],
     card:{title:'93 дня без земли', text:'Флот да Гамы шёл по огромной дуге через Атлантику около трёх месяцев — дольше всех европейцев до того времени.'}},
    {id:'g9', type:'choice', who:'alenquer',
     q:'«Мы давно пересекли экватор. Полярной звезды больше не видно. По какому созвездию ищут юг в южном полушарии?»',
@@ -1155,11 +1159,12 @@ const vidCache = {};
 /* С какой секунды начинать ролик при первом показе (в начале некоторых роликов рывок камеры) */
 const VIDEO_START = {'ocean-day':0.6};
 /* Точки повтора роликов главы 1 (как в v1.8). Сюжетные ролики (island и глава 2): действие один раз, потом повтор последних секунд вперёд через растворение */
-const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2.96, 'fog':2.96, 'ocean-day':5.5, 'island':5.3, 'sunset-port':2.96,
-  'palos':2.92, 'ocean-night':2.96, 'taino-village':5.0, 'hispaniola':1.96, 'eclipse':2.96,
+const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2.96, 'fog':2.96, 'ocean-day':5.5, 'island':'hold', 'sunset-port':2.96,
+  'palos':2.92, 'ocean-night':2.96, 'taino-village':'hold', 'hispaniola':1.96, 'eclipse':2.96,
   /* глава 2: сюжетные ролики замирают на последнем кадре; циклы склеены заранее (конец ролика = его начало) */
-  'chest-open':5.3, 'palace':5.3, 'map-room':5.3, 'lisbon':5.3, 'cape-verde':5.3, 'malindi':5.3, 'calicut':5.3,
-  'southern-sky':0, 'cape-storm':0, 'penguin-coast':0};
+  /* один проход, затем «дышащий» последний кадр (без повтора и без обратного хода) */
+  'chest-open':'hold', 'palace':'hold', 'map-room':'hold', 'lisbon':'hold', 'cape-verde':'hold', 'malindi':'hold', 'calicut':'hold',
+  'southern-sky':0, 'cape-storm':0, 'penguin-coast':'hold'};
 /* Облегчённый режим для телефонов и слабых устройств */
 const LITE = matchMedia('(max-width:900px)').matches || matchMedia('(pointer:coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4;
 const XFADE = 1.4; /* длительность растворения на склейке, сек */
@@ -1317,7 +1322,7 @@ const SCENE_FOCUS = {'chest-closed':'55%','chest-open':'55%','port-day':'32%','p
   'penguin-coast':'38%','malindi':'28%','calicut':'38%'};
 const cineSeen = new Set();
 /* сцены-картинки, перед которыми тоже показываем фон пару секунд до текста */
-const CINE_IMG = ['chest-closed'];
+const CINE_IMG = ['chest-closed', 'chest-open'];
 let cineTimer = 0, cineOn = false;
 function startCine(name){
   const sec = innerWidth <= 900 ? 3.5 : 2.5;
@@ -1848,7 +1853,6 @@ function renderChapter(id){
   const step = c.steps[cs.idx];
   let sc = 'ocean-day'; for(let k=cs.idx;k>=0;k--){ if(c.steps[k].scene){ sc = c.steps[k].scene; break; } }
   showScene(sc);
-  if(sc === 'island') replayHold();
   if(step.who) setSpeaker(step.who); else setCast('hero', null, 'L');
   const doneCount = c.steps.slice(0, cs.idx).filter(s => s.type !== 'story').length;
   const bar = `<div class="progress"><div style="width:${Math.round(doneCount/tasks.length*100)}%"></div></div>`;
