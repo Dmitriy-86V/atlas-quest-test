@@ -118,6 +118,23 @@ input[type=text]{width:100%;font:inherit;padding:12px;border:1.5px solid var(--l
 @media (prefers-reduced-motion:reduce){.atlasfog i{animation:none}}
 #whatsnew{position:fixed;inset:0;z-index:60;background:rgba(10,20,28,.55);display:flex;align-items:center;justify-content:center;padding:16px}
 #whatsnew .wn-card{max-width:520px;width:100%;max-height:90vh;overflow:auto;margin:0}
+/* верфь */
+.tship svg{display:block}
+.hubship{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.hubship .hs-pic{flex:none;background:linear-gradient(#cfe3ef,#eaf2f6);border-radius:10px;padding:4px 6px}
+.hubship .hs-info{flex:1;min-width:200px}
+.yship{display:flex;justify-content:center;background:linear-gradient(#cfe3ef,#eaf2f6);border-radius:12px;padding:6px}
+.yship svg{max-width:100%;height:auto}
+.ytabs .chip.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ylist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:10px}
+.ycard{display:flex;gap:10px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px;align-items:flex-start}
+.ycard.on{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.ycard .yprev{flex:none;width:120px;display:flex;justify-content:center;align-items:center;min-height:90px;background:#eef3f5;border-radius:8px}
+.ycard .yinfo{flex:1;min-width:0}
+.ycard .yinfo p{font-size:14px;margin:4px 0 8px;color:var(--ink2)}
+.yown{font-size:14px;color:var(--ok);font-weight:700}
+.yname label{display:block;margin-top:10px}
+.opt.glassed{opacity:.45;text-decoration:line-through}
 .herocard{display:flex;gap:14px;align-items:center;background:var(--paper);border:1.5px solid var(--gold);border-radius:12px;padding:12px 14px;margin:12px 0}
 .herocard img{width:72px;height:72px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--gold)}
 .herocard .hc-ico{width:72px;height:72px;border-radius:50%;flex:none;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:34px;background:#efe2c4}
@@ -514,7 +531,7 @@ const CHAPTERS = [
      '<span class="speaker">«Помоги-ка, юнга, крышка тяжёлая»</span>. Вы вместе поднимаете крышку — и изнутри льётся тёплый золотой свет.']},
    {type:'story', scene:'chest', who:'sebastian', text:['В сундуке лежат огромный атлас и медный компас. Себастьян бережно кладёт компас тебе на ладонь. Стрелка не замирает на севере — она медленно поворачивается, будто ищет дорогу.',
      '<span class="speaker">«Альварес говорил: компас сам знает, куда вести. Держи его крепко — и не бойся тумана»</span>.']},
-   {type:'story', scene:'fog', text:['Ты поднимаешься на борт корабля «{ship}». Стрелка вращается всё быстрее, над палубой закручивается золотой вихрь, и корабль тонет в густом тумане…']},
+   {type:'story', scene:'fog', text:['Ты крепко сжимаешь компас. Стрелка вращается всё быстрее, вокруг тебя закручивается золотой вихрь, и таверна тонет в густом тумане…']},
    {type:'story', scene:'palos', who:'sailor', text:['Туман рассеивается. Перед тобой чужой берег: белые дома, колокольня и три корабля у причала. На пристани говорят по-испански. Компас показывает дату: 2 августа 1492 года. Ты в испанском порту Палос.',
      'Мальчишка-матрос машет тебе рукой:',
      '<span class="speaker">«Ты новенькая? Давай к нам на „Пинту“, нам как раз нужен юнга! Адмирал Колумб отплывает на рассвете. Король Фердинанд и королева Изабелла дали ему три корабля: „Санта-Марию“, „Пинту“ и „Нинью“»</span>.',
@@ -690,9 +707,9 @@ const CHAPTERS = [
          'Удивительно, но до самой смерти в 1506 году Колумб так и не признал, что открыл новую часть света: он считал эти земли окраиной Азии.'],
     card:{title:'Четыре плавания', text:'С 1492 по 1504 год Колумб четырежды плавал в Новый Свет, но до конца жизни считал его Азией.'}},
    {type:'story', scene:'chest', who:'hero', text:['Ночью, когда все спят, компас в твоём кармане вдруг становится тёплым. Стрелка вздрагивает и поворачивается — туда, где за океаном лежит Тортуга.']},
-   {type:'story', scene:'fog', text:['Над водой поднимается золотой вихрь. Корабль «{ship}» окутывает туман, и шум прибоя Ямайки стихает…']}
+   {type:'story', scene:'fog', text:['Вокруг тебя поднимается золотой вихрь. Тебя окутывает туман, и шум прибоя Ямайки стихает…']}
   ],
-  outro:['Туман рассеивается — и корабль «{ship}» входит в гавань Тортуги на закате. На причале тебя ждёт Себастьян.',
+  outro:['Туман рассеивается — и ты стоишь на причале Тортуги. Солнце садится, а навстречу тебе спешит Себастьян.',
     'Ты открываешь атлас: на месте тумана проступили Карибские острова, берега Испании и путь трёх кораблей через океан.',
     'А на полях страницы — надпись, сделанная почерком картографа:',
     '<span class="speaker">«Если ты читаешь это, компас нашёл нового капитана. Ищи меня там, где Африка встречается с двумя океанами».</span>']
@@ -714,7 +731,7 @@ const CHAPTERS = [
      '<span class="speaker">«Южный край Африки, — кивает Себастьян. — Туда первыми дошли португальцы. Значит, Альварес тоже путешествовал с компасом… Держи курс, капитан. Я продолжу искать о нём сведения здесь, в Тортуге»</span>.']},
    {type:'story', scene:'chest', who:'hero', text:['Ты открываешь сундук картографа и достаёшь компас. Едва ты читаешь вслух слова из атласа, стрелка вздрагивает и начинает медленно поворачиваться — на юго-восток, вдоль берегов Африки.',
      '<span class="speaker">«Он снова зовёт в путь», — шепчешь ты.</span>']},
-   {type:'story', scene:'fog', text:['Ты поднимаешься на борт корабля «{ship}». Стрелка вращается всё быстрее, над палубой закручивается золотой вихрь, и корабль тонет в густом тумане…',
+   {type:'story', scene:'fog', text:['Ты крепко сжимаешь компас. Стрелка вращается всё быстрее, вокруг тебя закручивается золотой вихрь, и всё тонет в густом тумане…',
      'Компас показывает дату: июль 1497 года.']},
    {type:'story', scene:'palace', who:'vasco', hero:'vasco', text:['Туман рассеивается — и ты стоишь в огромном зале. Сквозь высокие окна видна широкая река и корабли с красными крестами на парусах. Вокруг говорят по-португальски.',
      'Король на троне протягивает руку над склонённой головой молодого капитана с тёмной бородой.',
@@ -938,9 +955,9 @@ const CHAPTERS = [
     card:{title:'Пряности', text:'Перец — плоды, корица — кора, гвоздика — бутоны цветков, имбирь — корень.'}},
    {type:'story', scene:'chest', who:'hero', text:['Вечером на корабле компас вдруг становится тёплым. Стрелка вздрагивает и поворачивается на запад — домой, в Тортугу.',
      '<span class="speaker">«Прощайте, капитан-командор», — шепчешь ты, глядя на огни Каликута.</span>']},
-   {type:'story', scene:'fog', text:['Запах пряностей сменяется солёным ветром. Над палубой закручивается золотой вихрь, и корабль «{ship}» тонет в тумане…']}
+   {type:'story', scene:'fog', text:['Запах пряностей сменяется солёным ветром. Вокруг тебя закручивается золотой вихрь, и всё тонет в тумане…']}
   ],
-  outro:['Туман рассеивается — и корабль «{ship}» входит в гавань Тортуги на закате.',
+  outro:['Туман рассеивается — и ты стоишь на причале Тортуги. Солнце садится.',
     'Себастьян ждёт тебя на причале и слушает рассказ не перебивая.',
     '<span class="speaker">«Обратный путь дался да Гаме тяжелее, — говорит он. — Против муссона корабли почти четыре месяца шли обратно до Африки, и цинга унесла много жизней. Домой в 1499 году вернулись только два корабля из четырёх и меньше половины команды. Но пряности в трюмах окупили плавание многократно. С тех пор португальские флоты каждый год ходили в Индию твоим путём»</span>.',
     'В атласе проступили берега Африки, остров Мадагаскар и Индия. А на полях — новая надпись почерком картографа:',
@@ -960,7 +977,7 @@ const CHAPTERS = [
      'Ты открываешь атлас. На полях проступает новая надпись: «Иди туда, где кончается Америка и начинается самый большой океан».',
      '<span class="speaker">«Конец Америки — это её южный край, — задумчиво говорит Себастьян. — Говорят, там есть пролив, который нашёл один португалец на испанской службе… Держи курс, капитан»</span>.']},
    {type:'story', scene:'chest', who:'hero', text:['Ты достаёшь компас из сундука картографа. Стрелка вздрагивает и медленно поворачивается — на северо-восток, к берегам Испании.']},
-   {type:'story', scene:'fog', text:['Ты поднимаешься на борт корабля «{ship}». Над палубой закручивается золотой вихрь, и корабль тонет в тумане… Компас показывает дату: август 1519 года.']},
+   {type:'story', scene:'fog', text:['Ты крепко сжимаешь компас. Вокруг тебя закручивается золотой вихрь, и всё тонет в тумане… Компас показывает дату: август 1519 года.']},
    /* ---------- Севилья ---------- */
    {type:'story', scene:'seville', who:'pigafetta', hero:'pigafetta', text:['Туман рассеивается над широкой рекой. На берегу стоит старинная башня с зубцами, за ней — огромный собор. Это Севилья, река Гвадалквивир. У причала пять кораблей, а матросы грузят бочки, пушки, ящики с зеркалами и колокольчиками.',
      'К тебе подходит молодой человек с пером за ухом и толстой тетрадью под мышкой.',
@@ -1179,9 +1196,9 @@ const CHAPTERS = [
     card:{title:'Путь вокруг света', text:'Испания → Бразилия → пролив → Тихий океан → Филиппины → Молукки → мыс Доброй Надежды → Испания.'}},
    {type:'story', scene:'chest', who:'hero', text:['Пока на берегу звонят колокола, компас в твоём кармане становится тёплым. Стрелка вздрагивает и поворачивается на запад — к Тортуге.',
      '<span class="speaker">«Спасибо, Антонио. Твой дневник прочитают через сотни лет», — шепчешь ты.</span>']},
-   {type:'story', scene:'fog', text:['Над водой поднимается золотой вихрь, и корабль «{ship}» тонет в тумане…']}
+   {type:'story', scene:'fog', text:['Над водой поднимается золотой вихрь, и тебя окутывает туман…']}
   ],
-  outro:['Туман рассеивается — и корабль «{ship}» входит в гавань Тортуги на закате. Себастьян ждёт на причале.',
+  outro:['Туман рассеивается — и ты стоишь на причале Тортуги. Солнце садится, а Себастьян уже ждёт тебя.',
     '<span class="speaker">«Вокруг всей Земли! — качает он головой. — Знаешь, после Магеллана это повторил только англичанин Фрэнсис Дрейк, через пятьдесят с лишним лет. А дневник Пигафетты до сих пор читают моряки всего мира»</span>.',
     'В атласе проступили берега Южной Америки, Магелланов пролив, Тихий океан и Филиппины. А на полях — новая надпись почерком картографа:',
     '<span class="speaker">«Ты прошёл со мной вокруг света. Теперь ищи меня там, где река течёт через лес величиной с целую страну»</span>.']
@@ -1253,8 +1270,9 @@ function shipPaths(color){
 function shipSvg(color, size){ return `<svg viewBox="0 0 130 92" width="${size}" height="${size}" aria-hidden="true">${shipPaths(color)}</svg>`; }
 function topbar(){
   const p = state.player;
-  return `<div class="topbar">${shipSvg(p.color,44)}
-    <div class="who"><div class="ship">«${esc(p.ship)}»</div><div class="cap">Капитан ${esc(p.name)}</div></div>
+  const building = !state.yard || state.yard.eq.hull === 'keel';
+  return `<div class="topbar"><span class="tship">${shipSVG(shipCfg(), 58, {flat:true})}</span>
+    <div class="who"><div class="ship">«${esc(p.ship)}»</div><div class="cap">Капитан ${esc(p.name)}${building ? ' · корабль строится на верфи' : ''}</div></div>
     <div class="gold">● ${state.gold} золотых</div>
     <button class="restart" id="restartBtn" title="Начать игру сначала">⟲<span class="rtxt"> Сначала</span></button></div>`;
 }
@@ -1692,6 +1710,278 @@ function setScene(name){
   drawBgShip();
 }
 
+/* ===================== ВЕРФЬ: свой корабль юнги ===================== */
+/* Каталог: что можно построить и купить. price 0 — есть с самого начала */
+const YARD = {
+  hull: {name:'Корпус', items:[
+    {id:'keel',    n:'Киль на стапеле', price:0,   d:'Пока только киль и рёбра будущего корабля. Чтобы он поплыл, нужен корпус.'},
+    {id:'sloop',   n:'Шлюп',            price:0,   gift:'c1', d:'Маленькое быстрое судно с одной мачтой — любимый корабль пиратов Карибского моря. Себастьян дарит его после первого плавания.'},
+    {id:'caravel', n:'Каравелла',       price:120, d:'Лёгкая и быстрая, как «Пинта» и «Нинья» Колумба. Косые паруса позволяли ей идти почти против ветра.'},
+    {id:'nao',     n:'Нао',             price:220, d:'Большой вместительный корабль для долгих плаваний — как «Санта-Мария» Колумба и «Виктория» Магеллана.'},
+    {id:'galleon', n:'Галеон',          price:380, d:'Огромный корабль XVI века с высокой кормой. На галеонах испанцы возили серебро из Америки через океан.'}]},
+  sail: {name:'Паруса', items:[
+    {id:'square', n:'Прямые',              price:0,   d:'Прямоугольные паруса хорошо ловят попутный ветер.'},
+    {id:'lateen', n:'Латинские (косые)',   price:80,  d:'Треугольные паруса, как у арабских доу из Малинди. С ними можно идти почти против ветра.'},
+    {id:'mixed',  n:'Смешанные',           price:140, d:'Прямые паруса впереди и косой парус на корме — так оснащали португальские каравеллы для дальних плаваний.'}]},
+  stern: {name:'Корма', items:[
+    {id:'plain',   n:'Простая',          price:0,   d:'Обычная корма без украшений.'},
+    {id:'lantern', n:'С фонарём',        price:60,  d:'Кормовой фонарь горел ночью, чтобы корабли флота не теряли друг друга в темноте.'},
+    {id:'carved',  n:'Резная с окнами',  price:160, d:'Резная корма с окнами капитанской каюты — как у флагманов великих экспедиций.'}]},
+  fig: {name:'Фигура', items:[
+    {id:'none',    n:'Без фигуры',    price:0,  d:'Нос корабля без украшения.'},
+    {id:'dolphin', n:'Дельфин',       price:40, d:'Моряки верили, что фигура на носу охраняет корабль. Дельфин — к удачному плаванию.'},
+    {id:'seahorse',n:'Морской конёк', price:50, d:'Морской конёк — символ быстрого и смелого корабля.'},
+    {id:'mermaid', n:'Русалка',       price:60, d:'Русалка на носу корабля, по поверьям, успокаивала бурю.'},
+    {id:'penguin', n:'Пингвин',       price:70, d:'Память о берегу пингвинов у мыса Доброй Надежды.'}]},
+  flag: {name:'Флаг', items:[
+    {id:'jolly',   n:'Весёлый Роджер', price:20, d:'Чёрный флаг с черепом — знаменитый флаг пиратов Тортуги. Первый флаг — бесплатно.'},
+    {id:'compass', n:'Роза ветров',    price:20, d:'Флаг картографов и мореплавателей. Первый флаг — бесплатно.'},
+    {id:'star',    n:'Путеводная звезда', price:20, d:'Звезда, по которой моряки находили дорогу ночью. Первый флаг — бесплатно.'},
+    {id:'anchor',  n:'Якорь',          price:20, d:'Якорь — символ надёжности и возвращения домой. Первый флаг — бесплатно.'}]},
+  tools: {name:'Приборы', items:[
+    {id:'compass',   n:'Компас',          price:0,  d:'Компас картографа Альвареса. С ним ты путешествуешь сквозь время.'},
+    {id:'astrolabe', n:'Астролябия',      price:90, d:'По высоте Солнца и звёзд моряки узнавали широту. Бонус: одна бесплатная подсказка в каждом плавании.'},
+    {id:'crossstaff',n:'Градшток',        price:70, d:'Деревянная линейка с поперечной планкой для измерения высоты светил. Бонус: если ошибёшься на карте, покажет, в какую сторону ты промахнулась.'},
+    {id:'spyglass',  n:'Подзорная труба', price:60, d:'Появилась в начале XVII века. Бонус: раз за плавание позволяет разглядеть и убрать один неверный вариант ответа.'},
+    {id:'kamal',     n:'Камаль',          price:50, d:'Дощечка на шнурке, которой арабские лоцманы мерили высоту Полярной звезды. Пригодится в будущих поручениях капитана.'}]}
+};
+/* Трофеи — награда за прохождение главы, не продаются */
+const TROPHIES = {
+  c1: {id:'parrot', n:'Попугай с Эспаньолы', d:'Колумб привёз в Испанию живых попугаев — вот и тебе достался один.'},
+  c2: {id:'pepper', n:'Мешок перца из Каликута', d:'Тот самый чёрный перец, ради которого да Гама плыл вокруг Африки.'},
+  c3: {id:'clove',  n:'Ветка гвоздики с Молукк', d:'Бутоны гвоздичного дерева с острова Тидоре — дороже золота в XVI веке.'}
+};
+function newYard(){ return {own:{hull:['keel'], sail:['square'], stern:['plain'], fig:['none'], flag:[], tools:['compass']},
+  eq:{hull:'keel', sail:'square', stern:'plain', fig:'none', flag:null}, trophies:[], deck:[]}; }
+/* Корабль для старых сохранений: верфь появилась в 1.15 */
+function ensureYard(){
+  if(!state.player) return;
+  if(!state.yard){
+    state.yard = newYard();
+    if(state.ch.c1 && state.ch.c1.done){ state.yard.own.hull.push('sloop'); state.yard.eq.hull = 'sloop'; }
+    Object.keys(TROPHIES).forEach(k => { if(state.ch[k] && state.ch[k].done){ state.yard.trophies.push(TROPHIES[k].id); state.yard.deck.push(TROPHIES[k].id); } });
+    save();
+  }
+}
+function owns(cat, id){ return !!(state.yard && state.yard.own[cat].includes(id)); }
+function shipCfg(){ const y = state.yard || newYard(); return Object.assign({color: state.player ? state.player.color : '#262626', deck:y.deck}, y.eq); }
+
+/* ---------- Рисунок корабля из частей (нос справа) ---------- */
+const HULLS = {
+  sloop:   {x0:55, x1:150, deck:96, bot:116, masts:[[102,40]], aft:null, fore:null},
+  caravel: {x0:38, x1:165, deck:94, bot:116, masts:[[62,52],[100,30],[136,46]], aft:[38,72,82], fore:null},
+  nao:     {x0:26, x1:174, deck:92, bot:118, masts:[[54,48],[98,22],[140,38]], aft:[26,74,70], fore:[146,172,82]},
+  galleon: {x0:14, x1:186, deck:90, bot:120, masts:[[38,54],[70,28],[106,18],[148,36]], aft:[14,72,58], fore:[152,182,78]}
+};
+const FLAG_DRAW = {
+  jolly:   (x,y) => `<path d="M${x} ${y} L${x+17} ${y+1} L${x+15} ${y+6} L${x+17} ${y+11} L${x} ${y+10} Z" fill="#161616"/><circle cx="${x+7}" cy="${y+4.5}" r="2" fill="#f1ead8"/><path d="M${x+5} ${y+7.5} L${x+9} ${y+9} M${x+9} ${y+7.5} L${x+5} ${y+9}" stroke="#f1ead8" stroke-width=".9"/>`,
+  compass: (x,y) => `<path d="M${x} ${y} L${x+17} ${y+1} L${x+15} ${y+6} L${x+17} ${y+11} L${x} ${y+10} Z" fill="#2c5e8a"/><path d="M${x+7} ${y+1.5} L${x+8.3} ${y+5} L${x+7} ${y+8.5} L${x+5.7} ${y+5} Z M${x+3.5} ${y+5} L${x+7} ${y+3.8} L${x+10.5} ${y+5} L${x+7} ${y+6.2} Z" fill="#f1ead8"/>`,
+  star:    (x,y) => `<path d="M${x} ${y} L${x+17} ${y+1} L${x+15} ${y+6} L${x+17} ${y+11} L${x} ${y+10} Z" fill="#9c2a1e"/><path d="M${x+7} ${y+1.5} L${x+8.2} ${y+4.2} L${x+11} ${y+4.5} L${x+8.9} ${y+6.3} L${x+9.6} ${y+9} L${x+7} ${y+7.5} L${x+4.4} ${y+9} L${x+5.1} ${y+6.3} L${x+3} ${y+4.5} L${x+5.8} ${y+4.2} Z" fill="#e6b84a"/>`,
+  anchor:  (x,y) => `<path d="M${x} ${y} L${x+17} ${y+1} L${x+15} ${y+6} L${x+17} ${y+11} L${x} ${y+10} Z" fill="#efe3c4"/><path d="M${x+7} ${y+2} L${x+7} ${y+8.5} M${x+5} ${y+3.5} L${x+9} ${y+3.5} M${x+4} ${y+6.5} Q${x+7} ${y+10} ${x+10} ${y+6.5}" stroke="#1f3a52" stroke-width="1.1" fill="none"/>`
+};
+const TROPHY_DRAW = {
+  parrot: (x,y) => `<g transform="translate(${x},${y})"><path d="M0 0 Q4 -9 9 -6 Q7 -2 6 3 Q3 6 0 3 Z" fill="#c8312b"/><path d="M3 3 L1 10 L5 9 Z" fill="#2f6fb5"/><circle cx="6.3" cy="-5" r=".9" fill="#111"/><path d="M8.6 -5.5 L11 -4 L8.6 -3.4 Z" fill="#e8c04a"/></g>`,
+  pepper: (x,y) => `<g transform="translate(${x},${y})"><path d="M-6 6 Q-7 -2 -3 -4 L3 -4 Q7 -2 6 6 Z" fill="#b48a55" stroke="#5b3a21" stroke-width=".6"/><path d="M-3 -4 Q0 -7 3 -4" stroke="#5b3a21" fill="none" stroke-width=".8"/><g fill="#1d120a"><circle cx="-1.5" cy="-4.5" r=".9"/><circle cx="1" cy="-5" r=".9"/></g></g>`,
+  clove:  (x,y) => `<g transform="translate(${x},${y})"><path d="M0 8 Q1 0 0 -6" stroke="#4d6b2e" stroke-width="1.1" fill="none"/><g fill="#b2453a"><circle cx="-2.5" cy="-6" r="1.6"/><circle cx="1.5" cy="-7.5" r="1.6"/><circle cx="2.5" cy="-3" r="1.6"/><circle cx="-2" cy="-1.5" r="1.5"/></g></g>`
+};
+function shipSVG(cfg, w, opts){
+  const c = cfg || shipCfg();
+  const ink = '#2b1d12', wood = '#5b3a21', wood2 = '#6b4426', gold = '#c99a3b';
+  const keelOnly = c.hull === 'keel';
+  let g = '';
+  if(keelOnly){
+    /* стапель: киль, шпангоуты, подпорки */
+    g += `<path d="M20 124 L190 124" stroke="#7a5a35" stroke-width="3"/>`;
+    for(let x = 40; x <= 170; x += 26) g += `<path d="M${x} 124 L${x-6} 132 M${x} 124 L${x+6} 132" stroke="#7a5a35" stroke-width="2"/>`;
+    g += `<path d="M30 112 L176 112" stroke="${wood}" stroke-width="5" stroke-linecap="round"/>`;
+    g += `<path d="M176 112 Q184 100 180 86" stroke="${wood}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    g += `<path d="M30 112 Q24 104 26 92" stroke="${wood}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    for(let x = 48; x <= 160; x += 16){ const h = 20 - Math.abs(x - 104) / 6; g += `<path d="M${x} 112 Q${x-9} ${112-h*0.6} ${x-10} ${112-h} M${x} 112 Q${x+9} ${112-h*0.6} ${x+10} ${112-h}" stroke="#7c5631" stroke-width="2.2" fill="none" stroke-linecap="round"/>`; }
+    g += `<path d="M38 96 L170 96" stroke="#8a6440" stroke-width="1.6" stroke-dasharray="5 4"/>`;
+    return `<svg viewBox="14 76 182 60" width="${w}" height="${Math.round(w*60/182)}" aria-label="Киль корабля на стапеле">${g}</svg>`;
+  }
+  const H = HULLS[c.hull] || HULLS.sloop;
+  const {x0, x1, bot} = H; let deck = H.deck;
+  /* мачты и паруса */
+  const sailFill = `fill="${c.color}" stroke="${ink}" stroke-width=".8"`;
+  const light = `fill="#efe3c4" stroke="${ink}" stroke-width=".8"`;
+  let rig = '', sails = '';
+  const n = H.masts.length;
+  H.masts.forEach(([mx, top], k) => {
+    rig += `<line x1="${mx}" y1="${deck+2}" x2="${mx}" y2="${top}" stroke="#3a2a1a" stroke-width="${k === Math.floor(n/2) ? 3 : 2.4}"/>`;
+    rig += `<path d="M${mx} ${top+2} L${x0+4} ${deck} M${mx} ${top+2} L${x1-6} ${deck-2}" stroke="${ink}" stroke-width=".45" opacity=".5"/>`;
+    /* мачта, стоящая на надстройке: парус кончается над её крышей */
+    const deck0 = deck;
+    { const a = H.aft, f = H.fore; if(a && mx >= a[0] && mx <= a[1]) deck = a[2] + 2; else if(f && mx >= f[0] && mx <= f[1]) deck = f[2] + 2; }
+    const span = (deck - top);
+    const half = Math.min(22, 10 + span * 0.18);
+    const isAft = k === 0 && n > 1;
+    const lateen = c.sail === 'lateen' || (c.sail === 'mixed' && isAft) || (c.hull === 'sloop' && c.sail !== 'square');
+    if(lateen){
+      const yx = mx - half*1.4, yy = deck - 8, tx = mx + half*0.9, ty = top + 2;
+      rig += `<line x1="${yx}" y1="${yy}" x2="${tx}" y2="${ty}" stroke="#3a2a1a" stroke-width="1.6"/>`;
+      sails += `<path d="M${tx} ${ty} L${yx+2} ${yy-1} Q${mx+2} ${deck-4} ${mx+half*0.8} ${deck-6} Z" ${sailFill}/>`;
+    } else {
+      const y1 = top + 4, mid = top + span * 0.45, y2 = deck - 6;
+      sails += `<path d="M${mx-half*0.7} ${y1} Q${mx} ${y1+3} ${mx+half*0.7} ${y1} L${mx+half*0.8} ${mid-2} Q${mx} ${mid+2} ${mx-half*0.8} ${mid-2} Z" ${sailFill}/>`;
+      sails += `<path d="M${mx-half} ${mid+1} Q${mx} ${mid+5} ${mx+half} ${mid+1} L${mx+half*1.05} ${y2} Q${mx} ${y2+5} ${mx-half*1.05} ${y2} Z" ${sailFill}/>`;
+      sails += `<path d="M${mx} ${mid+2} Q${mx+1} ${(mid+y2)/2} ${mx} ${y2}" stroke="#000" stroke-opacity=".15" stroke-width="2" fill="none"/>`;
+    }
+    deck = deck0;
+  });
+  /* бушприт и кливер */
+  rig += `<line x1="${x1-14}" y1="${deck-1}" x2="${x1+12}" y2="${deck-12}" stroke="#3a2a1a" stroke-width="2"/>`;
+  const fm = H.masts[n-1];
+  sails += `<path d="M${fm[0]+2} ${fm[1]+8} L${x1+9} ${deck-11} L${fm[0]+6} ${deck-6} Z" ${light}/>`;
+  /* флаг на грот-мачте */
+  let flag = '';
+  if(c.flag && FLAG_DRAW[c.flag]){ const mm = H.masts[Math.floor(n/2)]; flag = FLAG_DRAW[c.flag](mm[0], mm[1] - 11); }
+  else { const mm = H.masts[Math.floor(n/2)]; flag = `<path d="M${mm[0]} ${mm[1]-2} L${mm[0]+12} ${mm[1]} L${mm[0]} ${mm[1]+2} Z" fill="${c.color}"/>`; }
+  /* корпус */
+  let hull = `<path d="M${x0} ${deck} L${x1} ${deck-4} Q${x1-6} ${bot-6} ${x1-30} ${bot} L${x0+16} ${bot} Q${x0-2} ${bot-4} ${x0} ${deck} Z" fill="${wood}" stroke="${ink}" stroke-width=".9"/>`;
+  hull += `<path d="M${x0+2} ${deck+4} L${x1-4} ${deck}" stroke="${gold}" stroke-width="1.8"/>`;
+  hull += `<path d="M${x0+10} ${bot-6} Q${(x0+x1)/2} ${bot-4} ${x1-26} ${bot-8}" stroke="#3b2414" stroke-width="1.1" fill="none"/>`;
+  if(c.hull === 'nao' || c.hull === 'galleon'){
+    let ports = ''; for(let x = x0 + 30; x < x1 - 30; x += 14) ports += `<rect x="${x}" y="${deck+8 - (x-x0)*0.02}" width="5" height="4" rx=".6"/>`;
+    hull += `<g fill="#1d120a">${ports}</g>`;
+  }
+  if(c.hull === 'galleon'){ hull += `<path d="M${x0+4} ${deck+15} L${x1-12} ${deck+11}" stroke="${gold}" stroke-width="1.2"/>`; }
+  /* кормовая и носовая надстройки */
+  let castle = '';
+  if(H.aft){
+    const [a0, a1, top] = H.aft;
+    castle += `<path d="M${a0-2} ${top} L${a1} ${top+4} L${a1} ${deck+1} L${a0} ${deck+2} Z" fill="${wood2}" stroke="${ink}" stroke-width=".8"/>`;
+    castle += `<path d="M${a0-3} ${top-2} L${a1+1} ${top+2} L${a1+1} ${top+4} L${a0-2} ${top} Z" fill="${gold}"/>`;
+    if(c.hull === 'galleon') castle += `<path d="M${a0} ${top+14} L${a1} ${top+16}" stroke="${ink}" stroke-width=".7"/>`;
+  }
+  if(H.fore){
+    const [f0, f1, top] = H.fore;
+    castle += `<path d="M${f0} ${top+3} L${f1} ${top} L${f1-2} ${deck-3} L${f0} ${deck-1} Z" fill="${wood2}" stroke="${ink}" stroke-width=".8"/>`;
+  }
+  /* корма: варианты */
+  let stern = '';
+  const sx = H.aft ? H.aft[0] : x0 + 4, sTop = H.aft ? H.aft[2] : deck - 4;
+  if(c.stern === 'carved'){
+    stern += `<g fill="#ffd36b" stroke="${ink}" stroke-width=".4">`;
+    const rows = H.aft ? 2 : 1;
+    for(let r = 0; r < rows; r++) for(let k = 0; k < 3; k++) stern += `<rect x="${sx+6+k*8}" y="${sTop+6+r*9}" width="5" height="5" rx="1"/>`;
+    stern += `</g><path d="M${sx-3} ${sTop+3} Q${sx+14} ${sTop-6} ${sx+30} ${sTop+5}" stroke="${gold}" stroke-width="1.6" fill="none"/>`;
+    stern += `<path d="M${sx-2} ${deck-2} Q${sx-8} ${deck+6} ${sx+2} ${deck+12}" stroke="${gold}" stroke-width="1.4" fill="none"/>`;
+  }
+  if(c.stern === 'lantern' || c.stern === 'carved'){
+    const lx = sx - 1, ly = sTop - 4;
+    stern += `<line x1="${lx}" y1="${ly+4}" x2="${lx}" y2="${ly-6}" stroke="#3a2a1a" stroke-width="1.2"/><rect x="${lx-3}" y="${ly-13}" width="6" height="8" rx="1.5" fill="#ffcf5a" stroke="${ink}" stroke-width=".7"/>`;
+    if(!(opts && opts.flat)) stern += `<circle cx="${lx}" cy="${ly-9}" r="7" fill="#ffd36b" opacity=".25"/>`;
+  }
+  /* носовая фигура */
+  let fig = '';
+  const fx = x1 - 1, fy = deck - 3;
+  if(c.fig === 'dolphin') fig = `<path d="M${fx} ${fy} Q${fx+9} ${fy-9} ${fx+15} ${fy-4} Q${fx+10} ${fy-3} ${fx+8} ${fy+2} Q${fx+4} ${fy+3} ${fx} ${fy+2} Z" fill="#6c8ea8" stroke="${ink}" stroke-width=".6"/><circle cx="${fx+11}" cy="${fy-5}" r=".8" fill="#111"/>`;
+  if(c.fig === 'seahorse') fig = `<path d="M${fx} ${fy+2} Q${fx+5} ${fy-2} ${fx+6} ${fy-8} Q${fx+7} ${fy-13} ${fx+12} ${fy-12} L${fx+15} ${fy-10} L${fx+11} ${fy-9} Q${fx+10} ${fy-4} ${fx+6} ${fy+1} Q${fx+3} ${fy+5} ${fx} ${fy+4} Z" fill="${gold}" stroke="${ink}" stroke-width=".6"/>`;
+  if(c.fig === 'mermaid') fig = `<path d="M${fx} ${fy+3} Q${fx+6} ${fy} ${fx+8} ${fy-6} Q${fx+9} ${fy-11} ${fx+12} ${fy-12} Q${fx+13} ${fy-8} ${fx+11} ${fy-5} Q${fx+9} ${fy} ${fx+3} ${fy+5} Z" fill="#3f8f84" stroke="${ink}" stroke-width=".6"/><circle cx="${fx+12}" cy="${fy-14}" r="2.4" fill="#e9c39b" stroke="${ink}" stroke-width=".5"/><path d="M${fx+10} ${fy-15} Q${fx+8} ${fy-10} ${fx+9} ${fy-7}" stroke="#b5532c" stroke-width="1.6" fill="none"/>`;
+  if(c.fig === 'penguin') fig = `<ellipse cx="${fx+7}" cy="${fy-4}" rx="4.5" ry="7" fill="#1e1e1e"/><ellipse cx="${fx+8}" cy="${fy-3}" rx="2.6" ry="5" fill="#f4f1e8"/><circle cx="${fx+8}" cy="${fy-9}" r="2.6" fill="#1e1e1e"/><path d="M${fx+10} ${fy-9} L${fx+13} ${fy-8} L${fx+10} ${fy-7.5} Z" fill="#e0a43a"/>`;
+  /* трофеи на палубе */
+  let tro = '';
+  (c.deck || []).forEach((t, k) => { if(TROPHY_DRAW[t]) tro += TROPHY_DRAW[t](x0 + 28 + k * 20 + (H.aft ? 42 : 10), deck - 6); });
+  const water = (opts && opts.flat) ? '' : `<path d="M-50 ${bot-6} Q-25 ${bot-10} 0 ${bot-6} T50 ${bot-6} T100 ${bot-6} T150 ${bot-6} T200 ${bot-6} T250 ${bot-6} L250 ${bot+20} L-50 ${bot+20} Z" fill="#2c6e9e" opacity=".35"/><path d="M-50 ${bot-2} Q-25 ${bot-6} 0 ${bot-2} T50 ${bot-2} T100 ${bot-2} T150 ${bot-2} T200 ${bot-2} T250 ${bot-2}" stroke="#e8f3ff" stroke-opacity=".6" fill="none"/>`;
+  /* кадр по размеру корабля, чтобы маленький шлюп не терялся */
+  const minTop = Math.min(...H.masts.map(m => m[1])) - 16;
+  const vx = x0 - 22, vw = (x1 + 26) - vx, vy = minTop, vh = bot + 6 - vy;
+  return `<svg viewBox="${vx} ${vy} ${vw} ${vh}" width="${w}" height="${Math.round(w*vh/vw)}" aria-label="Твой корабль">${rig}${sails}${flag}${castle}${hull}${stern}${fig}${tro}${water}</svg>`;
+}
+
+/* ---------- Экран верфи ---------- */
+let yardTab = 'hull';
+function renderShipyard(){
+  ensureYard();
+  showScene('port-day');
+  setSpeaker(null);
+  const Y = state.yard, cfg = shipCfg();
+  const keel = Y.eq.hull === 'keel';
+  const tabs = Object.entries(YARD).map(([k, v]) => [k, v.name]).concat([['trophies','Трофеи'], ['name','Название']]);
+  let list = '';
+  if(yardTab === 'trophies'){
+    const got = Object.values(TROPHIES).filter(t => Y.trophies.includes(t.id));
+    list = got.length ? got.map(t => `<div class="ycard${Y.deck.includes(t.id) ? ' on' : ''}">
+        <div class="yprev">${shipSVG(Object.assign({}, cfg, {deck:[t.id]}), 120, {flat:true})}</div>
+        <div class="yinfo"><b>${t.n}</b><p>${t.d}</p>
+        <button class="btn small${Y.deck.includes(t.id) ? ' ghost' : ''}" data-deck="${t.id}">${Y.deck.includes(t.id) ? 'Убрать с палубы' : 'Поставить на палубу'}</button></div></div>`).join('')
+      : '<p class="muted">Трофеи выдаются за каждое пройденное плавание. Пройди главу — и привезёшь первый!</p>';
+  } else if(yardTab === 'name'){
+    list = `<div class="yname">
+      <label for="ynm">Имя капитана</label><input type="text" id="ynm" maxlength="30" value="${esc(state.player.name)}">
+      <label for="ysh">Название корабля</label><input type="text" id="ysh" maxlength="30" value="${esc(state.player.ship)}">
+      <div class="chips">${SHIP_IDEAS.map(s => `<button class="chip" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>
+      <label>Цвет парусов</label>
+      <div class="swatches">${SAILS.map(s => `<div class="sw${s.c === state.player.color ? ' sel' : ''}" data-c="${s.c}" title="${s.n}" style="background:${s.c}"></div>`).join('')}</div>
+      <div class="row"><button class="btn" id="ysave">Сохранить</button><span class="muted" id="ysaved" style="font-size:14px"></span></div></div>`;
+  } else {
+    const cat = YARD[yardTab];
+    const firstFlag = yardTab === 'flag' && Y.own.flag.length === 0;
+    list = cat.items.map(it => {
+      if(it.id === 'keel' && Y.own.hull.length > 1) return '';
+      const have = Y.own[yardTab].includes(it.id);
+      const isEq = yardTab !== 'tools' && Y.eq[yardTab] === it.id;
+      const price = firstFlag ? 0 : it.price;
+      const prevCfg = yardTab === 'tools' ? null : Object.assign({}, cfg, {[yardTab]: it.id}, keel && yardTab !== 'hull' ? {hull:'sloop'} : {});
+      let act;
+      if(yardTab === 'tools') act = have ? '<span class="yown">✓ Есть на борту</span>' : `<button class="btn small" data-buy="${it.id}" ${state.gold < price ? 'disabled' : ''}>Купить · ${price} ●</button>`;
+      else if(isEq) act = '<span class="yown">✓ Стоит на корабле</span>';
+      else if(have) act = `<button class="btn small ghost" data-eq="${it.id}">Поставить</button>`;
+      else if(it.gift) act = '<span class="muted" style="font-size:14px">Подарок Себастьяна за первое плавание</span>';
+      else if(keel && yardTab !== 'hull') act = '<span class="muted" style="font-size:14px">Сначала нужен корпус</span>';
+      else act = `<button class="btn small" data-buy="${it.id}" ${state.gold < price ? 'disabled' : ''}>Купить · ${price ? price + ' ●' : 'бесплатно'}</button>`;
+      return `<div class="ycard${isEq || (yardTab === 'tools' && have) ? ' on' : ''}">
+        <div class="yprev">${prevCfg ? shipSVG(prevCfg, 120, {flat:true}) : `<div class="ytool">${TOOL_ICON[it.id] || ''}</div>`}</div>
+        <div class="yinfo"><b>${it.n}</b><p>${it.d}</p>${act}</div></div>`;
+    }).join('');
+  }
+  app.innerHTML = `${topbar()}
+    <div class="card">
+      <h2>Верфь Тортуги</h2>
+      <div class="yship">${shipSVG(cfg, 360)}</div>
+      <p class="muted center" style="margin:4px 0 0">${keel ? 'Твой будущий корабль пока на стапеле. Пройди первое плавание — и Себастьян подарит корпус шлюпа.' : `«${esc(state.player.ship)}» · ${YARD.hull.items.find(i => i.id === Y.eq.hull).n}`}</p>
+    </div>
+    <div class="card">
+      <div class="chips ytabs">${tabs.map(([k, n]) => `<button class="chip${k === yardTab ? ' sel' : ''}" data-tab="${k}">${n}</button>`).join('')}</div>
+      <div class="ylist">${list}</div>
+    </div>
+    <div class="row"><button class="btn" id="yback">Назад в порт</button></div>`;
+  app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { yardTab = b.dataset.tab; renderShipyard(); });
+  app.querySelectorAll('[data-eq]').forEach(b => b.onclick = () => { Y.eq[yardTab] = b.dataset.eq; save(); sfx('click'); renderShipyard(); });
+  app.querySelectorAll('[data-buy]').forEach(b => b.onclick = () => {
+    const it = YARD[yardTab].items.find(i => i.id === b.dataset.buy);
+    const price = (yardTab === 'flag' && Y.own.flag.length === 0) ? 0 : it.price;
+    if(state.gold < price) return;
+    state.gold -= price; Y.own[yardTab].push(it.id);
+    if(yardTab !== 'tools') Y.eq[yardTab] = it.id;
+    save(); sfx('coin'); renderShipyard();
+  });
+  app.querySelectorAll('[data-deck]').forEach(b => b.onclick = () => {
+    const t = b.dataset.deck, i = Y.deck.indexOf(t);
+    if(i >= 0) Y.deck.splice(i, 1); else Y.deck.push(t);
+    save(); renderShipyard();
+  });
+  if(yardTab === 'name'){
+    let color = state.player.color;
+    app.querySelectorAll('.yname .chip').forEach(b => b.onclick = () => { document.getElementById('ysh').value = b.dataset.s; });
+    app.querySelectorAll('.yname .sw').forEach(s => s.onclick = () => { app.querySelectorAll('.yname .sw').forEach(x => x.classList.remove('sel')); s.classList.add('sel'); color = s.dataset.c; });
+    document.getElementById('ysave').onclick = () => {
+      const nm = document.getElementById('ynm').value.trim(), sh = document.getElementById('ysh').value.trim();
+      if(!nm || !sh){ document.getElementById('ysaved').textContent = ' Имя и название не могут быть пустыми'; return; }
+      state.player.name = nm; state.player.ship = sh; state.player.color = color; save(); renderShipyard();
+    };
+  }
+  document.getElementById('yback').onclick = () => { renderHub(); goTop(); };
+}
+const TOOL_ICON = {
+  compass:   '<svg viewBox="0 0 40 40" width="64" height="64"><circle cx="20" cy="20" r="16" fill="#c99a3b" stroke="#5b3a21" stroke-width="2"/><circle cx="20" cy="20" r="12" fill="#f4e8cc"/><path d="M20 9 L23 20 L20 31 L17 20 Z" fill="#9c2a1e"/><path d="M20 20 L23 20 L20 31 L17 20 Z" fill="#2b1d12"/></svg>',
+  astrolabe: '<svg viewBox="0 0 40 40" width="64" height="64"><circle cx="20" cy="22" r="14" fill="none" stroke="#c99a3b" stroke-width="3"/><circle cx="20" cy="22" r="9" fill="none" stroke="#c99a3b" stroke-width="1.2"/><path d="M8 22 L32 22 M20 10 L20 34" stroke="#c99a3b" stroke-width="1"/><path d="M10 29 L30 15" stroke="#5b3a21" stroke-width="2"/><circle cx="20" cy="6" r="2.5" fill="none" stroke="#c99a3b" stroke-width="1.6"/></svg>',
+  crossstaff:'<svg viewBox="0 0 40 40" width="64" height="64"><path d="M4 34 L36 6" stroke="#7a5a35" stroke-width="3" stroke-linecap="round"/><path d="M14 14 L26 26" stroke="#5b3a21" stroke-width="3" stroke-linecap="round"/><path d="M8 30 L10 32 M14 25 L16 27 M20 20 L22 22 M26 15 L28 17" stroke="#f4e8cc" stroke-width="1"/></svg>',
+  spyglass:  '<svg viewBox="0 0 40 40" width="64" height="64"><path d="M6 30 L30 10" stroke="#5b3a21" stroke-width="7" stroke-linecap="round"/><path d="M16 22 L34 7" stroke="#c99a3b" stroke-width="5" stroke-linecap="round"/><path d="M10 27 L12 29 M20 19 L22 21" stroke="#c99a3b" stroke-width="2"/></svg>',
+  kamal:     '<svg viewBox="0 0 40 40" width="64" height="64"><rect x="8" y="6" width="16" height="11" rx="1" fill="#a07a4a" stroke="#5b3a21" stroke-width="1.2"/><path d="M16 17 Q18 26 26 30 Q30 32 34 31" stroke="#c9b285" stroke-width="1.5" fill="none"/><g fill="#5b3a21"><circle cx="22" cy="25" r="1.1"/><circle cx="27" cy="29" r="1.1"/><circle cx="31" cy="31" r="1.1"/></g></svg>'
+};
+
 /* ===================== ЭКРАНЫ ===================== */
 function restartGame(){
   if(!confirm('Начать игру сначала? Прогресс, золото и судовой журнал будут стёрты.')) return;
@@ -1947,7 +2237,7 @@ function begin(){
   renderHub();
   showWhatsNew();
 }
-const GAME_VERSION = '1.14';
+const GAME_VERSION = '1.15';
 const VER_LABEL = GAME_VERSION + (/atlas-quest-test/.test(location.pathname) ? ' · тест' : '');
 let titled = false;
 function start(){
@@ -2007,10 +2297,10 @@ function renderRegister(){
   app.innerHTML = `<div class="card">
     <h2>Судовой журнал</h2>
     ${speakerHtml('sebastian')}
-    <p class="muted">Порт Тортуга, 1650 год. Старый штурман Себастьян раскрывает судовой журнал и протягивает перо: «Добро пожаловать на Тортугу! Каждый капитан записывает своё имя и имя своего корабля».</p>
+    <p class="muted">Порт Тортуга, 1650 год. Старый штурман Себастьян раскрывает судовой журнал и протягивает перо: «Добро пожаловать на Тортугу! Пока ты юнга, но каждый моряк мечтает о своём корабле. На верфи Тортуги для тебя заложили киль. Как назовёшь будущий корабль и какого цвета будут паруса?»</p>
     <label for="nm">Имя капитана</label>
     <input type="text" id="nm" maxlength="30" autocomplete="off" placeholder="Как тебя зовут?">
-    <label for="sh">Название корабля</label>
+    <label for="sh">Название будущего корабля</label>
     <input type="text" id="sh" maxlength="30" autocomplete="off" placeholder="Придумай или выбери ниже">
     <div class="chips">${SHIP_IDEAS.map(s => `<button class="chip" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div>
     <label>Цвет парусов</label>
@@ -2031,12 +2321,13 @@ function renderRegister(){
     document.getElementById('prev').innerHTML = shipSvg(color,64); drawBgShip(color);
   });
   go.onclick = () => {
-    state.player = {name:nm.value.trim(), ship:sh.value.trim(), color}; state.seenVer = GAME_VERSION;
+    state.player = {name:nm.value.trim(), ship:sh.value.trim(), color}; state.seenVer = GAME_VERSION; state.yard = newYard();
     save(); if(!state.introSeen) renderIntro(0); else renderHub(); goTop();
   };
 }
 
 function renderHub(){
+  ensureYard();
   const tasksTotal = allTasks().length;
   showScene('port-day');
   setSpeaker(null);
@@ -2061,10 +2352,17 @@ function renderHub(){
           <button class="btn small" data-ch="${c.id}">${label}</button></div>`;
       }).join('')}
     </div>
+    <div class="card hubship">
+      <div class="hs-pic">${shipSVG(shipCfg(), 200)}</div>
+      <div class="hs-info"><h2 style="margin-bottom:4px">«${esc(state.player.ship)}»</h2>
+        <p class="muted" style="margin:0 0 10px;font-size:15px">${state.yard.eq.hull === 'keel' ? 'Твой корабль пока на стапеле: только киль и рёбра. Пройди первое плавание — и Себастьян подарит корпус шлюпа.' : 'На верфи можно достроить корабль, купить приборы и поставить трофеи на палубу.'}</p>
+        <button class="btn small" id="yard">Верфь · ● ${state.gold}</button></div>
+    </div>
     <div class="row"><button class="btn ghost wide" id="jr" style="color:var(--parch);border-color:var(--parch)">Судовой журнал · ${state.journal.length} из ${tasksTotal}</button></div>
     <div class="foot"><button class="linkbtn" id="reset">Начать игру заново</button><div style="opacity:.7;margin-top:6px;font-size:14px">Версия ${VER_LABEL}</div></div>`;
   app.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => startChapter(b.dataset.ch));
   document.getElementById('jr').onclick = () => { renderJournal(); goTop(); };
+  document.getElementById('yard').onclick = () => { yardTab = 'hull'; renderShipyard(); goTop(); };
   document.getElementById('reset').onclick = restartGame;
   worldReady.then(drawHubMap);
 }
@@ -2104,7 +2402,7 @@ function drawHubMap(){
     }
   });
   const [x,y] = proj(TORTUGA);
-  svg.append('g').attr('transform', `translate(${x-17},${y-22}) scale(.26)`).html(shipPaths(state.player.color));
+  svg.append('g').attr('transform', `translate(${x-22},${y-30})`).html(shipSVG(shipCfg(), 44, {flat:true}));
   /* туман над атласом: пока ничего не открыто — над всей картой, потом только по краям, вокруг открытых земель */
   box.style.position = 'relative';
   const fog = document.createElement('div');
@@ -2117,6 +2415,7 @@ function drawHubMap(){
 function startChapter(id){
   const cs = state.ch[id];
   if(cs && cs.done){ state.ch[id] = {idx:0, answers:{}, done:true, replay:true, best:cs.best || cs.answers}; }
+  else if(cs && cs.idx === 0){ delete cs.freeHint; delete cs.glass; }
   else if(!cs){ state.ch[id] = {idx:0, answers:{}, done:false}; }
   save(); renderChapter(id); goTop();
 }
@@ -2152,19 +2451,30 @@ function renderChapter(id){
     <div class="tasknum">Задание ${num} из ${tasks.length}</div>
     <div class="q">${fill(step.q)}</div>
     <div id="hintbox"><button class="btn ghost small" id="hintBtn">Спросить штурмана</button>
-      <span class="muted" style="font-size:14px"> подсказка уменьшит награду до 5 золотых</span></div>
+      <span class="muted" style="font-size:14px">${owns('tools','astrolabe') && !cs.freeHint ? ' астролябия: одна подсказка в этом плавании бесплатно' : ' подсказка уменьшит награду до 5 золотых'}</span>
+      ${owns('tools','spyglass') && !cs.glass && step.type === 'choice' && step.opts.length > 2 ? '<button class="btn ghost small" id="glassBtn">Подзорная труба</button>' : ''}</div>
     <div id="body" style="margin-top:12px"></div>
     <div id="feedback"></div></div>
     <div class="foot"><button class="linkbtn" id="tohub">Вернуться в порт (прогресс сохранится)</button></div>`;
   fillAvatars();
   document.getElementById('hintBtn').onclick = () => {
     const hb = c.hintBy || 'sebastian';
-    cur.hint = true; setSpeaker(hb);
+    if(owns('tools','astrolabe') && !cs.freeHint){ cs.freeHint = true; save(); } else cur.hint = true;
+    setSpeaker(hb);
     document.getElementById('hintbox').innerHTML = `<div class="hint">${hb === 'sebastian' ? 'Себастьян' : CHARS[hb].name}: «${step.hint}»</div>`;
   };
   document.getElementById('tohub').onclick = () => { renderHub(); goTop(); };
   const body = document.getElementById('body');
   ({choice:renderChoice, map:renderMapTask, order:renderOrder, match:renderMatch})[step.type](step, body);
+  /* подзорная труба: раз за плавание убирает один неверный вариант */
+  const gb = document.getElementById('glassBtn');
+  if(gb) gb.onclick = () => {
+    const wrong = [...body.querySelectorAll('.opt')].filter(b => +b.dataset.i !== step.ans && !b.disabled);
+    if(!wrong.length) return;
+    const b = wrong[Math.floor(Math.random() * wrong.length)];
+    b.disabled = true; b.classList.add('glassed'); b.textContent = '🔭 ' + b.textContent + ' — не то';
+    cs.glass = true; save(); gb.remove();
+  };
 }
 
 function answer(task, ok, rightText){
@@ -2386,7 +2696,15 @@ function renderMapTask(task, body){
       if(!ok) svg.append('line').attr('x1',px).attr('y1',py).attr('x2',tx).attr('y2',ty).attr('stroke','#a23b2f').attr('stroke-width',1.5).attr('stroke-dasharray','4 3');
       svg.append('circle').attr('cx',tx).attr('cy',ty).attr('r',7).attr('fill', '#2f7a4a').attr('stroke','#fff').attr('stroke-width',2);
       svg.append('text').attr('x',tx+10).attr('y',ty-8).attr('font-weight','700').attr('font-size',14).attr('fill','#1d4d2f').text(task.targetLabel);
-      answer(task, ok, `зелёная точка на карте — ${esc(task.targetLabel)}${ok ? '' : ` (твоя отметка в ${Math.round(km)} км от неё)`}`);
+      let dir = '';
+      if(!ok && owns('tools','crossstaff')){
+        const dLat = task.target[1] - pick[1], dLon = task.target[0] - pick[0];
+        const ns = Math.abs(dLat) > Math.abs(dLon) * 0.4 ? (dLat > 0 ? 'север' : 'юг') : '';
+        const ew = Math.abs(dLon) > Math.abs(dLat) * 0.4 ? (dLon > 0 ? 'восток' : 'запад') : '';
+        const w = ns && ew ? (ns === 'север' ? 'северо-' : 'юго-') + ew : (ns || ew);
+        dir = `<br>📏 Градшток: правильное место лежит на ${w} от твоей отметки.`;
+      }
+      answer(task, ok, `зелёная точка на карте — ${esc(task.targetLabel)}${ok ? '' : ` (твоя отметка в ${Math.round(km)} км от неё)`}${dir}`);
     };
   });
 }
@@ -2399,9 +2717,18 @@ function finishChapter(c){
   const tasks = c.steps.filter(s => s.type !== 'story');
   const right = Object.values(cs.answers).filter(v => v === true).length;
   let bonus = 0;
+  let gifts = '';
   if(!cs.done){
     cs.done = true; bonus = 20; state.gold += bonus;
     revealIds(c.reveal);
+    ensureYard();
+    const Y = state.yard;
+    if(c.id === 'c1' && !Y.own.hull.includes('sloop')){
+      Y.own.hull.push('sloop'); if(Y.eq.hull === 'keel') Y.eq.hull = 'sloop';
+      gifts += `<p class="newcard">🎁 Себастьян: «За такое плавание верфь бесплатно поставит тебе корпус шлюпа». Теперь у тебя есть настоящий корабль — загляни на верфь!</p>`;
+    }
+    const T = TROPHIES[c.id];
+    if(T && !Y.trophies.includes(T.id)){ Y.trophies.push(T.id); Y.deck.push(T.id); gifts += `<p class="newcard">🏆 Трофей плавания: ${T.n}. Он уже стоит на палубе твоего корабля.</p>`; }
   }
   if(cs.replay){
     const prevBest = cs.best ? Object.values(cs.best).filter(v => v === true).length : 0;
@@ -2412,7 +2739,7 @@ function finishChapter(c){
     <h2>Глава пройдена!</h2>
     ${speakerHtml('hero')}
     ${paras(c.outro)}
-    <p><b>Верных ответов: ${right} из ${tasks.length}</b>${bonus ? ` · <span style="color:var(--gold);font-weight:700">+${bonus} золотых за плавание</span>` : ''}</p>
+    <p><b>Верных ответов: ${right} из ${tasks.length}</b>${bonus ? ` · <span style="color:var(--gold);font-weight:700">+${bonus} золотых за плавание</span>` : ''}</p>${gifts}
     <div class="row"><button class="btn" id="hub">Открыть атлас</button></div></div>`;
   fillAvatars();
   document.getElementById('hub').onclick = () => { renderHub(); goTop(); };

@@ -219,6 +219,18 @@ for (const key of BY_ENGINE[ENGINE]) {
     await page.click('#jr'); await page.waitForTimeout(600);
     if (await page.locator('.jcard').count() >= 20) ok('3 экраны'); else fail('3 экраны', 'журнал неполный');
     await overlap('судовой журнал'); await shot('Судовой журнал');
+    // Верфь: открывается из порта, корабль нарисован, покупка списывает золото
+    await page.click('#back'); await page.waitForTimeout(800);
+    await page.evaluate(() => typeof endCine === 'function' && endCine());
+    await page.locator('#yard').scrollIntoViewIfNeeded(); await page.click('#yard'); await page.waitForTimeout(700);
+    if (await page.locator('.yship svg').count()) ok('3 экраны'); else fail('3 экраны', 'верфь: корабль не нарисован');
+    const g0 = await page.evaluate(() => state.gold);
+    await page.click('[data-tab=sail]'); await page.waitForTimeout(200);
+    const buy = page.locator('[data-buy=lateen]');
+    if (await buy.count() && await buy.isEnabled()) { await buy.click(); await page.waitForTimeout(200);
+      const g1 = await page.evaluate(() => state.gold);
+      if (g1 === g0 - 80) ok('3 экраны'); else fail('3 экраны', `верфь: покупка паруса списала ${g0 - g1} вместо 80`); }
+    await overlap('верфь'); await shot('Верфь');
 
     // 7. Установка и офлайн (Chrome, ноутбук — один раз, это не зависит от экрана)
     if (ENGINE === 'chrome' && key === 'laptop') {
