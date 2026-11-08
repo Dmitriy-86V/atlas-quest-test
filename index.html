@@ -569,7 +569,7 @@ const CHAPTERS = [
          'Отсюда удобно начинать путь на запад: в этих широтах постоянно дуют пассаты — устойчивые ветры, которые несут корабли от Африки к Америке.',
          'Забавно, но острова названы не в честь канареек — скорее наоборот, птиц назвали по островам. А само название, по одной из версий, происходит от латинского слова «собака».'],
     card:{title:'Пассаты', text:'Постоянные ветры тропиков. Дуют с северо-востока и помогли Колумбу пересечь Атлантику.'}},
-   {id:'t6', type:'choice', noShuffle:true,
+   {id:'t6', type:'choice', noShuffle:true, scene:'sargasso',
     rv:{ids:[], bbox:[[-88,12],[-25,44]], circle:[-60,30,9], at:[-60,30], label:'Саргассово море'},
     q:'Посреди океана вода вдруг зазеленела от плавающих водорослей. Себастьян как-то говорил, что в Атлантике есть море, у которого нет ни одного берега. Верно ли это?',
     opts:['Верно','Неверно'], ans:0,
@@ -1296,6 +1296,7 @@ const SCENE_IMG = {
   'penguin-coast':{file:'penguin-coast', fb:'day-sea'},
   'malindi':     {file:'malindi',     fb:'tropic'},
   'calicut':     {file:'calicut',     fb:'tropic'},
+  'sargasso':    {file:'sargasso',    fb:'day-sea'},
   'seville':     {file:'seville',     fb:'day-port'},
   'sanlucar':    {file:'sanlucar',    fb:'day-sea'},
   'rio-bay':     {file:'rio-bay',     fb:'tropic'},
@@ -1316,7 +1317,7 @@ const SCENE_ALT = {
   'palace':['port-day'], 'map-room':['tavern'], 'lisbon':['palos','port-day'], 'cape-verde':['ocean-day'],
   'southern-sky':['ocean-night'], 'cape-storm':['ocean-night'], 'penguin-coast':['island','ocean-day'],
   'malindi':['island'], 'calicut':['island'],
-  'seville':['palos','port-day'], 'sanlucar':['ocean-day'], 'rio-bay':['island'], 'patagonia':['ocean-day'],
+  'sargasso':['ocean-day'], 'seville':['palos','port-day'], 'sanlucar':['ocean-day'], 'rio-bay':['island'], 'patagonia':['ocean-day'],
   'strait':['ocean-night'], 'pacific':['ocean-day'], 'mactan':['island'], 'moluccas':['island'], 'victoria-return':['sunset-port']
 };
 /* face — куда смотрит персонаж на картинке: L (влево) или R (вправо).
@@ -1533,7 +1534,7 @@ function setFx(name){
   setTimeout(() => { box.innerHTML = h; box.style.opacity = 1; }, 400);
 }
 /* Список файлов игры — заполняется автоматически (build.py), чтобы не перебирать расширения по сети */
-const FILES = /*FILES*/{"img": {"alenquer-face": "jpg", "alenquer": "png", "calicut": "jpg", "cape-storm": "jpg", "cape-verde": "jpg", "chest-closed": "jpg", "chest": "jpg", "columbus-face": "jpg", "columbus": "png", "dias-face": "jpg", "dias": "png", "eclipse": "jpg", "elcano-face": "jpg", "elcano": "png", "fog": "jpg", "hero-face": "jpg", "hero": "png", "hispaniola": "jpg", "island": "jpg", "lisbon": "jpg", "mactan": "jpg", "magellan-face": "jpg", "magellan": "png", "malindi": "jpg", "map-room": "jpg", "map": "jpg", "moluccas": "jpg", "ocean-day": "jpg", "ocean-night": "jpg", "pacific": "jpg", "palace": "jpg", "palos": "jpg", "patagonia": "jpg", "penguin-coast": "jpg", "pigafetta-face": "jpg", "pigafetta": "png", "pilot-face": "jpg", "pilot": "png", "port-dawn": "jpg", "port-day": "jpg", "port-night": "jpg", "rio-bay": "jpg", "sailor-face": "jpg", "sailor": "png", "sanlucar": "jpg", "sebastian-face": "jpg", "sebastian": "png", "seville": "jpg", "southern-sky": "jpg", "strait": "jpg", "sunset-port": "jpg", "taino-village": "jpg", "tavern": "jpg", "vasco-face": "jpg", "vasco": "png", "victoria-return": "jpg"}, "vid": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"], "snd": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"]}/*/FILES*/;
+const FILES = /*FILES*/{"img": {"alenquer-face": "jpg", "alenquer": "png", "calicut": "jpg", "cape-storm": "jpg", "cape-verde": "jpg", "chest-closed": "jpg", "chest": "jpg", "columbus-face": "jpg", "columbus": "png", "dias-face": "jpg", "dias": "png", "eclipse": "jpg", "elcano-face": "jpg", "elcano": "png", "fog": "jpg", "hero-face": "jpg", "hero": "png", "hispaniola": "jpg", "island": "jpg", "lisbon": "jpg", "mactan": "jpg", "magellan-face": "jpg", "magellan": "png", "malindi": "jpg", "map-room": "jpg", "map": "jpg", "moluccas": "jpg", "ocean-day": "jpg", "ocean-night": "jpg", "pacific": "jpg", "palace": "jpg", "palos": "jpg", "patagonia": "jpg", "penguin-coast": "jpg", "pigafetta-face": "jpg", "pigafetta": "png", "pilot-face": "jpg", "pilot": "png", "port-dawn": "jpg", "port-day": "jpg", "port-night": "jpg", "rio-bay": "jpg", "sailor-face": "jpg", "sailor": "png", "sanlucar": "jpg", "sargasso": "jpg", "sebastian-face": "jpg", "sebastian": "png", "seville": "jpg", "southern-sky": "jpg", "strait": "jpg", "sunset-port": "jpg", "taino-village": "jpg", "tavern": "jpg", "vasco-face": "jpg", "vasco": "png", "victoria-return": "jpg"}, "vid": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"], "snd": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"]}/*/FILES*/;
 function findImg(file){
   if(FILES.img){
     if(imgCache[file] !== undefined) return imgCache[file];
@@ -1563,7 +1564,7 @@ const SCENE_PLACE = {
   'southern-sky':'Южная Атлантика · октябрь 1497', 'cape-storm':'Мыс Доброй Надежды · 22 ноября 1497',
   'penguin-coast':'Бухта Сан-Браш · декабрь 1497', 'malindi':'Малинди, Восточная Африка · апрель 1498',
   'calicut':'Каликут, Индия · 20 мая 1498',
-  'seville':'Севилья, Испания · август 1519', 'sanlucar':'Санлукар-де-Баррамеда · 20 сентября 1519',
+  'sargasso':'Саргассово море · сентябрь 1492', 'seville':'Севилья, Испания · август 1519', 'sanlucar':'Санлукар-де-Баррамеда · 20 сентября 1519',
   'rio-bay':'Бухта Рио-де-Жанейро · декабрь 1519', 'patagonia':'Патагония, бухта Сан-Хулиан · 1520',
   'strait':'Магелланов пролив · ноябрь 1520', 'pacific':'Тихий океан · 1521', 'mactan':'Остров Мактан, Филиппины · апрель 1521',
   'moluccas':'Остров Тидоре, Молуккские острова · ноябрь 1521', 'victoria-return':'Санлукар · 6 сентября 1522'
@@ -1574,10 +1575,10 @@ const SCENE_FOCUS = {'chest-closed':'55%','chest-open':'55%','port-day':'32%','p
   'taino-village':'45%','hispaniola':'72%','eclipse':'55%',
   'palace':'55%','map-room':'50%','lisbon':'62%','cape-verde':'40%','southern-sky':'30%','cape-storm':'30%',
   'penguin-coast':'38%','malindi':'28%','calicut':'38%',
-  'seville':'40%','sanlucar':'35%','rio-bay':'45%','patagonia':'55%','strait':'45%','pacific':'45%','mactan':'30%','moluccas':'45%','victoria-return':'35%'};
+  'sargasso':'60%', 'seville':'40%','sanlucar':'35%','rio-bay':'45%','patagonia':'55%','strait':'45%','pacific':'45%','mactan':'30%','moluccas':'45%','victoria-return':'35%'};
 const cineSeen = new Set();
 /* сцены-картинки, перед которыми тоже показываем фон пару секунд до текста */
-const CINE_IMG = ['chest-closed', 'chest-open', 'seville', 'sanlucar', 'rio-bay', 'patagonia', 'strait', 'pacific', 'mactan', 'moluccas', 'victoria-return'];
+const CINE_IMG = ['chest-closed', 'chest-open', 'sargasso', 'seville', 'sanlucar', 'rio-bay', 'patagonia', 'strait', 'pacific', 'mactan', 'moluccas', 'victoria-return'];
 let cineTimer = 0, cineOn = false;
 function startCine(name){
   const sec = innerWidth <= 900 ? 3.5 : 2.5;
@@ -1695,7 +1696,7 @@ const SCENE_SND = {
   'chest-closed':'tavern', 'chest-open':'tavern', 'palace':'palace', 'map-room':'map-room', 'lisbon':'lisbon', 'cape-verde':'cape-verde', 'southern-sky':'southern-sky',
   'cape-storm':'cape-storm', 'penguin-coast':'penguin-coast', 'malindi':'malindi', 'calicut':'calicut',
   /* глава 3 пока на картинках — звук берём из похожих сцен */
-  'seville':'palos', 'sanlucar':'lisbon', 'rio-bay':'island', 'patagonia':'southern-sky', 'strait':'ocean-night',
+  'sargasso':'ocean-day', 'seville':'palos', 'sanlucar':'lisbon', 'rio-bay':'island', 'patagonia':'southern-sky', 'strait':'ocean-night',
   'pacific':'ocean-day', 'mactan':'island', 'moluccas':'malindi', 'victoria-return':'lisbon'
 };
 /* Пока файла нет, море и волшебный гул генерируются прямо в браузере */
