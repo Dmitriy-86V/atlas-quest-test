@@ -220,9 +220,9 @@ for (const key of BY_ENGINE[ENGINE]) {
     if (await page.locator('.jcard').count() >= 20) ok('3 экраны'); else fail('3 экраны', 'журнал неполный');
     await overlap('судовой журнал'); await shot('Судовой журнал');
     // Верфь: открывается из порта, корабль нарисован, покупка списывает золото
-    await page.click('#back'); await page.waitForTimeout(800);
+    await clickSafe('#back', 'журнал'); await page.waitForTimeout(800);
     await page.evaluate(() => typeof endCine === 'function' && endCine());
-    await page.locator('#yard').scrollIntoViewIfNeeded(); await page.click('#yard'); await page.waitForTimeout(700);
+    await clickSafe('#yard', 'порт'); await page.waitForTimeout(700);
     if (await page.locator('.yship svg').count()) ok('3 экраны'); else fail('3 экраны', 'верфь: корабль не нарисован');
     const g0 = await page.evaluate(() => state.gold);
     await page.click('[data-tab=sail]'); await page.waitForTimeout(200);

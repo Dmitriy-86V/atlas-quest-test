@@ -1893,10 +1893,12 @@ function shipSVG(cfg, w, opts){
   /* трофеи на палубе */
   let tro = '';
   (c.deck || []).forEach((t, k) => { if(TROPHY_DRAW[t]) tro += TROPHY_DRAW[t](x0 + 28 + k * 20 + (H.aft ? 42 : 10), deck - 6); });
-  const water = (opts && opts.flat) ? '' : `<path d="M-50 ${bot-6} Q-25 ${bot-10} 0 ${bot-6} T50 ${bot-6} T100 ${bot-6} T150 ${bot-6} T200 ${bot-6} T250 ${bot-6} L250 ${bot+20} L-50 ${bot+20} Z" fill="#2c6e9e" opacity=".35"/><path d="M-50 ${bot-2} Q-25 ${bot-6} 0 ${bot-2} T50 ${bot-2} T100 ${bot-2} T150 ${bot-2} T200 ${bot-2} T250 ${bot-2}" stroke="#e8f3ff" stroke-opacity=".6" fill="none"/>`;
   /* кадр по размеру корабля, чтобы маленький шлюп не терялся */
   const minTop = Math.min(...H.masts.map(m => m[1])) - 16;
   const vx = x0 - 22, vw = (x1 + 26) - vx, vy = minTop, vh = bot + 6 - vy;
+  /* вода строго в пределах кадра (иначе проверка наложений видит выход за край) */
+  const wv = (y, amp) => { let d = `M${vx} ${y}`; for(let x = vx; x < vx + vw; x += 25) d += ` Q${Math.min(x+12.5, vx+vw)} ${y-amp} ${Math.min(x+25, vx+vw)} ${y}`; return d; };
+  const water = (opts && opts.flat) ? '' : `<path d="${wv(bot-6, 4)} L${vx+vw} ${vy+vh} L${vx} ${vy+vh} Z" fill="#2c6e9e" opacity=".35"/><path d="${wv(bot-2, 4)}" stroke="#e8f3ff" stroke-opacity=".6" fill="none"/>`;
   return `<svg viewBox="${vx} ${vy} ${vw} ${vh}" width="${w}" height="${Math.round(w*vh/vw)}" aria-label="Твой корабль">${rig}${sails}${flag}${castle}${hull}${stern}${fig}${tro}${water}</svg>`;
 }
 
