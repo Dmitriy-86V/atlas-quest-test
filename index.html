@@ -1644,13 +1644,15 @@ function showScene(name, opts){
     setFx(name);
     NL.style.backgroundImage = `url("${url}")`; NL.dataset.url = url;
     releaseVids(NL); NL.innerHTML = '';
+    NL._gen = (NL._gen || 0) + 1; const oldGen = OL._gen;
     findVid(m.file).then(v => {
       if(!v || imgScene !== name || NL.dataset.url !== url) return;
       startVideoLoop(NL, v, m.file, () => imgScene === name && NL.dataset.url === url);
     });
     setTimeout(() => {
       NL.classList.add('on'); OL.classList.remove('on');
-      setTimeout(() => { if(!OL.classList.contains('on')) releaseVids(OL); }, 1500);
+      /* освобождаем старый слой, только если его за это время не заняла новая сцена (иначе убьём её свежее видео) */
+      setTimeout(() => { if(!OL.classList.contains('on') && OL._gen === oldGen) releaseVids(OL); }, 1500);
       requestAnimationFrame(() => NL.classList.remove('pre'));
       cur.classList.remove('dark');
     }, 280);
