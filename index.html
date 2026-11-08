@@ -1769,9 +1769,10 @@ function shipCfg(){ const y = state.yard || newYard(); return Object.assign({col
 /* ---------- Рисунок корабля из частей (нос справа) ---------- */
 const HULLS = {
   sloop:   {x0:55, x1:150, deck:96, bot:116, masts:[[102,40]], aft:null, fore:null},
-  caravel: {x0:38, x1:165, deck:94, bot:116, masts:[[62,52],[100,30],[136,46]], aft:[38,72,82], fore:null},
-  nao:     {x0:26, x1:174, deck:92, bot:118, masts:[[54,48],[98,22],[140,38]], aft:[26,74,70], fore:[146,172,82]},
-  galleon: {x0:14, x1:186, deck:90, bot:120, masts:[[38,54],[70,28],[106,18],[148,36]], aft:[14,72,58], fore:[152,182,78]}
+  /* каравелла — низкая и узкая; нао — пузатая, с высокими носом и кормой; галеон — длинный, 4 мачты, двухъярусная корма */
+  caravel: {x0:40, x1:164, deck:100, bot:113, masts:[[64,56],[100,36],[134,52]], aft:[40,66,90], fore:null},
+  nao:     {x0:30, x1:170, deck:90, bot:126, masts:[[54,26],[98,16],[138,32]], aft:[30,76,62], fore:[140,170,72]},
+  galleon: {x0:8,  x1:192, deck:88, bot:122, masts:[[32,12],[72,20],[108,6],[150,26]], aft:[8,58,46], fore:[156,184,74], tiers:2}
 };
 const FLAG_DRAW = {
   jolly:   (x,y) => `<path d="M${x} ${y} L${x+17} ${y+1} L${x+15} ${y+6} L${x+17} ${y+11} L${x} ${y+10} Z" fill="#161616"/><circle cx="${x+7}" cy="${y+4.5}" r="2" fill="#f1ead8"/><path d="M${x+5} ${y+7.5} L${x+9} ${y+9} M${x+9} ${y+7.5} L${x+5} ${y+9}" stroke="#f1ead8" stroke-width=".9"/>`,
@@ -1842,17 +1843,26 @@ function shipSVG(cfg, w, opts){
   hull += `<path d="M${x0+2} ${deck+4} L${x1-4} ${deck}" stroke="${gold}" stroke-width="1.8"/>`;
   hull += `<path d="M${x0+10} ${bot-6} Q${(x0+x1)/2} ${bot-4} ${x1-26} ${bot-8}" stroke="#3b2414" stroke-width="1.1" fill="none"/>`;
   if(c.hull === 'nao' || c.hull === 'galleon'){
-    let ports = ''; for(let x = x0 + 30; x < x1 - 30; x += 14) ports += `<rect x="${x}" y="${deck+8 - (x-x0)*0.02}" width="5" height="4" rx=".6"/>`;
+    let ports = '';
+    const rows = c.hull === 'galleon' ? [8, 18] : [9];
+    rows.forEach(dy => { for(let x = x0 + 30; x < x1 - 34; x += 13) ports += `<rect x="${x}" y="${deck+dy - (x-x0)*0.02}" width="5" height="4" rx=".6"/>`; });
     hull += `<g fill="#1d120a">${ports}</g>`;
   }
-  if(c.hull === 'galleon'){ hull += `<path d="M${x0+4} ${deck+15} L${x1-12} ${deck+11}" stroke="${gold}" stroke-width="1.2"/>`; }
+  if(c.hull === 'caravel'){ hull += `<path d="M${x0+4} ${deck+6} L${x1-10} ${deck+2}" stroke="#3b2414" stroke-width=".8"/>`; }
+  if(c.hull === 'galleon'){
+    hull += `<path d="M${x0+4} ${deck+14} L${x1-14} ${deck+10}" stroke="${gold}" stroke-width="1.2"/>`;
+    hull += `<path d="M${x1-4} ${deck-4} L${x1+8} ${deck+2} L${x1-6} ${deck+6} Z" fill="${wood2}" stroke="${ink}" stroke-width=".7"/>`; /* клюв-гальюн */
+  }
   /* кормовая и носовая надстройки */
   let castle = '';
   if(H.aft){
     const [a0, a1, top] = H.aft;
     castle += `<path d="M${a0-2} ${top} L${a1} ${top+4} L${a1} ${deck+1} L${a0} ${deck+2} Z" fill="${wood2}" stroke="${ink}" stroke-width=".8"/>`;
     castle += `<path d="M${a0-3} ${top-2} L${a1+1} ${top+2} L${a1+1} ${top+4} L${a0-2} ${top} Z" fill="${gold}"/>`;
-    if(c.hull === 'galleon') castle += `<path d="M${a0} ${top+14} L${a1} ${top+16}" stroke="${ink}" stroke-width=".7"/>`;
+    if(H.tiers){ /* двухъярусная корма: ступенька и балкон */
+      castle += `<path d="M${a0} ${top+20} L${a1} ${top+22}" stroke="${gold}" stroke-width="1.3"/>`;
+      castle += `<path d="M${a1} ${top+4} L${a1+10} ${top+14} L${a1+10} ${deck} L${a1} ${deck+1} Z" fill="${wood2}" stroke="${ink}" stroke-width=".7"/>`;
+    }
   }
   if(H.fore){
     const [f0, f1, top] = H.fore;
