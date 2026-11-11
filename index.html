@@ -1448,12 +1448,12 @@ const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2
   /* глава 2: сюжетные ролики замирают на последнем кадре; циклы склеены заранее (конец ролика = его начало) */
   /* один проход, затем «дышащий» последний кадр (без повтора и без обратного хода) */
   'chest-open':'hold', 'palace':'hold', 'map-room':'hold', 'lisbon':'hold', 'cape-verde':'hold', 'malindi':'hold', 'calicut':'hold',
-  'southern-sky':0, 'cape-storm':0, 'penguin-coast':'hold'};
+  'southern-sky':0, 'cape-storm':0, 'penguin-coast':0};
 /* Облегчённый режим для телефонов и слабых устройств */
 const LITE = matchMedia('(max-width:900px)').matches || matchMedia('(pointer:coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4;
 const XFADE = 1.4; /* длительность растворения на склейке, сек */
 /* Ролики, сгенерированные петлёй (первый кадр = последний): крутятся без растворения */
-const SEAMLESS_LOOP = ['ocean-day', 'island', 'taino-village'];
+const SEAMLESS_LOOP = ['ocean-day', 'island', 'taino-village', 'penguin-coast'];
 /* Сюжетный ролик (высадка) проигрывается заново на каждом новом задании этой сцены */
 function replayHold(){
   const v = document.querySelector('.simg.on .svid.hold, .simg.on .svid[data-hold]');
