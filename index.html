@@ -1480,14 +1480,9 @@ function startVideoLoop(layer, src, key, alive){
   };
   /* отрицательное значение — повторять только последние N секунд (ролик сначала идёт целиком) */
   const loopVal = VIDEO_LOOP[key] || 0;
-  if(SEAMLESS_LOOP.includes(key)){
-    /* бесшовная петля (последний кадр = первый): встроенный повтор без растворения, иначе на склейке двоится картинка */
-    A.loop = true;
-    A.addEventListener('timeupdate', () => { if(!alive()) A.pause(); });
-    A.addEventListener('playing', onPlaying, {once:true});
-    A.play().catch(() => {});
-    return;
-  }
+  /* бесшовная петля (последний кадр = первый): очень короткое растворение, иначе на склейке двоится картинка.
+     Встроенный повтор (loop) не используем: тестовый Safari на нём выдаёт ошибку загрузки */
+  const SEAM = SEAMLESS_LOOP.includes(key), FADE = SEAM ? 0.3 : XFADE;
   if(loopVal === 'hold'){
     /* сюжетный ролик: проигрывается один раз и замирает на последнем кадре, дальше — медленный наезд */
     const v = A;
@@ -1518,14 +1513,15 @@ function startVideoLoop(layer, src, key, alive){
   let cur = A, other = B, swapping = false;
   const onTime = () => {
     if(!alive()){ A.pause(); B.pause(); return; }
-    if(swapping || !cur.duration || cur.currentTime < cur.duration - XFADE - .15) return;
+    if(swapping || !cur.duration || cur.currentTime < cur.duration - FADE - .15) return;
     swapping = true;
     const nxt = other, prev = cur;
+    if(SEAM){ nxt.style.transition = prev.style.transition = `opacity ${FADE}s linear`; }
     nxt.currentTime = loopVal < 0 ? Math.max(0, cur.duration + loopVal - XFADE) : loopVal;
     nxt.play().then(() => {
       nxt.style.zIndex = 2; prev.style.zIndex = 1;
       nxt.style.opacity = 1;
-      setTimeout(() => { prev.style.opacity = 0; prev.pause(); cur = nxt; other = prev; swapping = false; }, XFADE * 1000 + 50);
+      setTimeout(() => { prev.style.opacity = 0; prev.pause(); cur = nxt; other = prev; swapping = false; }, FADE * 1000 + 50);
     }).catch(() => { swapping = false; });
   };
   A.addEventListener('timeupdate', onTime); B.addEventListener('timeupdate', onTime);
