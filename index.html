@@ -1452,6 +1452,8 @@ const VIDEO_LOOP = {'chest':2.58, 'port-day':2.96, 'port-night':2.46, 'tavern':2
 /* Облегчённый режим для телефонов и слабых устройств */
 const LITE = matchMedia('(max-width:900px)').matches || matchMedia('(pointer:coarse)').matches || (navigator.hardwareConcurrency || 8) <= 4;
 const XFADE = 1.4; /* длительность растворения на склейке, сек */
+/* Ролики, сгенерированные петлёй (первый кадр = последний): крутятся без растворения */
+const SEAMLESS_LOOP = ['ocean-day', 'island'];
 /* Сюжетный ролик (высадка) проигрывается заново на каждом новом задании этой сцены */
 function replayHold(){
   const v = document.querySelector('.simg.on .svid.hold, .simg.on .svid[data-hold]');
@@ -1474,6 +1476,14 @@ function startVideoLoop(layer, src, key, alive){
   };
   /* отрицательное значение — повторять только последние N секунд (ролик сначала идёт целиком) */
   const loopVal = VIDEO_LOOP[key] || 0;
+  if(SEAMLESS_LOOP.includes(key)){
+    /* бесшовная петля (последний кадр = первый): встроенный повтор без растворения, иначе на склейке двоится картинка */
+    A.loop = true;
+    A.addEventListener('timeupdate', () => { if(!alive()) A.pause(); });
+    A.addEventListener('playing', onPlaying, {once:true});
+    A.play().catch(() => {});
+    return;
+  }
   if(loopVal === 'hold'){
     /* сюжетный ролик: проигрывается один раз и замирает на последнем кадре, дальше — медленный наезд */
     const v = A;
