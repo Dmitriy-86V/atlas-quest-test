@@ -40,3 +40,6 @@
 Готовы также: river-napo, amazon-confluence, amazon-wildlife, rio-negro, amazons (перья как у сев.-амер. индейцев — переделка по желанию), amazon-mouth.
 ПЕРЕДЕЛАТЬ в конце: boat-building (Карвахаль-доминиканец), cubagua (повязка на левом глазу → правый).
 Далее: портреты orellana, pizarro, carvajal.
+## 14.11.2026 — ВСЕ КАРТИНКИ ГЛАВЫ 4 ГОТОВЫ
+11 сцен (quito, andes-pass, cloud-forest, boat-building v2, river-napo v2, amazon-confluence, amazon-wildlife, rio-negro, amazons v2, amazon-mouth, cubagua v2) + 3 портрета (orellana, pizarro, carvajal). Все в D:\Колумб\Исходники. Повязка Орельяны проверена: везде правый глаз.
+Дальше: тексты заданий гл.4 на согласование → сборка.
