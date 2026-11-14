@@ -4,3 +4,4 @@
 - гл.8 finale-tavern — Себастьян по образцу sebastian.png (синий камзол, красный кушак, длинная седая борода); прикрепить hero.png + sebastian.png
 Сделано ранее: гл.4 boat-building, cubagua, amazons, river-napo; гл.5 bering-island.
 Не начато: стоп-кадры решений героини (24 сюжета, максимально разнообразные), мини-игра (картинок не нужно).
+14.11.2026: все 3 переделки сделаны (tahiti, tupaia, finale-tavern — у Дмитрия файл «finale-tavern.png (2).png»).
