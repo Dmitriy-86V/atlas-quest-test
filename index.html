@@ -2969,7 +2969,10 @@ function renderMapTask(task, body){
     svg.append('rect').attr('class','sea').attr('width',w).attr('height',h);
     svg.append('path').datum(d3.geoGraticule().step([5,5])()).attr('class','grat').attr('d',path);
     svg.selectAll('.land').data(world).join('path').attr('class','land plain').attr('d',path);
-    (task.labels || []).forEach(([lon,lat,t]) => { const [x,y] = proj([lon,lat]); svg.append('text').attr('class','maplabel').attr('x',x).attr('y',y).attr('text-anchor','middle').text(t); });
+    (task.labels || []).forEach(([lon,lat,t]) => { const [x,y] = proj([lon,lat]); const lb = svg.append('text').attr('class','maplabel').attr('x',x).attr('y',y).attr('text-anchor','middle').text(t);
+      // подпись у края карты сдвигается внутрь, чтобы не обрезалась
+      let half = 0; try { half = lb.node().getComputedTextLength() / 2 + 8; } catch(e) {}
+      if (half) lb.attr('x', half*2 >= w ? w/2 : Math.min(Math.max(x, half), w - half)); });
     const mk = svg.append('g').style('display','none');
     mk.append('circle').attr('r',9).attr('fill','none').attr('stroke','#9c4a24').attr('stroke-width',2.5);
     mk.append('circle').attr('r',3).attr('fill','#9c4a24');
