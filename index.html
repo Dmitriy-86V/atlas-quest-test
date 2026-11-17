@@ -73,6 +73,17 @@ input[type=text]{width:100%;font:inherit;padding:12px;border:1.5px solid var(--l
 .fb.neutral{background:#efe6d2;border-color:var(--line)}
 .fb .reward{font-weight:700;color:var(--gold)}
 .fb .newcard{font-size:15px;color:var(--ink2)}
+.decbadge{display:inline-block;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);border-bottom:2px solid var(--gold);margin-bottom:6px}
+.dopt{display:flex;align-items:center;gap:12px}
+.dopt .di{font-size:26px;line-height:1}
+.dopt small{display:block;color:var(--ink2);font-size:14px}
+.traitgain{font-weight:700;color:var(--ink)}
+.card .reward{font-weight:700;color:var(--gold)}
+.card .newcard{font-size:15px;color:var(--ink2)}
+.traits{display:flex;flex-wrap:wrap;gap:6px 16px}
+.decrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0}
+.decrow .muted{font-size:14px}
+.decrow.locked{opacity:.6}
 .slot{background:var(--paper);border:1.5px dashed var(--line);border-radius:10px;padding:10px 12px;margin:6px 0}
 .slot.ok{border:1.5px solid var(--ok);background:var(--okbg)}
 .slot.no{border:1.5px solid var(--bad);background:var(--badbg)}
@@ -615,6 +626,25 @@ const CHAPTERS = [
          'Так он хотел, чтобы моряки не испугались, как далеко они ушли от дома.',
          'Забавно, что «уменьшенные» цифры иногда оказывались ближе к правде: Колумб сам переоценивал скорость кораблей.'],
     card:{title:'Два журнала', text:'Чтобы не пугать команду, Колумб показывал журнал с уменьшенным пройденным расстоянием, а настоящие расчёты держал при себе.'}},
+   /* ---------- Решение юнги: бунт ---------- */
+   {id:'d1', type:'decision', who:'columbus', title:'Бунт на «Санта-Марии»', scene:'dec1-situation', closeScene:'dec1-close', histScene:'dec1-history',
+    sit:['10 октября 1492 года. Больше месяца вокруг одна вода.',
+         'Матросы собираются у мачты и громко ропщут: еды и пресной воды всё меньше, и они требуют повернуть домой. Кто-то шепчет, что адмирала можно и за борт…',
+         'Колумб выходит на палубу и встречается взглядом с тобой. А ты можешь быть только в одном месте.'],
+    q:'Что сделаешь ты, юнга?',
+    opts:[{tr:'brave', t:'Встать рядом с адмиралом', scene:'dec1-a', bonus:'gold',
+           act:'Ты поднимаешься на корму, встаёшь рядом с Колумбом и говоришь команде: «Мы уже так далеко зашли — неужели повернём в двух шагах от цели?»',
+           reply:'«Смелая юнга. Помни: тот, кто ищет новые земли, не может слушать страх».'},
+          {tr:'friend', t:'Передать просьбу команды', scene:'dec1-b', bonus:'hint',
+           act:'Ты подсаживаешься к матросам и выслушиваешь их, а потом идёшь к адмиралу: «Люди боятся. Может быть, выслушать их?»',
+           reply:'«Ты права, страх нельзя не замечать. Но мы не повернём — я им объясню почему».'},
+          {tr:'smart', t:'Искать приметы земли', scene:'dec1-c', bonus:'card',
+           act:'Ты свешиваешься через борт и вглядываешься в воду… Зелёный тростник! А вот и ветка с ягодами — ты вылавливаешь её багром.',
+           reply:'«Глаза у тебя зоркие. Ветка с ягодами не плавает долго — земля близко!»'}],
+    hist:['Команды Колумба действительно были на грани бунта. В журнале 10 октября адмирал записал, что люди жаловались на долгое плавание, а он подбадривал их и твёрдо сказал, что поплывёт дальше.',
+          'По рассказам, записанным позже, Колумб обещал повернуть, если земля не появится через несколько дней.',
+          'А 11 октября моряки выловили из воды зелёный тростник, обструганную палочку и ветку с ягодами. В ту же ночь матрос с «Пинты» увидел землю.'],
+    card:{title:'Приметы земли', text:'Птицы, летящие в одну сторону, плавающие ветки и тростник, водоросли с крабами. По этим знакам моряки догадывались, что берег близко, задолго до того, как его увидеть.'}},
    {id:'t7', type:'order', scene:'ocean-night',
     rv:{ids:[], bbox:[[-88,8],[2,46]], route:[[-6.9,37.2],[-17.2,28.1],[-45,26.5],[-74.5,24.05],[-75.6,21.2],[-72.3,19.9]], at:[-30,38], label:'Путь 1492 года'},
     q:'Ты ведёшь судовой журнал. Расставь события плавания 1492 года по порядку.',
@@ -671,6 +701,25 @@ const CHAPTERS = [
     exp:['La Isla Española — «Испанский остров». Колумбу казалось, что здешние долины похожи на родную Испанию.',
          'Сегодня на Эспаньоле два государства: Гаити на западе и Доминиканская Республика на востоке. А у её северного берега лежит наша Тортуга!'],
     card:{title:'Эспаньола', text:'«Испанский остров». Сегодня на нём два государства — Гаити и Доминиканская Республика.'}},
+   /* ---------- Решение юнги: Рождество ---------- */
+   {id:'d2', type:'decision', who:'columbus', title:'Рождество и «Санта-Мария»', scene:'dec2-situation', closeScene:'dec2-close', histScene:'dec2-history',
+    sit:['Ночь на 25 декабря 1492 года, у северного берега Эспаньолы. Уставший рулевой отдал руль юнге-мальчишке и уснул.',
+         'Вдруг корабль вздрагивает и со скрипом замирает: «Санта-Мария» села на мель. По палубе течёт вода. Колумб кричит: «Все наверх!»',
+         'Работы много, а ты можешь быть только в одном месте.'],
+    q:'Куда ты бросишься, юнга?',
+    opts:[{tr:'brave', t:'Спасать груз', scene:'dec2-a', bonus:'gold',
+           act:'Ты прыгаешь в трюм, где по колено воды, и с матросами передаёшь наверх бочки и ящики.',
+           reply:'«Без этих запасов мы бы здесь не выжили. Ты не испугалась темноты и воды».'},
+          {tr:'friend', t:'Позвать на помощь таино', scene:'dec2-b', bonus:'hint',
+           act:'Ты садишься в шлюпку и гребёшь к кострам на берегу, к вождю Гуаканагари.',
+           reply:'«Вождь прислал десятки каноэ! Ты нашла нам друзей».'},
+          {tr:'smart', t:'Придумать, что делать с кораблём', scene:'dec2-c', bonus:'card',
+           act:'Ты смотришь на разбитый корпус и говоришь: «Если корабль не спасти, из его досок можно построить дом на берегу».',
+           reply:'«Дельная мысль. Часть людей останется здесь, на этой земле».'}],
+    hist:['«Санта-Марию» спасти не удалось. Матросы всю ночь вытаскивали груз, а вождь таино Гуаканагари прислал людей и большие каноэ — за день на берег перевезли почти всё. Колумб записал, что не пропало даже гвоздя.',
+          'Из досок корабля построили форт Ла-Навидад («Рождество») и оставили в нём 39 моряков. Это было первое поселение европейцев в Америке.',
+          'Когда через год Колумб вернулся, форта уже не было, и никого из оставшихся он не нашёл.'],
+    card:{title:'Ла-Навидад', text:'Первый форт европейцев в Новом Свете (1492). Построен из досок «Санта-Марии» на острове Эспаньола — сегодня это север Гаити.'}},
    {id:'t10', type:'match', scene:'ocean-day',
     rv:{ids:[630,388], bbox:[[-90,7],[-58,27]], at:[-74,16], label:'Карибское море'},
     q:'Эти названия родом из эпохи Колумба. Сопоставь название и его происхождение: выбери строку, затем подходящий вариант ниже.',
@@ -821,19 +870,29 @@ const CHAPTERS = [
     exp:['Сначала флот идёт на юг вдоль Африки до островов Зелёного Мыса. Потом уходит в открытый океан и огибает мыс Доброй Надежды. Затем поднимается на север вдоль восточного берега Африки до Малинди и оттуда пересекает Индийский океан до Каликута.',
          'Весь путь в одну сторону — больше 20 тысяч километров и почти 11 месяцев.'],
     card:{title:'Путь в Индию', text:'Лиссабон → острова Зелёного Мыса → мыс Доброй Надежды → Малинди → Каликут. Почти 11 месяцев в одну сторону.'}},
+   /* ---------- Решение юнги: вдоль берега или в океан ---------- */
+   {id:'d3', type:'decision', who:'vasco', title:'Вдоль берега или в открытый океан', scene:'dec3-situation', closeScene:'dec3-close', histScene:'dec3-history',
+    sit:['Начало августа 1497 года, острова Зелёного Мыса. Ночью в каюте да Гамы спорят офицеры.',
+         'Одни говорят: «Пойдём вдоль Африки, как ходили всегда, — берег рядом». Другие отвечают: «У берега встречные ветры и течения, будем ползти месяцами».',
+         'Да Гама молча смотрит на карту. Решать ему — а ты можешь быть только в одном месте.'],
+    q:'Что сделаешь ты, юнга?',
+    opts:[{tr:'brave', t:'Подняться на мачту ночью', scene:'dec3-a', bonus:'gold',
+           act:'Ты лезешь в «воронье гнездо» и сверху смотришь, откуда дует ветер.',
+           reply:'«Не каждый матрос полезет наверх в такой ветер. Ты права: ветер зовёт нас в океан».'},
+          {tr:'friend', t:'Поговорить со старым штурманом', scene:'dec3-b', bonus:'hint',
+           act:'Ты находишь старого штурмана, который десять лет назад ходил с Диашем, и уговариваешь его рассказать капитану, как их корабли неделями бились со встречным ветром у берега.',
+           reply:'«Спасибо, что привела его. Опыт стоит больше любой карты».'},
+          {tr:'smart', t:'Проверить ветер и течение', scene:'dec3-c', bonus:'card',
+           act:'Ты бросаешь за борт щепку: её уносит на юго-запад, прочь от берега, в открытый океан. Над головой паруса надуваются тем же ветром.',
+           reply:'«Умно! Само море показывает нам дорогу — на юго-запад, в океан».'}],
+    hist:['3 августа 1497 года флот да Гамы вышел от островов Зелёного Мыса и не пошёл вдоль Африки, а повернул в открытый океан. Корабли описали огромную дугу через Южную Атлантику, чтобы поймать попутные ветры.',
+          'Землю моряки увидели только через 93 дня, в ноябре, у юга Африки. Так долго без земли до них не плавал никто из европейцев.',
+          'А в 1500 году следующий португальский флот под командой Педру Кабрала пошёл в Индию тем же путём, взял чуть западнее — и наткнулся на Бразилию.'],
+    card:{title:'Вольта ду мар', text:'«Поворот через море»: уйти от берега по большой дуге, чтобы обойти встречные ветры и течения. Этим путём потом ходили все корабли в Индию.'}},
    /* ---------- Южная Атлантика ---------- */
    {type:'story', scene:'southern-sky', who:'alenquer', hero:'alenquer', text:['Совет Диаша выполнен: флот уходит далеко от берега, в открытый океан. Проходят недели — вокруг только волны.',
      'Ночью у борта ты встречаешь главного штурмана «Сан-Габриэла». Он смотрит в небо и держит в руках астролябию.',
      '<span class="speaker">«Я Перу ди Аленкер. Десять лет назад я вёл корабль Диаша и уже видел тот мыс, к которому мы идём. А моряками нас сделал ещё принц Энрике — его прозвали Мореплавателем. Сам он почти не плавал, но собирал вокруг себя капитанов, картографов и мастеров и год за годом отправлял корабли всё дальше вдоль Африки»</span>.']},
-   {id:'g8', type:'choice', who:'alenquer', noShuffle:true,
-    q:'«Мы уходим от берега так далеко, что не увидим землю около трёх месяцев», — говорит Аленкер. Верно ли это?',
-    opts:['Верно','Неверно'], ans:0,
-    hint:'Флот описал в океане огромную дугу, чтобы поймать попутные ветры.',
-    exp:['Верно. Флот да Гамы провёл в открытом океане около трёх месяцев — 93 дня — и прошёл тысячи километров, не видя берега. До того времени так долго без земли не плавал никто из европейцев. Даже Колумб шёл через Атлантику «всего» 36 дней.',
-         'Такой путь называли «вольта ду мар» — «поворот через море». Корабли уходили по большой дуге на юго-запад, чтобы обойти встречные ветры у берегов Африки.',
-         '7 ноября 1497 года моряки наконец увидели землю — бухту на юге Африки, недалеко от мыса Доброй Надежды.',
-         'Дуга проходила так далеко на запад, что флот оказался примерно в тысяче километров от Южной Америки (точный путь неизвестен). А в 1500 году следующий португальский флот под командой Педру Кабрала пошёл в Индию тем же путём, взял чуть западнее — и наткнулся на Бразилию. Так Бразилия стала португальской.'],
-    card:{title:'93 дня без земли', text:'Флот да Гамы шёл по огромной дуге через Атлантику около трёх месяцев — дольше всех европейцев до того времени.'}},
    {id:'g9', type:'choice', who:'alenquer',
     q:'«Мы давно пересекли экватор. Полярной звезды больше не видно. По какому созвездию ищут юг в южном полушарии?»',
     opts:['Южный Крест','Большая Медведица','Орион','Кассиопея'], ans:0,
@@ -1513,7 +1572,13 @@ function topbar(){
     <div class="gold">● ${state.gold} золотых</div>
     <button class="restart" id="restartBtn" title="Начать игру сначала">⟲<span class="rtxt"> Сначала</span></button></div>`;
 }
-function allTasks(){ const r=[]; CHAPTERS.forEach(c => (c.steps||[]).forEach(s => { if(s.type!=='story') r.push(s); })); return r; }
+/* задание — всё, кроме сюжета и решений юнги */
+function isTask(s){ return s.type !== 'story' && s.type !== 'decision'; }
+function allTasks(){ const r=[]; CHAPTERS.forEach(c => (c.steps||[]).forEach(s => { if(isTask(s)) r.push(s); })); return r; }
+function allDecisions(){ const r=[]; CHAPTERS.forEach(c => (c.steps||[]).forEach(s => { if(s.type === 'decision') r.push(s); })); return r; }
+/* карточки журнала: из заданий и из решений юнги */
+function allCards(){ return allTasks().concat(allDecisions()).filter(t => t.card); }
+function cardsCollected(){ const ids = new Set(allCards().map(t => t.id)); return state.journal.filter(id => ids.has(id)).length; }
 function goTop(){ window.scrollTo(0,0); if(app) app.scrollTop = 0; }
 /* Ссылка, открывающая эту же страницу в Chrome на Android */
 function chromeLink(){ return 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end'; }
@@ -1578,7 +1643,26 @@ const SCENE_IMG = {
   'quito':{file:'quito', fb:'day-port'}, 'andes-pass':{file:'andes-pass', fb:'fog'}, 'cloud-forest':{file:'cloud-forest', fb:'tropic'},
   'boat-building':{file:'boat-building', fb:'tropic'}, 'river-napo':{file:'river-napo', fb:'tropic'}, 'amazon-confluence':{file:'amazon-confluence', fb:'tropic'},
   'amazon-wildlife':{file:'amazon-wildlife', fb:'tropic'}, 'rio-negro':{file:'rio-negro', fb:'tropic'}, 'amazons':{file:'amazons', fb:'tropic'},
-  'amazon-mouth':{file:'amazon-mouth', fb:'day-sea'}, 'cubagua':{file:'cubagua', fb:'sunset'}
+  'amazon-mouth':{file:'amazon-mouth', fb:'day-sea'}, 'cubagua':{file:'cubagua', fb:'sunset'},
+  /* решения юнги */
+  'dec1-situation':{file:'dec1-situation', fb:'sunset'},
+  'dec1-close':{file:'dec1-close', fb:'night-sea'},
+  'dec1-a':{file:'dec1-a', fb:'night-sea'},
+  'dec1-b':{file:'dec1-b', fb:'night-sea'},
+  'dec1-c':{file:'dec1-c', fb:'day-sea'},
+  'dec1-history':{file:'dec1-history', fb:'night-sea'},
+  'dec2-situation':{file:'dec2-situation', fb:'night-sea'},
+  'dec2-close':{file:'dec2-close', fb:'night-sea'},
+  'dec2-a':{file:'dec2-a', fb:'dawn-port'},
+  'dec2-b':{file:'dec2-b', fb:'tropic'},
+  'dec2-c':{file:'dec2-c', fb:'tropic'},
+  'dec2-history':{file:'dec2-history', fb:'tropic'},
+  'dec3-situation':{file:'dec3-situation', fb:'night-sea'},
+  'dec3-close':{file:'dec3-close', fb:'night-sea'},
+  'dec3-a':{file:'dec3-a', fb:'night-sea'},
+  'dec3-b':{file:'dec3-b', fb:'night-sea'},
+  'dec3-c':{file:'dec3-c', fb:'day-sea'},
+  'dec3-history':{file:'dec3-history', fb:'day-sea'}
 };
 /* Если нужной картинки ещё нет — берём ближайшую подходящую */
 const SCENE_ALT = {
@@ -1593,7 +1677,8 @@ const SCENE_ALT = {
   'sargasso':['ocean-day'], 'seville':['palos','port-day'], 'sanlucar':['ocean-day'], 'rio-bay':['island'], 'la-plata':['rio-bay'], 'guam':['island'], 'cebu':['island'], 'victoria-cape':['cape-storm'], 'cape-verde-1522':['cape-verde'], 'patagonia':['ocean-day'],
   'strait':['ocean-night'], 'pacific':['ocean-day'], 'mactan':['island'], 'moluccas':['island'], 'victoria-return':['sunset-port'],
   'quito':['port-day'], 'andes-pass':['fog'], 'cloud-forest':['island'], 'boat-building':['island'], 'river-napo':['island'], 'amazon-confluence':['island'],
-  'amazon-wildlife':['island'], 'rio-negro':['island'], 'amazons':['island'], 'amazon-mouth':['ocean-day'], 'cubagua':['sunset-port']
+  'amazon-wildlife':['island'], 'rio-negro':['island'], 'amazons':['island'], 'amazon-mouth':['ocean-day'], 'cubagua':['sunset-port'],
+  'dec1-situation':['ocean-night'], 'dec1-close':['ocean-night'], 'dec1-a':['ocean-night'], 'dec1-b':['ocean-night'], 'dec1-c':['ocean-day'], 'dec1-history':['ocean-night'], 'dec2-situation':['ocean-night'], 'dec2-close':['ocean-night'], 'dec2-a':['ocean-night'], 'dec2-b':['hispaniola'], 'dec2-c':['hispaniola'], 'dec2-history':['hispaniola'], 'dec3-situation':['cape-verde'], 'dec3-close':['cape-verde'], 'dec3-a':['cape-verde'], 'dec3-b':['cape-verde'], 'dec3-c':['cape-verde'], 'dec3-history':['ocean-day']
 };
 /* face — куда смотрит персонаж на картинке: L (влево) или R (вправо).
    Слева на экране стоит героиня, справа — собеседник; картинки разворачиваются лицом друг к другу. */
@@ -1665,7 +1750,8 @@ function placePortrait(id, who, dim){
 /* left/right — кто стоит слева и справа; active — кто говорит ('L', 'R' или null — оба в полном свете) */
 /* сцены, где герои уже нарисованы на картинке, — портреты по бокам не показываем */
 const NOPORT_SCENES = ['chest-closed', 'chest-open', 'southern-sky', 'cebu', 'la-plata', 'victoria-cape', 'sanlucar',
-  'boat-building', 'river-napo', 'amazon-confluence', 'amazon-wildlife', 'rio-negro', 'amazons', 'amazon-mouth', 'cubagua'];
+  'boat-building', 'river-napo', 'amazon-confluence', 'amazon-wildlife', 'rio-negro', 'amazons', 'amazon-mouth', 'cubagua',
+  'dec1-situation', 'dec1-close', 'dec1-a', 'dec1-b', 'dec1-c', 'dec1-history', 'dec2-situation', 'dec2-close', 'dec2-a', 'dec2-b', 'dec2-c', 'dec2-history', 'dec3-situation', 'dec3-close', 'dec3-a', 'dec3-b', 'dec3-c', 'dec3-history'];
 function setCast(left, right, active){
   castR = right || null;
   if(NOPORT_SCENES.includes(imgScene)){ placePortrait('pL', null); placePortrait('pR', null); return; }
@@ -1825,7 +1911,7 @@ function setFx(name){
   setTimeout(() => { box.innerHTML = h; box.style.opacity = 1; }, 400);
 }
 /* Список файлов игры — заполняется автоматически (build.py), чтобы не перебирать расширения по сети */
-const FILES = /*FILES*/{"img": {"alenquer-face": "jpg", "alenquer": "png", "amazon-confluence": "jpg", "amazon-mouth": "jpg", "amazon-wildlife": "jpg", "amazons": "jpg", "andes-pass": "jpg", "boat-building": "jpg", "calicut": "jpg", "cape-storm": "jpg", "cape-verde-1522": "jpg", "cape-verde": "jpg", "carvajal-face": "jpg", "carvajal": "png", "cebu": "jpg", "chest-closed": "jpg", "chest-open": "jpg", "chest": "jpg", "cloud-forest": "jpg", "columbus-face": "jpg", "columbus": "png", "cubagua": "jpg", "dias-face": "jpg", "dias": "png", "eclipse": "jpg", "elcano-face": "jpg", "elcano": "png", "fog": "jpg", "guam": "jpg", "hero-face": "jpg", "hero": "png", "hispaniola": "jpg", "island": "jpg", "la-plata": "jpg", "lisbon": "jpg", "mactan": "jpg", "magellan-face": "jpg", "magellan": "png", "malindi": "jpg", "map-room": "jpg", "map": "jpg", "moluccas": "jpg", "ocean-day": "jpg", "ocean-night": "jpg", "orellana-face": "jpg", "orellana": "png", "pacific": "jpg", "palace": "jpg", "palos": "jpg", "patagonia": "jpg", "penguin-coast": "jpg", "pigafetta-face": "jpg", "pigafetta": "png", "pilot-face": "jpg", "pilot": "png", "pizarro-face": "jpg", "pizarro": "png", "port-dawn": "jpg", "port-day": "jpg", "port-night": "jpg", "quito": "jpg", "rio-bay": "jpg", "rio-negro": "jpg", "river-napo": "jpg", "sailor-face": "jpg", "sailor": "png", "sanlucar": "jpg", "sargasso": "jpg", "sebastian-face": "jpg", "sebastian": "png", "seville": "jpg", "southern-sky": "jpg", "strait": "jpg", "sunset-port": "jpg", "taino-village": "jpg", "tavern": "jpg", "vasco-face": "jpg", "vasco": "png", "victoria-cape": "jpg", "victoria-return": "jpg", "yard-caravel": "jpg", "yard-galleon": "jpg", "yard-nao": "jpg", "yard-sloop": "jpg"}, "vid": ["calicut", "cape-storm", "cape-verde", "chest-open", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "sargasso", "southern-sky", "sunset-port", "taino-village", "tavern"], "snd": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"]}/*/FILES*/;
+const FILES = /*FILES*/{"img": {"alenquer-face": "jpg", "alenquer": "png", "amazon-confluence": "jpg", "amazon-mouth": "jpg", "amazon-wildlife": "jpg", "amazons": "jpg", "andes-pass": "jpg", "boat-building": "jpg", "calicut": "jpg", "cape-storm": "jpg", "cape-verde-1522": "jpg", "cape-verde": "jpg", "carvajal-face": "jpg", "carvajal": "png", "cebu": "jpg", "chest-closed": "jpg", "chest-open": "jpg", "chest": "jpg", "cloud-forest": "jpg", "columbus-face": "jpg", "columbus": "png", "cubagua": "jpg", "dec1-a": "jpg", "dec1-b": "jpg", "dec1-c": "jpg", "dec1-close": "jpg", "dec1-history": "jpg", "dec1-situation": "jpg", "dec2-a": "jpg", "dec2-b": "jpg", "dec2-c": "jpg", "dec2-close": "jpg", "dec2-history": "jpg", "dec2-situation": "jpg", "dec3-a": "jpg", "dec3-b": "jpg", "dec3-c": "jpg", "dec3-close": "jpg", "dec3-history": "jpg", "dec3-situation": "jpg", "dias-face": "jpg", "dias": "png", "eclipse": "jpg", "elcano-face": "jpg", "elcano": "png", "fog": "jpg", "guam": "jpg", "hero-face": "jpg", "hero": "png", "hispaniola": "jpg", "island": "jpg", "la-plata": "jpg", "lisbon": "jpg", "mactan": "jpg", "magellan-face": "jpg", "magellan": "png", "malindi": "jpg", "map-room": "jpg", "map": "jpg", "moluccas": "jpg", "ocean-day": "jpg", "ocean-night": "jpg", "orellana-face": "jpg", "orellana": "png", "pacific": "jpg", "palace": "jpg", "palos": "jpg", "patagonia": "jpg", "penguin-coast": "jpg", "pigafetta-face": "jpg", "pigafetta": "png", "pilot-face": "jpg", "pilot": "png", "pizarro-face": "jpg", "pizarro": "png", "port-dawn": "jpg", "port-day": "jpg", "port-night": "jpg", "quito": "jpg", "rio-bay": "jpg", "rio-negro": "jpg", "river-napo": "jpg", "sailor-face": "jpg", "sailor": "png", "sanlucar": "jpg", "sargasso": "jpg", "sebastian-face": "jpg", "sebastian": "png", "seville": "jpg", "southern-sky": "jpg", "strait": "jpg", "sunset-port": "jpg", "taino-village": "jpg", "tavern": "jpg", "vasco-face": "jpg", "vasco": "png", "victoria-cape": "jpg", "victoria-return": "jpg", "yard-caravel": "jpg", "yard-galleon": "jpg", "yard-nao": "jpg", "yard-sloop": "jpg"}, "vid": ["calicut", "cape-storm", "cape-verde", "chest-open", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "sargasso", "southern-sky", "sunset-port", "taino-village", "tavern"], "snd": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"]}/*/FILES*/;
 function findImg(file){
   if(FILES.img){
     if(imgCache[file] !== undefined) return imgCache[file];
@@ -1862,7 +1948,8 @@ const SCENE_PLACE = {
   'quito':'Кито, Анды · февраль 1541', 'andes-pass':'Перевал через Анды · 1541', 'cloud-forest':'Облачный лес на склонах Анд · 1541',
   'boat-building':'Река Кока · декабрь 1541', 'river-napo':'Река Напо · январь 1542', 'amazon-confluence':'Великая река · февраль 1542',
   'amazon-wildlife':'Заводь Амазонки · 1542', 'rio-negro':'Устье Рио-Негро · 3 июня 1542', 'amazons':'Средняя Амазонка · 24 июня 1542',
-  'amazon-mouth':'Устье Амазонки · 26 августа 1542', 'cubagua':'Остров Кубагуа · сентябрь 1542'
+  'amazon-mouth':'Устье Амазонки · 26 августа 1542', 'cubagua':'Остров Кубагуа · сентябрь 1542',
+  'dec1-situation':'«Санта-Мария» · 10 октября 1492', 'dec2-situation':'У берега Эспаньолы · ночь на 25 декабря 1492', 'dec3-situation':'Острова Зелёного Мыса · август 1497'
 };
 /* Какую часть кадра держать в центре на вертикальном экране (0% — левый край, 100% — правый) */
 const SCENE_FOCUS = {'chest-closed':'55%','chest-open':'55%','port-day':'32%','port-night':'38%','tavern':'50%','chest':'34%','fog':'50%','palos':'45%',
@@ -1871,11 +1958,13 @@ const SCENE_FOCUS = {'chest-closed':'55%','chest-open':'55%','port-day':'32%','p
   'palace':'55%','map-room':'50%','lisbon':'62%','cape-verde':'40%','southern-sky':'30%','cape-storm':'30%',
   'penguin-coast':'38%','malindi':'28%','calicut':'38%',
   'sargasso':'60%', 'seville':'40%','sanlucar':'35%','rio-bay':'45%','la-plata':'40%','guam':'40%','cebu':'45%','victoria-cape':'40%','cape-verde-1522':'40%','patagonia':'55%','strait':'45%','pacific':'45%','mactan':'30%','moluccas':'45%','victoria-return':'35%',
-  'quito':'45%','andes-pass':'40%','cloud-forest':'70%','boat-building':'30%','river-napo':'25%','amazon-confluence':'25%','amazon-wildlife':'55%','rio-negro':'30%','amazons':'40%','amazon-mouth':'40%','cubagua':'45%'};
+  'quito':'45%','andes-pass':'40%','cloud-forest':'70%','boat-building':'30%','river-napo':'25%','amazon-confluence':'25%','amazon-wildlife':'55%','rio-negro':'30%','amazons':'40%','amazon-mouth':'40%','cubagua':'45%',
+  'dec1-situation':'60%','dec1-close':'30%','dec1-a':'62%','dec1-b':'58%','dec1-c':'30%','dec1-history':'40%','dec2-situation':'62%','dec2-close':'70%','dec2-a':'40%','dec2-b':'75%','dec2-c':'55%','dec2-history':'78%','dec3-situation':'50%','dec3-close':'75%','dec3-a':'30%','dec3-b':'45%','dec3-c':'35%','dec3-history':'60%'};
 const cineSeen = new Set();
 /* сцены-картинки, перед которыми тоже показываем фон пару секунд до текста */
 const CINE_IMG = ['chest-closed', 'chest-open', 'sargasso', 'seville', 'sanlucar', 'rio-bay', 'la-plata', 'guam', 'cebu', 'victoria-cape', 'cape-verde-1522', 'patagonia', 'strait', 'pacific', 'mactan', 'moluccas', 'victoria-return',
-  'quito', 'andes-pass', 'cloud-forest', 'boat-building', 'river-napo', 'amazon-confluence', 'amazon-wildlife', 'rio-negro', 'amazons', 'amazon-mouth', 'cubagua'];
+  'quito', 'andes-pass', 'cloud-forest', 'boat-building', 'river-napo', 'amazon-confluence', 'amazon-wildlife', 'rio-negro', 'amazons', 'amazon-mouth', 'cubagua',
+  'dec1-situation', 'dec2-situation', 'dec3-situation'];
 let cineTimer = 0, cineOn = false;
 function startCine(name){
   const sec = innerWidth <= 900 ? 3.5 : 2.5;
@@ -2293,7 +2382,9 @@ const SCENE_SND = {
   'pacific':'ocean-day', 'mactan':'island', 'moluccas':'malindi', 'victoria-return':'lisbon',
   /* глава 4 — звук из похожих сцен */
   'quito':'palos', 'andes-pass':'southern-sky', 'cloud-forest':'island', 'boat-building':'island', 'river-napo':'island', 'amazon-confluence':'island',
-  'amazon-wildlife':'island', 'rio-negro':'island', 'amazons':'island', 'amazon-mouth':'ocean-day', 'cubagua':'cape-verde'
+  'amazon-wildlife':'island', 'rio-negro':'island', 'amazons':'island', 'amazon-mouth':'ocean-day', 'cubagua':'cape-verde',
+  /* решения юнги — звук из похожих сцен */
+  'dec1-situation':'ocean-day', 'dec1-close':'ocean-night', 'dec1-a':'ocean-night', 'dec1-b':'ocean-night', 'dec1-c':'ocean-day', 'dec1-history':'ocean-night', 'dec2-situation':'ocean-night', 'dec2-close':'ocean-night', 'dec2-a':'cabin', 'dec2-b':'island', 'dec2-c':'island', 'dec2-history':'island', 'dec3-situation':'cabin', 'dec3-close':'cabin', 'dec3-a':'southern-sky', 'dec3-b':'southern-sky', 'dec3-c':'cape-verde', 'dec3-history':'ocean-day'
 };
 /* Пока файла нет, море и волшебный гул генерируются прямо в браузере */
 const SYNTH_FOR = {'ocean-night':'sea','island':'sea','port-day':'sea','port-night':'sea','ocean-day':'sea','sunset-port':'sea','fog':'magic'};
@@ -2624,7 +2715,6 @@ function renderRegister(){
 
 function renderHub(){
   ensureYard();
-  const tasksTotal = allTasks().length;
   showScene('port-day');
   setSpeaker(null);
   app.innerHTML = `${topbar()}
@@ -2644,7 +2734,7 @@ function renderHub(){
         const inProg = cs && !cs.done && cs.idx > 0;
         const label = done ? 'Пройти ещё раз' : (inProg ? 'Продолжить' : 'Отплыть');
         return `<div class="chapter"><div class="num">${k+1}</div><div class="info"><div class="t">${c.title}</div>
-          <div class="s">${c.sub}</div>${done ? `<div class="badge">✓ Пройдено: ${score(c)} из ${c.steps.filter(s=>s.type!=='story').length}</div>` : ''}</div>
+          <div class="s">${c.sub}</div>${done ? `<div class="badge">✓ Пройдено: ${score(c)} из ${c.steps.filter(isTask).length}</div>` : ''}</div>
           <button class="btn small" data-ch="${c.id}">${label}</button></div>`;
       }).join('')}
     </div>
@@ -2654,7 +2744,7 @@ function renderHub(){
         <p class="muted" style="margin:0 0 10px;font-size:15px">${state.yard.eq.hull === 'keel' ? 'Твой корабль пока на стапеле: только киль и рёбра. Пройди первое плавание — и Себастьян подарит корпус шлюпа.' : 'На верфи можно достроить корабль, купить приборы и поставить трофеи на палубу.'}</p>
         <button class="btn small" id="yard">Верфь · ● ${state.gold}</button></div>
     </div>
-    <div class="row"><button class="btn ghost wide" id="jr" style="color:var(--parch);border-color:var(--parch)">Судовой журнал · ${state.journal.length} из ${tasksTotal}</button></div>
+    <div class="row"><button class="btn ghost wide" id="jr" style="color:var(--parch);border-color:var(--parch)">Судовой журнал · ${cardsCollected()} из ${allCards().length}</button></div>
     <div class="foot"><button class="linkbtn" id="reset">Начать игру заново</button><div style="opacity:.7;margin-top:6px;font-size:14px">Версия ${VER_LABEL}</div></div>`;
   app.querySelectorAll('[data-ch]').forEach(b => b.onclick = () => startChapter(b.dataset.ch));
   document.getElementById('jr').onclick = () => { renderJournal(); goTop(); };
@@ -2718,14 +2808,15 @@ function startChapter(id){
 
 function renderChapter(id){
   const c = CHAPTERS.find(x => x.id === id), cs = state.ch[id];
-  const tasks = c.steps.filter(s => s.type !== 'story');
+  const tasks = c.steps.filter(isTask);
   if(cs.idx >= c.steps.length) return finishChapter(c);
   const step = c.steps[cs.idx];
   let sc = 'ocean-day'; for(let k=cs.idx;k>=0;k--){ if(c.steps[k].scene){ sc = c.steps[k].scene; break; } }
   showScene(sc);
   if(step.who) setSpeaker(step.who); else setCast('hero', null, 'L');
-  const doneCount = c.steps.slice(0, cs.idx).filter(s => s.type !== 'story').length;
+  const doneCount = c.steps.slice(0, cs.idx).filter(isTask).length;
   const bar = `<div class="progress"><div style="width:${Math.round(doneCount/tasks.length*100)}%"></div></div>`;
+  if(step.type === 'decision') return renderDecision(step, {bar, chapter:id});
   if(step.type === 'story'){
     let hc = '';
     if(step.hero){
@@ -2747,7 +2838,7 @@ function renderChapter(id){
     <div class="tasknum">Задание ${num} из ${tasks.length}</div>
     <div class="q">${fill(step.q)}</div>
     <div id="hintbox"><button class="btn ghost small" id="hintBtn">Спросить штурмана</button>
-      <span class="muted" style="font-size:14px">${owns('tools','astrolabe') && !cs.freeHint ? ' астролябия: одна подсказка в этом плавании бесплатно' : ' подсказка уменьшит награду до 5 золотых'}</span>
+      <span class="muted" style="font-size:14px">${state.giftHint ? ' подсказка бесплатна — подарок за твоё решение' : (owns('tools','astrolabe') && !cs.freeHint ? ' астролябия: одна подсказка в этом плавании бесплатно' : ' подсказка уменьшит награду до 5 золотых')}</span>
       ${owns('tools','spyglass') && !cs.glass && step.type === 'choice' && step.opts.length > 2 ? '<button class="btn ghost small" id="glassBtn">Подзорная труба</button>' : ''}</div>
     <div id="body" style="margin-top:12px"></div>
     <div id="feedback"></div></div>
@@ -2755,7 +2846,8 @@ function renderChapter(id){
   fillAvatars();
   document.getElementById('hintBtn').onclick = () => {
     const hb = c.hintBy || 'sebastian';
-    if(owns('tools','astrolabe') && !cs.freeHint){ cs.freeHint = true; save(); } else cur.hint = true;
+    if(state.giftHint){ delete state.giftHint; save(); }
+    else if(owns('tools','astrolabe') && !cs.freeHint){ cs.freeHint = true; save(); } else cur.hint = true;
     setSpeaker(hb);
     document.getElementById('hintbox').innerHTML = `<div class="hint">${hb === 'sebastian' ? 'Себастьян' : CHARS[hb].name}: «${step.hint}»</div>`;
   };
@@ -3013,7 +3105,7 @@ function finishChapter(c){
   setCast('hero', 'sebastian', 'L');
   setTimeout(() => sfx('fanfare'), 300);
   const cs = state.ch[c.id];
-  const tasks = c.steps.filter(s => s.type !== 'story');
+  const tasks = c.steps.filter(isTask);
   const right = Object.values(cs.answers).filter(v => v === true).length;
   let bonus = 0;
   let gifts = '';
@@ -3045,19 +3137,100 @@ function finishChapter(c){
 }
 
 function renderJournal(){
-  const all = allTasks().filter(t => t.card);
+  const all = allCards();
   showScene('map');
   setSpeaker(null);
   app.innerHTML = `${topbar()}<div class="card">
     <h2>Судовой журнал</h2>
+    ${decisionsHtml()}
     ${(state.heroes || []).length ? `<h3 style="margin:10px 0 4px">Мореплаватели</h3>${state.heroes.map(id => heroCardHtml(id, false)).join('')}<h3 style="margin:14px 0 4px">Открытия</h3>` : ''}
-    <p class="muted">Собрано карточек: ${state.journal.length} из ${all.length}</p>
+    <p class="muted">Собрано карточек: ${cardsCollected()} из ${all.length}</p>
     <div class="jgrid">${all.map(t => state.journal.includes(t.id)
       ? `<div class="jcard"><h3>${t.card.title}</h3><p>${t.card.text}</p></div>`
       : `<div class="jcard locked">Ещё не открыто</div>`).join('')}</div>
     <div class="row"><button class="btn" id="back">Назад в порт</button></div></div>`;
   fillAvatars();
+  app.querySelectorAll('[data-dec]').forEach(b => b.onclick = () => { renderDecision(allDecisions().find(d => d.id === b.dataset.dec), {standalone:true}); goTop(); });
   document.getElementById('back').onclick = () => { renderHub(); goTop(); };
+}
+
+/* ===================== РЕШЕНИЯ ЮНГИ ===================== */
+/* Решение не меняет историю: меняется участие героини, ответ героя и бонус. Каждый вариант — одна черта характера. */
+const TRAITS = {brave:{i:'🗡', n:'Смелость'}, friend:{i:'🤝', n:'Дружба'}, smart:{i:'💡', n:'Смекалка'}};
+function traitCounts(){
+  const t = {brave:0, friend:0, smart:0};
+  allDecisions().forEach(d => { const k = (state.decisions || {})[d.id]; if(k != null && d.opts[k]) t[d.opts[k].tr]++; });
+  return t;
+}
+function decisionsHtml(){
+  const ds = allDecisions(); if(!ds.length) return '';
+  const t = traitCounts();
+  const rows = ds.map(d => {
+    const c = CHAPTERS.find(ch => ch.steps.includes(d)), num = CHAPTERS.indexOf(c) + 1;
+    const k = (state.decisions || {})[d.id];
+    if(k != null){ const o = d.opts[k]; return `<div class="decrow"><div><b>${d.title}</b><div class="muted">Глава ${num} · ${TRAITS[o.tr].i} ${o.t}</div></div></div>`; }
+    if(state.ch[c.id] && state.ch[c.id].done) return `<div class="decrow"><div><b>${d.title}</b><div class="muted">Глава ${num} · выбор ещё не сделан</div></div><button class="btn small" data-dec="${d.id}">Пройти</button></div>`;
+    return `<div class="decrow locked"><div><b>${d.title}</b><div class="muted">Встретится в главе ${num}</div></div></div>`;
+  }).join('');
+  return `<h3 style="margin:14px 0 4px">Характер</h3>
+    <p class="traits">${Object.keys(TRAITS).map(k => `<span>${TRAITS[k].i} ${TRAITS[k].n}: <b>${t[k]}</b></span>`).join('')}</p>
+    <h3 style="margin:14px 0 4px">Мои решения</h3>${rows}`;
+}
+/* opts.chapter — внутри главы (после «Как было» идём дальше); opts.standalone — из журнала (возвращаемся в журнал) */
+function renderDecision(step, opts){
+  opts = opts || {};
+  const top = topbar() + (opts.bar || '');
+  const back = opts.standalone ? `<div class="foot"><button class="linkbtn" id="tojr">Вернуться в журнал</button></div>` : `<div class="foot"><button class="linkbtn" id="tohub">Вернуться в порт (прогресс сохранится)</button></div>`;
+  const bindBack = () => {
+    const a = document.getElementById('tojr'); if(a) a.onclick = () => { renderJournal(); goTop(); };
+    const b = document.getElementById('tohub'); if(b) b.onclick = () => { renderHub(); goTop(); };
+  };
+  /* 1. Ситуация */
+  showScene(step.scene);
+  setSpeaker(step.who);
+  app.innerHTML = `${top}<div class="card story"><div class="decbadge">⚓ Решение юнги</div>${paras(step.sit)}
+    <div class="row"><button class="btn" id="dgo">Что делать?</button></div></div>${back}`;
+  bindBack();
+  document.getElementById('dgo').onclick = () => { sfx('click'); pick(); goTop(); };
+  /* 2. Выбор */
+  function pick(){
+    showScene(step.closeScene);
+    app.innerHTML = `${top}<div class="card"><div class="decbadge">⚓ Решение юнги</div>
+      <div class="q">${step.q}</div>
+      ${step.opts.map((o, k) => `<button class="opt dopt" id="dopt${k}" data-k="${k}"><span class="di">${TRAITS[o.tr].i}</span><span><b>${o.t}</b><small>${TRAITS[o.tr].n}</small></span></button>`).join('')}
+      <p class="muted" style="font-size:14px;margin:8px 0 0">Неправильного ответа нет: история пойдёт так, как было на самом деле. Твой выбор покажет твой характер.</p></div>${back}`;
+    bindBack();
+    app.querySelectorAll('.dopt').forEach(b => b.onclick = () => { result(+b.dataset.k); goTop(); });
+  }
+  /* 3. Что сделала героиня и ответ героя */
+  function result(k){
+    const o = step.opts[k];
+    state.decisions = state.decisions || {}; state.decGold = state.decGold || {};
+    const again = step.id in state.decisions;
+    state.decisions[step.id] = k;
+    let bonus = '';
+    if(o.bonus === 'gold' && !state.decGold[step.id]){ state.decGold[step.id] = true; state.gold += 20; bonus = '<p class="reward">+20 золотых</p>'; setTimeout(() => sfx('coin'), 450); }
+    if(o.bonus === 'hint'){ state.giftHint = true; bonus = '<p class="newcard">🎁 Подарок: следующая подсказка штурмана будет бесплатной</p>'; }
+    if(o.bonus === 'card' && step.card && !state.journal.includes(step.id)){ state.journal.push(step.id); bonus = `<p class="newcard">В журнал добавлена карточка «${step.card.title}»</p>`; }
+    save();
+    sfx('ok');
+    showScene(o.scene);
+    app.innerHTML = `${top}<div class="card story">${speakerHtml(step.who)}${paras([o.act, `<span class="speaker">${o.reply}</span>`])}
+      <p class="traitgain">${TRAITS[o.tr].i} ${TRAITS[o.tr].n}${again ? ' — твой выбор в этот раз' : ' +1'}</p>${bonus}
+      <div class="row"><button class="btn" id="dhist">Как было на самом деле</button></div></div>${back}`;
+    fillAvatars(); bindBack();
+    document.getElementById('dhist').onclick = () => { hist(); goTop(); };
+  }
+  /* 4. Как было на самом деле — одинаково для всех вариантов */
+  function hist(){
+    showScene(step.histScene);
+    app.innerHTML = `${top}<div class="card story"><div class="decbadge">📜 Как было на самом деле</div>${paras(step.hist)}
+      <div class="row"><button class="btn" id="dnext">${opts.standalone ? 'В журнал' : 'Дальше'}</button></div></div>`;
+    document.getElementById('dnext').onclick = () => {
+      if(opts.standalone){ renderJournal(); goTop(); return; }
+      const cs = state.ch[opts.chapter]; cs.idx++; save(); renderChapter(opts.chapter); goTop();
+    };
+  }
 }
 
 start();

@@ -154,13 +154,13 @@ for (const key of BY_ENGINE[ENGINE]) {
       catch (e) { await page.evaluate(q => { const b = document.querySelector(q); b.scrollIntoView({ block: 'center' }); b.click(); }, sel); res.warnings.push(`${label}: кнопку пришлось нажать программно (тестовый Safari не прокрутил к ней)`); }
     };
     // 4. Главы целиком: каждая доступная глава по очереди
-    const chs = await page.evaluate(() => CHAPTERS.filter(c => c.ready).map(c => ({ id: c.id, idx: CHAPTERS.indexOf(c), total: c.steps.filter(s => s.type !== 'story').length })));
+    const chs = await page.evaluate(() => CHAPTERS.filter(c => c.ready).map(c => ({ id: c.id, idx: CHAPTERS.indexOf(c), total: c.steps.filter(s => s.type !== 'story' && s.type !== 'decision').length })));
     for (const ch of chs) {
     const CH = ch.id, CI = ch.idx, PFX = chs.length > 1 ? `гл.${CI + 1} ` : '';
     await page.evaluate(() => typeof endCine === 'function' && endCine());
     await page.click(`[data-ch=${CH}]`); await page.waitForTimeout(500);
-    let n = 0, guard = 0;
-    while (guard++ < 80) {
+    let n = 0, guard = 0, decN = 0;
+    while (guard++ < 90) {
       await page.waitForTimeout(250);
       if (await page.locator('h2:has-text("Глава пройдена")').count()) break;
       await page.evaluate(() => typeof endCine === 'function' && endCine());
@@ -171,7 +171,7 @@ for (const key of BY_ENGINE[ENGINE]) {
       const wantVid = !P.mi && FILES.vid.includes(sceneFile);
       if (P.mi) { const anyVid = await page.locator('.svid').count(); if (anyVid) fail('9 mi-браузер', `${st.type === 'story' ? 'сюжет' : 'задание ' + (n + 1)}: в Mi Браузере появилось видео`); else ok('9 mi-браузер'); }
       const vid = await page.evaluate(() => { const v = document.querySelector('.simg.on .svid'); return v ? { t: v.currentTime, err: v.error ? v.error.code : 0 } : null; });
-      const label = PFX + (st.type === 'story' ? 'сюжет' : `задание ${n + 1}`);
+      const label = PFX + (st.type === 'story' ? 'сюжет' : st.type === 'decision' ? `решение «${st.title}»` : `задание ${n + 1}`);
       let media = vid ? 'видео' : 'картинка';
       if (wantVid && !vid) fail('4 глава', `${label} (${scene}): видео есть в папке, но не показано`);
       if (vid && vid.err) {
@@ -186,6 +186,22 @@ for (const key of BY_ENGINE[ENGINE]) {
       } else if (vid && vid.t >= 0.2) media = 'видео ▶';
       res.tasks.push(`${label}: ${scene} — ${media}`);
       if (st.type === 'story') { await overlap(label); if (st.hero) await shot(`${label}: карточка «${st.hero}»`); await clickSafe('#next', label); continue; }
+      /* Решение юнги: ситуация → выбор → ответ героя → «Как было». Варианты перебираем по очереди, чтобы проверить все бонусы */
+      if (st.type === 'decision') {
+        const k = decN++ % 3;
+        await overlap(`${label}: ситуация`); await clickSafe('#dgo', label); await page.waitForTimeout(500);
+        if ((await page.locator('.dopt').count()) !== 3) fail('4 глава', `${label}: нет трёх вариантов выбора`);
+        await overlap(`${label}: выбор`); await shot(`${label}: выбор`);
+        await clickSafe(`#dopt${k}`, label); await page.waitForTimeout(500);
+        const chosen = await page.evaluate(id => (state.decisions || {})[id], st.id);
+        if (chosen !== k) fail('4 глава', `${label}: выбор не сохранился`);
+        if (!(await page.locator('.traitgain').count())) fail('4 глава', `${label}: не показана черта характера`);
+        await overlap(`${label}: ответ`); await clickSafe('#dhist', label); await page.waitForTimeout(500);
+        const img = await page.evaluate(() => imgScene);
+        if (img !== st.histScene) fail('4 глава', `${label}: не показана картинка «Как было» (${img})`);
+        await overlap(`${label}: как было`); await clickSafe('#dnext', label);
+        continue;
+      }
       n++;
       await overlap(`${label} до ответа`);
       if (st.type === 'choice') await page.click(`.opt[data-i="${st.ans}"]`);
