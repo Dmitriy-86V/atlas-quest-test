@@ -1171,8 +1171,27 @@ const CHAPTERS = [
    /* ---------- Пролив ---------- */
    {type:'story', scene:'strait', who:'magellan', text:['21 октября 1520 года флот находит узкий вход в залив у мыса, который Магеллан называет мысом Дев.',
      'Вода в заливе солёная, и прилив очень сильный. Это не река — это проход между океанами!',
-     'Больше месяца корабли пробираются по извилистому лабиринту среди скал и ледников. Однажды ночью корабль «Сан-Антонио» тайно поворачивает назад и уходит домой в Испанию — с большей частью припасов.',
+     'Больше месяца корабли пробираются по извилистому лабиринту среди скал и ледников.',
      'Ночью на южном берегу загораются десятки костров.']},
+   /* ---------- Решение юнги: развилка в проливе ---------- */
+   {id:'d6', type:'decision', who:'magellan', title:'Развилка в Магеллановом проливе', scene:'dec6-situation', closeScene:'dec6-close', histScene:'dec6-history',
+    sit:['Ноябрь 1520 года, Магелланов пролив. Уже много дней корабли пробираются среди скал и ледников. И вот пролив раздваивается: один рукав уходит на юго-восток, другой — на запад.',
+         'Магеллан делит флот: «Сан-Антонио» и «Консепсьон» разведают юго-восточный рукав, а шлюпка с гребцами пойдёт на запад.',
+         'На «Сан-Антонио» матросы мрачно перешёптываются: еды мало, холодно, они хотят домой. А ты можешь быть только в одном месте.'],
+    q:'Что сделаешь ты, юнга?',
+    opts:[{tr:'brave', t:'Уйти на шлюпке на запад', scene:'dec6-a', bonus:'gold',
+           act:'Ты гребёшь вместе с разведчиками по ледяной воде между отвесных скал — туда, где никто ещё не был.',
+           reply:'«Возвращайся с доброй вестью, юнга. Я верю: выход там».'},
+          {tr:'friend', t:'Поддержать команду «Сан-Антонио»', scene:'dec6-b', bonus:'hint',
+           act:'Ты поднимаешься к ним на борт, делишься своим сухарём и уговариваешь не терять надежду.',
+           reply:'«Спасибо, что пыталась их поддержать. Но я вижу в их глазах тоску по дому…»'},
+          {tr:'smart', t:'Нанести пролив на карту', scene:'dec6-c', bonus:'card',
+           act:'Ты зарисовываешь каждый мыс и каждый поворот, чтобы корабли не заблудились в этом лабиринте.',
+           reply:'«Без такой карты здесь можно плутать годами. Молодец».'}],
+    hist:['Магеллан действительно разделил флот. Через несколько дней шлюпка вернулась с запада с радостной вестью: моряки видели выход в открытое море.',
+          'А «Сан-Антонио» тайно повернул назад: штурман Эстебан Гомес захватил корабль и увёл его в Испанию с большей частью припасов. Магеллан несколько дней искал пропавший корабль, но так и не нашёл.',
+          'Дальше пошли только три корабля.'],
+    card:{title:'Мыс Желанный', text:'Мыс у выхода из Магелланова пролива в Тихий океан. Магеллан назвал его Желанным, потому что очень долго ждал этой минуты.'}},
    {id:'m11', type:'map', who:'magellan', rv:{ids:[152,32]},
     q:'Отметь на карте пролив, который сегодня носит имя Магеллана.',
     bbox:[[-95,-60],[-40,-25]], target:[-70.9,-53.2], tol:300, targetLabel:'Магелланов пролив',
@@ -1394,13 +1413,24 @@ const CHAPTERS = [
    {type:'story', scene:'river-napo', who:'orellana', text:['Течение подхватывает бригантину и несёт её всё быстрее. Река Кока впадает в реку Напо, а та мчится дальше. Проходит день, второй, неделя, а деревень с едой всё нет.',
      'Орельяна долго смотрит на бурлящую воду.',
      '<span class="speaker">«Мы ушли уже на сотни километров, — тихо говорит он. — Обратно, против такого течения, нам не выгрести и за год»</span>.']},
-   {id:'a8', type:'choice', who:'orellana',
-    q:'Почему Орельяна так и не смог вернуться к Писарро?',
-    opts:['Быстрое течение реки не давало плыть обратно','Писарро сам приказал не возвращаться','Индейцы перегородили реку','Бригантина сгорела'], ans:0,
-    hint:'Вспомни, как быстро несла их река.',
-    exp:['Плыть вниз по быстрой реке легко, а грести против течения сотни километров измученным людям было невозможно.',
-         'Орельяна решил плыть дальше вниз по реке, куда бы она ни вела. Писарро так и не дождался его. Он считал Орельяну предателем, а сам с немногими выжившими через полгода вернулся в Кито.',
-         'Историки до сих пор спорят, мог ли Орельяна вернуться. Но именно это решение привело к великому открытию.'],
+   /* ---------- Решение юнги: вернуться или плыть дальше ---------- */
+   {id:'d7', type:'decision', who:'orellana', title:'Вернуться или плыть дальше', scene:'dec7-situation', closeScene:'dec7-close', histScene:'dec7-history',
+    sit:['Начало января 1542 года, река Напо. Люди Орельяны почти не ели много дней. Река несёт бригантину всё дальше от Писарро, который ждёт еду.',
+         'Вечером у костра солдаты спорят. Одни: «Мы обещали вернуться!» Другие: «Против такого течения мы погибнем по дороге».',
+         'Орельяна молчит. Решать ему — а ты можешь быть только в одном месте.'],
+    q:'Что сделаешь ты, юнга?',
+    opts:[{tr:'brave', t:'Вызваться отвезти весть Писарро', scene:'dec7-a', bonus:'gold',
+           act:'Ты встаёшь и говоришь: «Дайте мне каноэ и двух гребцов. Я попробую подняться вверх по реке».',
+           reply:'«Смелая юнга. Но против такой реки не выгребет и самый сильный. Я не пошлю тебя на верную гибель».'},
+          {tr:'friend', t:'Помочь людям сказать всё вслух', scene:'dec7-b', bonus:'hint',
+           act:'Ты собираешь солдат у костра, и вместе вы просите брата Гаспара записать общую просьбу, а каждый ставит подпись.',
+           reply:'«Хорошо, что люди сказали это все вместе. Значит, и решение будет общим».'},
+          {tr:'smart', t:'Измерить скорость течения', scene:'dec7-c', bonus:'card',
+           act:'Ты бросаешь в воду ветку и переворачиваешь песочные часы: пока сыплется песок, ветку уносит так далеко, что не догнать даже бегом по берегу.',
+           reply:'«Ты доказала это лучше любых слов: река быстрее наших вёсел».'}],
+    hist:['Вернуться против быстрого течения было невозможно. Солдаты сами написали Орельяне просьбу не возвращаться — её подписали почти пятьдесят человек, и брат Гаспар записал всё это в свою хронику. Отряд поплыл дальше вниз по реке — в неизвестность.',
+          'Писарро так и не дождался их. Он счёл Орельяну предателем и через полгода с немногими выжившими вернулся в Кито.',
+          'Историки до сих пор спорят, мог ли Орельяна вернуться. Но именно это решение привело к великому открытию.'],
     card:{title:'Решение Орельяны', text:'Против быстрого течения вернуться было невозможно, и отряд поплыл вниз по реке — в неизвестность.'}},
    /* ---------- Великая река ---------- */
    {type:'story', scene:'amazon-confluence', who:'orellana', text:['Февраль 1542 года. Однажды утром река Напо выносит бригантину в такую огромную реку, что дальний берег виден только тонкой зелёной полоской.',
@@ -1704,7 +1734,19 @@ const SCENE_IMG = {
   'dec5-a':{file:'dec5-a', fb:'sunset'},
   'dec5-b':{file:'dec5-b', fb:'day-sea'},
   'dec5-c':{file:'dec5-c', fb:'day-sea'},
-  'dec5-history':{file:'dec5-history', fb:'sunset'}
+  'dec5-history':{file:'dec5-history', fb:'sunset'},
+  'dec6-situation':{file:'dec6-situation', fb:'night-sea'},
+  'dec6-close':{file:'dec6-close', fb:'night-sea'},
+  'dec6-a':{file:'dec6-a', fb:'night-sea'},
+  'dec6-b':{file:'dec6-b', fb:'night-sea'},
+  'dec6-c':{file:'dec6-c', fb:'night-sea'},
+  'dec6-history':{file:'dec6-history', fb:'sunset'},
+  'dec7-situation':{file:'dec7-situation', fb:'sunset'},
+  'dec7-close':{file:'dec7-close', fb:'tropic'},
+  'dec7-a':{file:'dec7-a', fb:'tropic'},
+  'dec7-b':{file:'dec7-b', fb:'tropic'},
+  'dec7-c':{file:'dec7-c', fb:'tropic'},
+  'dec7-history':{file:'dec7-history', fb:'tropic'}
 };
 /* Если нужной картинки ещё нет — берём ближайшую подходящую */
 const SCENE_ALT = {
@@ -1720,7 +1762,7 @@ const SCENE_ALT = {
   'strait':['ocean-night'], 'pacific':['ocean-day'], 'mactan':['island'], 'moluccas':['island'], 'victoria-return':['sunset-port'],
   'quito':['port-day'], 'andes-pass':['fog'], 'cloud-forest':['island'], 'boat-building':['island'], 'river-napo':['island'], 'amazon-confluence':['island'],
   'amazon-wildlife':['island'], 'rio-negro':['island'], 'amazons':['island'], 'amazon-mouth':['ocean-day'], 'cubagua':['sunset-port'],
-  'dec1-situation':['ocean-night'], 'dec1-close':['ocean-night'], 'dec1-a':['ocean-night'], 'dec1-b':['ocean-night'], 'dec1-c':['ocean-day'], 'dec1-history':['ocean-night'], 'dec2-situation':['ocean-night'], 'dec2-close':['ocean-night'], 'dec2-a':['ocean-night'], 'dec2-b':['hispaniola'], 'dec2-c':['hispaniola'], 'dec2-history':['hispaniola'], 'dec3-situation':['cape-verde'], 'dec3-close':['cape-verde'], 'dec3-a':['cape-verde'], 'dec3-b':['cape-verde'], 'dec3-c':['cape-verde'], 'dec3-history':['ocean-day'], 'dec4-situation':['calicut'], 'dec4-close':['calicut'], 'dec4-a':['calicut'], 'dec4-b':['calicut'], 'dec4-c':['calicut'], 'dec4-history':['ocean-day'], 'dec5-situation':['la-plata'], 'dec5-close':['la-plata'], 'dec5-a':['la-plata'], 'dec5-b':['la-plata'], 'dec5-c':['la-plata'], 'dec5-history':['la-plata']
+  'dec1-situation':['ocean-night'], 'dec1-close':['ocean-night'], 'dec1-a':['ocean-night'], 'dec1-b':['ocean-night'], 'dec1-c':['ocean-day'], 'dec1-history':['ocean-night'], 'dec2-situation':['ocean-night'], 'dec2-close':['ocean-night'], 'dec2-a':['ocean-night'], 'dec2-b':['hispaniola'], 'dec2-c':['hispaniola'], 'dec2-history':['hispaniola'], 'dec3-situation':['cape-verde'], 'dec3-close':['cape-verde'], 'dec3-a':['cape-verde'], 'dec3-b':['cape-verde'], 'dec3-c':['cape-verde'], 'dec3-history':['ocean-day'], 'dec4-situation':['calicut'], 'dec4-close':['calicut'], 'dec4-a':['calicut'], 'dec4-b':['calicut'], 'dec4-c':['calicut'], 'dec4-history':['ocean-day'], 'dec5-situation':['la-plata'], 'dec5-close':['la-plata'], 'dec5-a':['la-plata'], 'dec5-b':['la-plata'], 'dec5-c':['la-plata'], 'dec5-history':['la-plata'], 'dec6-situation':['strait'], 'dec6-close':['strait'], 'dec6-a':['strait'], 'dec6-b':['strait'], 'dec6-c':['strait'], 'dec6-history':['strait'], 'dec7-situation':['river-napo'], 'dec7-close':['river-napo'], 'dec7-a':['river-napo'], 'dec7-b':['river-napo'], 'dec7-c':['river-napo'], 'dec7-history':['river-napo']
 };
 /* face — куда смотрит персонаж на картинке: L (влево) или R (вправо).
    Слева на экране стоит героиня, справа — собеседник; картинки разворачиваются лицом друг к другу. */
@@ -1794,7 +1836,8 @@ function placePortrait(id, who, dim){
 const NOPORT_SCENES = ['chest-closed', 'chest-open', 'southern-sky', 'cebu', 'la-plata', 'victoria-cape', 'sanlucar',
   'boat-building', 'river-napo', 'amazon-confluence', 'amazon-wildlife', 'rio-negro', 'amazons', 'amazon-mouth', 'cubagua',
   'dec1-situation', 'dec1-close', 'dec1-a', 'dec1-b', 'dec1-c', 'dec1-history', 'dec2-situation', 'dec2-close', 'dec2-a', 'dec2-b', 'dec2-c', 'dec2-history', 'dec3-situation', 'dec3-close', 'dec3-a', 'dec3-b', 'dec3-c', 'dec3-history',
-  'dec4-situation', 'dec4-close', 'dec4-a', 'dec4-b', 'dec4-c', 'dec4-history', 'dec5-situation', 'dec5-close', 'dec5-a', 'dec5-b', 'dec5-c', 'dec5-history'];
+  'dec4-situation', 'dec4-close', 'dec4-a', 'dec4-b', 'dec4-c', 'dec4-history', 'dec5-situation', 'dec5-close', 'dec5-a', 'dec5-b', 'dec5-c', 'dec5-history',
+  'dec6-situation', 'dec6-close', 'dec6-a', 'dec6-b', 'dec6-c', 'dec6-history', 'dec7-situation', 'dec7-close', 'dec7-a', 'dec7-b', 'dec7-c', 'dec7-history'];
 function setCast(left, right, active){
   castR = right || null;
   if(NOPORT_SCENES.includes(imgScene)){ placePortrait('pL', null); placePortrait('pR', null); return; }
@@ -1928,8 +1971,8 @@ function findVid(file){
 }
 /* Как «двигается камера»: arrive — подплываем к порту, sea — качка на волнах, kb — медленный наезд */
 /* сцены, где головы у самого верха картинки: кадр прижат к верхнему краю, без наезда камеры */
-const SCENE_FOCUS_Y = {'dec1-situation':'0%', 'dec1-a':'0%', 'dec3-situation':'0%', 'dec3-a':'0%'};
-const SCENE_CAM = {'dec1-situation':'cam-still','dec1-a':'cam-still','dec3-situation':'cam-still','dec3-a':'cam-still','chest-closed':'cam-still','chest-open':'cam-still','port-day':'cam-arrive','port-dawn':'cam-arrive','sunset-port':'cam-arrive','palos':'cam-arrive',
+const SCENE_FOCUS_Y = {'dec1-situation':'0%', 'dec1-a':'0%', 'dec3-situation':'0%', 'dec3-a':'0%', 'dec7-a':'0%', 'dec7-b':'0%'};
+const SCENE_CAM = {'dec1-situation':'cam-still','dec1-a':'cam-still','dec3-situation':'cam-still','dec3-a':'cam-still','dec7-a':'cam-still','dec7-b':'cam-still','chest-closed':'cam-still','chest-open':'cam-still','port-day':'cam-arrive','port-dawn':'cam-arrive','sunset-port':'cam-arrive','palos':'cam-arrive',
   'ocean-day':'cam-sea','ocean-night':'cam-sea','fog':'cam-sea','island':'cam-arrive','port-night':'cam-kb'};
 /* Живые эффекты поверх картинки */
 const SCENE_FX = {'tavern':['flicker'],'chest':['flicker'],'fog':['sparks'],'port-day':['gulls'],'port-dawn':['gulls'],
@@ -1956,7 +1999,7 @@ function setFx(name){
   setTimeout(() => { box.innerHTML = h; box.style.opacity = 1; }, 400);
 }
 /* Список файлов игры — заполняется автоматически (build.py), чтобы не перебирать расширения по сети */
-const FILES = /*FILES*/{"img": {"alenquer-face": "jpg", "alenquer": "png", "amazon-confluence": "jpg", "amazon-mouth": "jpg", "amazon-wildlife": "jpg", "amazons": "jpg", "andes-pass": "jpg", "boat-building": "jpg", "calicut": "jpg", "cape-storm": "jpg", "cape-verde-1522": "jpg", "cape-verde": "jpg", "carvajal-face": "jpg", "carvajal": "png", "cebu": "jpg", "chest-closed": "jpg", "chest-open": "jpg", "chest": "jpg", "cloud-forest": "jpg", "columbus-face": "jpg", "columbus": "png", "cubagua": "jpg", "dec1-a": "jpg", "dec1-b": "jpg", "dec1-c": "jpg", "dec1-close": "jpg", "dec1-history": "jpg", "dec1-situation": "jpg", "dec2-a": "jpg", "dec2-b": "jpg", "dec2-c": "jpg", "dec2-close": "jpg", "dec2-history": "jpg", "dec2-situation": "jpg", "dec3-a": "jpg", "dec3-b": "jpg", "dec3-c": "jpg", "dec3-close": "jpg", "dec3-history": "jpg", "dec3-situation": "jpg", "dec4-a": "jpg", "dec4-b": "jpg", "dec4-c": "jpg", "dec4-close": "jpg", "dec4-history": "jpg", "dec4-situation": "jpg", "dec5-a": "jpg", "dec5-b": "jpg", "dec5-c": "jpg", "dec5-close": "jpg", "dec5-history": "jpg", "dec5-situation": "jpg", "dias-face": "jpg", "dias": "png", "eclipse": "jpg", "elcano-face": "jpg", "elcano": "png", "fog": "jpg", "guam": "jpg", "hero-face": "jpg", "hero": "png", "hispaniola": "jpg", "island": "jpg", "la-plata": "jpg", "lisbon": "jpg", "mactan": "jpg", "magellan-face": "jpg", "magellan": "png", "malindi": "jpg", "map-room": "jpg", "map": "jpg", "moluccas": "jpg", "ocean-day": "jpg", "ocean-night": "jpg", "orellana-face": "jpg", "orellana": "png", "pacific": "jpg", "palace": "jpg", "palos": "jpg", "patagonia": "jpg", "penguin-coast": "jpg", "pigafetta-face": "jpg", "pigafetta": "png", "pilot-face": "jpg", "pilot": "png", "pizarro-face": "jpg", "pizarro": "png", "port-dawn": "jpg", "port-day": "jpg", "port-night": "jpg", "quito": "jpg", "rio-bay": "jpg", "rio-negro": "jpg", "river-napo": "jpg", "sailor-face": "jpg", "sailor": "png", "sanlucar": "jpg", "sargasso": "jpg", "sebastian-face": "jpg", "sebastian": "png", "seville": "jpg", "southern-sky": "jpg", "strait": "jpg", "sunset-port": "jpg", "taino-village": "jpg", "tavern": "jpg", "vasco-face": "jpg", "vasco": "png", "victoria-cape": "jpg", "victoria-return": "jpg", "yard-caravel": "jpg", "yard-galleon": "jpg", "yard-nao": "jpg", "yard-sloop": "jpg"}, "vid": ["calicut", "cape-storm", "cape-verde", "chest-open", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "sargasso", "southern-sky", "sunset-port", "taino-village", "tavern"], "snd": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"]}/*/FILES*/;
+const FILES = /*FILES*/{"img": {"alenquer-face": "jpg", "alenquer": "png", "amazon-confluence": "jpg", "amazon-mouth": "jpg", "amazon-wildlife": "jpg", "amazons": "jpg", "andes-pass": "jpg", "boat-building": "jpg", "calicut": "jpg", "cape-storm": "jpg", "cape-verde-1522": "jpg", "cape-verde": "jpg", "carvajal-face": "jpg", "carvajal": "png", "cebu": "jpg", "chest-closed": "jpg", "chest-open": "jpg", "chest": "jpg", "cloud-forest": "jpg", "columbus-face": "jpg", "columbus": "png", "cubagua": "jpg", "dec1-a": "jpg", "dec1-b": "jpg", "dec1-c": "jpg", "dec1-close": "jpg", "dec1-history": "jpg", "dec1-situation": "jpg", "dec2-a": "jpg", "dec2-b": "jpg", "dec2-c": "jpg", "dec2-close": "jpg", "dec2-history": "jpg", "dec2-situation": "jpg", "dec3-a": "jpg", "dec3-b": "jpg", "dec3-c": "jpg", "dec3-close": "jpg", "dec3-history": "jpg", "dec3-situation": "jpg", "dec4-a": "jpg", "dec4-b": "jpg", "dec4-c": "jpg", "dec4-close": "jpg", "dec4-history": "jpg", "dec4-situation": "jpg", "dec5-a": "jpg", "dec5-b": "jpg", "dec5-c": "jpg", "dec5-close": "jpg", "dec5-history": "jpg", "dec5-situation": "jpg", "dec6-a": "jpg", "dec6-b": "jpg", "dec6-c": "jpg", "dec6-close": "jpg", "dec6-history": "jpg", "dec6-situation": "jpg", "dec7-a": "jpg", "dec7-b": "jpg", "dec7-c": "jpg", "dec7-close": "jpg", "dec7-history": "jpg", "dec7-situation": "jpg", "dias-face": "jpg", "dias": "png", "eclipse": "jpg", "elcano-face": "jpg", "elcano": "png", "fog": "jpg", "guam": "jpg", "hero-face": "jpg", "hero": "png", "hispaniola": "jpg", "island": "jpg", "la-plata": "jpg", "lisbon": "jpg", "mactan": "jpg", "magellan-face": "jpg", "magellan": "png", "malindi": "jpg", "map-room": "jpg", "map": "jpg", "moluccas": "jpg", "ocean-day": "jpg", "ocean-night": "jpg", "orellana-face": "jpg", "orellana": "png", "pacific": "jpg", "palace": "jpg", "palos": "jpg", "patagonia": "jpg", "penguin-coast": "jpg", "pigafetta-face": "jpg", "pigafetta": "png", "pilot-face": "jpg", "pilot": "png", "pizarro-face": "jpg", "pizarro": "png", "port-dawn": "jpg", "port-day": "jpg", "port-night": "jpg", "quito": "jpg", "rio-bay": "jpg", "rio-negro": "jpg", "river-napo": "jpg", "sailor-face": "jpg", "sailor": "png", "sanlucar": "jpg", "sargasso": "jpg", "sebastian-face": "jpg", "sebastian": "png", "seville": "jpg", "southern-sky": "jpg", "strait": "jpg", "sunset-port": "jpg", "taino-village": "jpg", "tavern": "jpg", "vasco-face": "jpg", "vasco": "png", "victoria-cape": "jpg", "victoria-return": "jpg", "yard-caravel": "jpg", "yard-galleon": "jpg", "yard-nao": "jpg", "yard-sloop": "jpg"}, "vid": ["calicut", "cape-storm", "cape-verde", "chest-open", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "sargasso", "southern-sky", "sunset-port", "taino-village", "tavern"], "snd": ["calicut", "cape-storm", "cape-verde", "chest", "eclipse", "fog", "hispaniola", "island", "lisbon", "malindi", "map-room", "ocean-day", "ocean-night", "palace", "palos", "penguin-coast", "port-day", "port-night", "southern-sky", "sunset-port", "taino-village", "tavern"]}/*/FILES*/;
 function findImg(file){
   if(FILES.img){
     if(imgCache[file] !== undefined) return imgCache[file];
@@ -1995,7 +2038,8 @@ const SCENE_PLACE = {
   'amazon-wildlife':'Заводь Амазонки · 1542', 'rio-negro':'Устье Рио-Негро · 3 июня 1542', 'amazons':'Средняя Амазонка · 24 июня 1542',
   'amazon-mouth':'Устье Амазонки · 26 августа 1542', 'cubagua':'Остров Кубагуа · сентябрь 1542',
   'dec1-situation':'«Санта-Мария» · 10 октября 1492', 'dec2-situation':'У берега Эспаньолы · ночь на 25 декабря 1492', 'dec3-situation':'Острова Зелёного Мыса · август 1497',
-  'dec4-situation':'Каликут · конец августа 1498', 'dec5-situation':'Залив Ла-Плата · январь 1520'
+  'dec4-situation':'Каликут · конец августа 1498', 'dec5-situation':'Залив Ла-Плата · январь 1520',
+  'dec6-situation':'Магелланов пролив · ноябрь 1520', 'dec7-situation':'Река Напо · январь 1542'
 };
 /* Какую часть кадра держать в центре на вертикальном экране (0% — левый край, 100% — правый) */
 const SCENE_FOCUS = {'chest-closed':'55%','chest-open':'55%','port-day':'32%','port-night':'38%','tavern':'50%','chest':'34%','fog':'50%','palos':'45%',
@@ -2005,12 +2049,12 @@ const SCENE_FOCUS = {'chest-closed':'55%','chest-open':'55%','port-day':'32%','p
   'penguin-coast':'38%','malindi':'28%','calicut':'38%',
   'sargasso':'60%', 'seville':'40%','sanlucar':'35%','rio-bay':'45%','la-plata':'40%','guam':'40%','cebu':'45%','victoria-cape':'40%','cape-verde-1522':'40%','patagonia':'55%','strait':'45%','pacific':'45%','mactan':'30%','moluccas':'45%','victoria-return':'35%',
   'quito':'45%','andes-pass':'40%','cloud-forest':'70%','boat-building':'30%','river-napo':'25%','amazon-confluence':'25%','amazon-wildlife':'55%','rio-negro':'30%','amazons':'40%','amazon-mouth':'40%','cubagua':'45%',
-  'dec1-situation':'60%','dec1-close':'30%','dec1-a':'62%','dec1-b':'58%','dec1-c':'30%','dec1-history':'40%','dec2-situation':'62%','dec2-close':'70%','dec2-a':'40%','dec2-b':'75%','dec2-c':'55%','dec2-history':'78%','dec3-situation':'50%','dec3-close':'75%','dec3-a':'30%','dec3-b':'45%','dec3-c':'35%','dec3-history':'60%','dec4-situation':'45%','dec4-close':'70%','dec4-a':'50%','dec4-b':'62%','dec4-c':'60%','dec4-history':'62%','dec5-situation':'30%','dec5-close':'72%','dec5-a':'35%','dec5-b':'42%','dec5-c':'50%','dec5-history':'50%'};
+  'dec1-situation':'60%','dec1-close':'30%','dec1-a':'62%','dec1-b':'58%','dec1-c':'30%','dec1-history':'40%','dec2-situation':'62%','dec2-close':'70%','dec2-a':'40%','dec2-b':'75%','dec2-c':'55%','dec2-history':'78%','dec3-situation':'50%','dec3-close':'75%','dec3-a':'30%','dec3-b':'45%','dec3-c':'35%','dec3-history':'60%','dec4-situation':'45%','dec4-close':'70%','dec4-a':'50%','dec4-b':'62%','dec4-c':'60%','dec4-history':'62%','dec5-situation':'30%','dec5-close':'72%','dec5-a':'35%','dec5-b':'42%','dec5-c':'50%','dec5-history':'50%','dec6-situation':'40%','dec6-close':'70%','dec6-a':'45%','dec6-b':'50%','dec6-c':'30%','dec6-history':'35%','dec7-situation':'45%','dec7-close':'68%','dec7-a':'50%','dec7-b':'35%','dec7-c':'35%','dec7-history':'62%'};
 const cineSeen = new Set();
 /* сцены-картинки, перед которыми тоже показываем фон пару секунд до текста */
 const CINE_IMG = ['chest-closed', 'chest-open', 'sargasso', 'seville', 'sanlucar', 'rio-bay', 'la-plata', 'guam', 'cebu', 'victoria-cape', 'cape-verde-1522', 'patagonia', 'strait', 'pacific', 'mactan', 'moluccas', 'victoria-return',
   'quito', 'andes-pass', 'cloud-forest', 'boat-building', 'river-napo', 'amazon-confluence', 'amazon-wildlife', 'rio-negro', 'amazons', 'amazon-mouth', 'cubagua',
-  'dec1-situation', 'dec2-situation', 'dec3-situation', 'dec4-situation', 'dec5-situation'];
+  'dec1-situation', 'dec2-situation', 'dec3-situation', 'dec4-situation', 'dec5-situation', 'dec6-situation', 'dec7-situation'];
 let cineTimer = 0, cineOn = false;
 function startCine(name){
   const sec = innerWidth <= 900 ? 3.5 : 2.5;
@@ -2431,7 +2475,7 @@ const SCENE_SND = {
   'quito':'palos', 'andes-pass':'southern-sky', 'cloud-forest':'island', 'boat-building':'island', 'river-napo':'island', 'amazon-confluence':'island',
   'amazon-wildlife':'island', 'rio-negro':'island', 'amazons':'island', 'amazon-mouth':'ocean-day', 'cubagua':'cape-verde',
   /* решения юнги — звук из похожих сцен */
-  'dec1-situation':'ocean-day', 'dec1-close':'ocean-night', 'dec1-a':'ocean-night', 'dec1-b':'ocean-night', 'dec1-c':'ocean-day', 'dec1-history':'ocean-night', 'dec2-situation':'ocean-night', 'dec2-close':'ocean-night', 'dec2-a':'cabin', 'dec2-b':'island', 'dec2-c':'island', 'dec2-history':'island', 'dec3-situation':'cabin', 'dec3-close':'cabin', 'dec3-a':'southern-sky', 'dec3-b':'southern-sky', 'dec3-c':'cape-verde', 'dec3-history':'ocean-day', 'dec4-situation':'calicut', 'dec4-close':'calicut', 'dec4-a':'cabin', 'dec4-b':'calicut', 'dec4-c':'calicut', 'dec4-history':'ocean-day', 'dec5-situation':'ocean-day', 'dec5-close':'ocean-day', 'dec5-a':'ocean-day', 'dec5-b':'ocean-day', 'dec5-c':'ocean-day', 'dec5-history':'ocean-day'
+  'dec1-situation':'ocean-day', 'dec1-close':'ocean-night', 'dec1-a':'ocean-night', 'dec1-b':'ocean-night', 'dec1-c':'ocean-day', 'dec1-history':'ocean-night', 'dec2-situation':'ocean-night', 'dec2-close':'ocean-night', 'dec2-a':'cabin', 'dec2-b':'island', 'dec2-c':'island', 'dec2-history':'island', 'dec3-situation':'cabin', 'dec3-close':'cabin', 'dec3-a':'southern-sky', 'dec3-b':'southern-sky', 'dec3-c':'cape-verde', 'dec3-history':'ocean-day', 'dec4-situation':'calicut', 'dec4-close':'calicut', 'dec4-a':'cabin', 'dec4-b':'calicut', 'dec4-c':'calicut', 'dec4-history':'ocean-day', 'dec5-situation':'ocean-day', 'dec5-close':'ocean-day', 'dec5-a':'ocean-day', 'dec5-b':'ocean-day', 'dec5-c':'ocean-day', 'dec5-history':'ocean-day', 'dec6-situation':'ocean-night', 'dec6-close':'ocean-night', 'dec6-a':'ocean-night', 'dec6-b':'ocean-night', 'dec6-c':'ocean-night', 'dec6-history':'ocean-night', 'dec7-situation':'island', 'dec7-close':'island', 'dec7-a':'island', 'dec7-b':'island', 'dec7-c':'island', 'dec7-history':'island'
 };
 /* Пока файла нет, море и волшебный гул генерируются прямо в браузере */
 const SYNTH_FOR = {'ocean-night':'sea','island':'sea','port-day':'sea','port-night':'sea','ocean-day':'sea','sunset-port':'sea','fog':'magic'};
