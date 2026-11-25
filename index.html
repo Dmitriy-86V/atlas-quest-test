@@ -2025,6 +2025,7 @@ const SCENE_ALT = {
 };
 /* face — куда смотрит персонаж на картинке: L (влево) или R (вправо).
    Слева на экране стоит героиня, справа — собеседник; картинки разворачиваются лицом друг к другу. */
+const HINT_ASK = {alenquer:'Спросить Аленкера', pigafetta:'Спросить Пигафетту', carvajal:'Спросить Карвахаля', steller:'Спросить Стеллера'};
 const CHARS = {
   sebastian: {name:'Штурман Себастьян', file:'sebastian', face:'R'},
   hero:      {name:'Ты',                file:'hero',      face:'L'},
@@ -2041,7 +2042,7 @@ const CHARS = {
   pizarro:   {name:'Губернатор Писарро', file:'pizarro',  face:'L'},
   carvajal:  {name:'Брат Гаспар де Карвахаль', file:'carvajal', face:'L'},
   bering:    {name:'Командор Беринг',   file:'bering',    face:'R'},
-  chirikov:  {name:'Капитан Чириков',   file:'chirikov',  face:'R'},
+  chirikov:  {name:'Лейтенант Чириков',   file:'chirikov',  face:'R'},
   steller:   {name:'Натуралист Стеллер', file:'steller',  face:'R'}
 };
 /* Карточки мореплавателей: показываются при первой встрече и хранятся в судовом журнале */
@@ -3204,7 +3205,7 @@ function renderChapter(id){
     ${speakerHtml(step.who)}
     <div class="tasknum">Задание ${num} из ${tasks.length}</div>
     <div class="q">${fill(step.q)}</div>
-    <div id="hintbox"><button class="btn ghost small" id="hintBtn">Спросить штурмана</button>
+    <div id="hintbox"><button class="btn ghost small" id="hintBtn">${HINT_ASK[c.hintBy] || 'Спросить штурмана'}</button>
       <span class="muted" style="font-size:14px">${state.giftHint ? ' подсказка бесплатна — подарок за твоё решение' : (owns('tools','astrolabe') && !cs.freeHint ? ' астролябия: одна подсказка в этом плавании бесплатно' : ' подсказка уменьшит награду до 5 золотых')}</span>
       ${owns('tools','spyglass') && !cs.glass && step.type === 'choice' && step.opts.length > 2 ? '<button class="btn ghost small" id="glassBtn">Подзорная труба</button>' : ''}</div>
     <div id="body" style="margin-top:12px"></div>
