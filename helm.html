@@ -209,18 +209,18 @@ const TYPES=['reef-long2','reef-heads','reef-long','cay','reef-heads','cay-mangr
 function mkObs(type,x,z,size){const S=SPR[type],w=size;
   return {type,x,z,w,cw:w*.86,d:w*.86*.72,seed:Math.random()*1000,sc:type==='shoal'?1:w/S.w,flip:Math.random()<.5};}
 function reset(){
-  const obs=[]; const STEP=44;
-  for(let gz=-240;gz<=LEN+20;gz+=STEP)for(let gx=-400;gx<=440;gx+=STEP){
+  const obs=[]; const STEP=62;
+  for(let gz=-300;gz<=LEN+20;gz+=STEP)for(let gx=-520;gx<=560;gx+=STEP){
     const x=gx+rnd(-10,10), z=gz+rnd(-10,10); if(z>LEN-10&&Math.abs(x-GOALX)<160)continue;
     const room=chanClear(x,z); if(room<12)continue;
-    let size=Math.min(rnd(58,88),room*2/.86*.98); if(size<26)continue;
+    let size=Math.min(rnd(82,118),room*2/.86*.98); if(size<28)continue;
     let type=TYPES[Math.floor(Math.random()*TYPES.length)];
     if(size<45&&type!=='shoal')type='reef-heads';
-    if((Math.abs(gx)>=390||gz<=-200)&&size>=60&&Math.random()<.3)type='reef-break'; // живой бурун — только по внешнему краю
+    if(room<45&&size>=40&&gz>0&&Math.random()<.1)type='reef-break'; // живой бурун — изредка у самого фарватера, чтобы видеть его вблизи
     obs.push(mkObs(type,x,z,size));
   }
   st={t:0,pz:0,px:0,h:0,w:0,hp:3,inv:0,obs,drag:null,done:false,shake:0,seen:{},fog:new Uint8Array(60*80)};
-  $('hp').textContent='❤❤❤'; tip('Впереди лабиринт рифов. На карте видно три фарватера — выбирай. Красный флажок — устье реки.',6500);
+  $('hp').textContent='❤❤❤'; tip('Впереди лабиринт рифов. Ищи проход — карта дорисовывается по ходу. Красный флажок — устье реки.',6500);
 }
 /* мир → камера */
 function cam(x,z){const dx=x-st.px,dz=z-st.pz,c=Math.cos(st.h),sn=Math.sin(st.h);return {cx:dx*c-dz*sn, cz:dz*c+dx*sn};}
@@ -252,14 +252,15 @@ function drawShoal(o,sx,sy,k,fy){
 }
 function drawSprite(o,sx,sy,k,z,t){
   const S=SPR[o.type]; if(!S.soft)return;
+  if(S.anim&&z>320)return; const nearA=S.anim?Math.min(1,(320-z)/120):1;
   const A=S.anim, fr=A?Math.floor((t*A.fps+o.seed*7))%A.N:0, fx=A?(fr%A.cols)*A.fw:0, fy=A?Math.floor(fr/A.cols)*A.fh:0, fw=A?A.fw:S.soft.width, fh=A?A.fh:S.soft.height;
-  const im=S.soft, aw=S.w*o.sc*k, H=aw*fh/fw, top=sy-H*S.wl, haze=Math.min(1,Math.max(0,(z-90)/450)), fl=o.flip?-1:1;
+  const im=S.soft, aw=S.w*o.sc*k, H=aw*fh/fw*(S.anim?.7:1), top=sy-H*S.wl, haze=Math.min(1,Math.max(0,(z-90)/450)), fl=o.flip?-1:1;
   // тень на воде (солнце слева)
   ctx.fillStyle=`rgba(8,45,60,${.16*(1-haze)})`;ctx.beginPath();ctx.ellipse(sx+aw*.07,sy+H*.05,aw*.42,Math.max(2,H*.1),0,0,TAU);ctx.fill();
   // отражение
   if(z<260){ctx.save();ctx.globalAlpha*=.18*(1-haze*.7);ctx.translate(sx,sy);ctx.scale(fl,-.4);ctx.drawImage(im,fx,fy,fw,fh*S.wl,-aw/2,-H*S.wl,aw,H*S.wl);ctx.restore();}
   // сам предмет с дымкой по расстоянию
-  ctx.save();ctx.translate(sx,0);ctx.scale(fl,1);
+  ctx.save();ctx.globalAlpha*=nearA;ctx.translate(sx,0);ctx.scale(fl,1);
   if(haze>.05){ctx.drawImage(S.haze,fx,fy,fw,fh,-aw/2,top,aw,H);ctx.globalAlpha*=(1-haze);}
   ctx.drawImage(im,fx,fy,fw,fh,-aw/2,top,aw,H);ctx.restore();
   // плеск по краю
@@ -367,6 +368,8 @@ function step(dt){
   if(inp)st.w=Math.max(-1,Math.min(1,st.w+inp*1.3*dt));else if(!st.drag)st.w-=Math.sign(st.w)*Math.min(Math.abs(st.w),.6*dt);
   st.h=wrapA(st.h+st.w*.3*dt); // разворот на любой угол
   st.px+=Math.sin(st.h)*SPEED*dt; st.pz+=Math.cos(st.h)*SPEED*dt;
+  // граница района: дальше — внешний риф и открытый океан, туда не пускаем
+  if(st.px<-500||st.px>540||st.pz<-280){st.px=Math.max(-500,Math.min(540,st.px));st.pz=Math.max(-280,st.pz);if(st.t%3<dt)tip('Дальше внешний риф и открытый океан — нам к реке!',2500);}
   if(st.inv>0)st.inv-=dt; if(st.shake>0)st.shake-=dt;
   for(const o of st.obs){
     if(Math.abs(o.x-st.px)>o.w/2+BOW+6||Math.abs(o.z-st.pz)>o.w/2+BOW+6)continue;
@@ -423,7 +426,7 @@ function render(T){
     for(const v of vis){const o=v.o;if(v.cz>600)continue;const p=shape(o);let ok=true;const pts=[];
       for(const [a,b] of p){const w=cam(o.x+a*1.12,o.z+b*1.12);if(w.cz<2){ok=false;break;}pts.push([768+w.cx/w.cz*F,hor+CAMH*F/w.cz]);}
       if(!ok)continue;const fade=Math.min(1,(600-v.cz)/200);
-      ctx.fillStyle=o.type==='shoal'?`rgba(150,235,215,${.38*fade})`:`rgba(120,225,210,${.30*fade})`;
+      ctx.fillStyle=o.type==='shoal'?`rgba(150,235,215,${.28*fade})`:`rgba(120,225,210,${.16*fade})`;
       ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
     ctx.restore();
     for(const v of vis){const o=v.o,z=v.cz,k=F/z,sx=768+v.cx/z*F,sy=hor+CAMH*F/z,sw=o.w*k;
