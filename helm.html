@@ -29,6 +29,9 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 .card button{margin-top:10px;font:inherit;font-weight:700;font-size:17px;padding:8px 22px;border-radius:12px;border:2px solid var(--rim);background:#e9c98f;color:var(--ink)}
 #map{position:fixed;right:max(10px,env(safe-area-inset-right));top:36px;width:130px;height:164px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,.45);z-index:5}
 @media (max-height:420px){#map{width:104px;height:131px}}
+#call{position:fixed;left:50%;top:40px;transform:translateX(-50%);background:rgba(30,20,10,.62);color:#fff3d6;border-radius:10px;padding:4px 12px;font-size:15px;z-index:6;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap}
+#call b{color:#ffd27a}
+#snd{pointer-events:auto;cursor:pointer;margin-right:6px}
 #toast{position:fixed;left:50%;top:34%;transform:translate(-50%,-50%) scale(.9);font-weight:700;font-size:28px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);opacity:0;transition:opacity .25s,transform .25s;z-index:6;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
 #rot{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#1d2a33;color:#f5e8cd;font-size:18px;text-align:center;padding:20px;z-index:20}
@@ -42,11 +45,11 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
   <img id="wheel" src="img/helm-wheel.webp" alt="Штурвал" draggable="false">
   <div id="flash"></div>
 </div>
-<div id="hud"><span class="pill">⛵ Риф · 1770</span><span class="pill">Корпус: <span id="hp">❤❤❤</span><span id="bar"><i></i></span></span></div>
+<div id="hud"><span><span class="pill" id="snd">🔊</span><span class="pill">⛵ Риф · 1770</span></span><span class="pill">Корпус: <span id="hp">❤❤❤</span><span id="bar"><i></i></span></span></div>
 <canvas id="map" width="260" height="328"></canvas>
 <div class="btn" id="bl">◀</div><div class="btn" id="br">▶</div>
 <div id="tip"><img src="img/banks-face.jpg" alt=""><span id="tipt"></span></div>
-<div id="toast"></div>
+<div id="toast"></div><div id="call"></div>
 <div id="ov"><div class="card"><h2>Штурман: проход через риф</h2>
 <p>Июнь 1770 года. «Индевор» идёт внутри Большого Барьерного рифа к устью реки, где можно починить корабль.</p>
 <p>Крути штурвал кнопками ◀ ▶, стрелками на клавиатуре или пальцем прямо по колесу — корабль может развернуться в любую сторону. В каждой гряде рифов есть два-три прохода, ищи их на карте в углу. Цель — красный флажок у устья реки.</p>
@@ -371,6 +374,7 @@ function step(dt){
   // граница района: дальше — внешний риф и открытый океан, туда не пускаем
   if(st.px<-500||st.px>540||st.pz<-280){st.px=Math.max(-500,Math.min(540,st.px));st.pz=Math.max(-280,st.pz);if(st.t%3<dt)tip('Дальше внешний риф и открытый океан — нам к реке!',2500);}
   if(st.inv>0)st.inv-=dt; if(st.shake>0)st.shake-=dt;
+  crewStep(dt);
   for(const o of st.obs){
     if(Math.abs(o.x-st.px)>o.w/2+BOW+6||Math.abs(o.z-st.pz)>o.w/2+BOW+6)continue;
     if(shipHits(o)){ if(st.inv<=0){o.hit=1;hit(o);} else { const a=Math.atan2(st.px-o.x,st.pz-o.z);st.px+=Math.sin(a)*1.5;st.pz+=Math.cos(a)*1.5; } }
@@ -383,6 +387,7 @@ function step(dt){
   if(Math.hypot(GOALX-st.px,GZ-st.pz)<45)finish(true);
 }
 function hit(o){
+  sfx('helm-hit',1);say('bosun','Пробоина! Все к помпам!',4);
   st.hp--;st.inv=1.6;st.shake=.6;
   // корабль отталкивает назад от препятствия
   const a=Math.atan2(st.px-o.x,st.pz-o.z);st.px+=Math.sin(a)*6;st.pz+=Math.cos(a)*6;
@@ -399,10 +404,73 @@ function finish(ok){
     :`<div class="card"><h2>Пробоина!</h2><p>Риф пропорол обшивку. Матросы откачивают воду — попробуй ещё раз.</p><button id="go">Ещё раз</button></div>`;
   $('ov').style.display='flex';$('go').onclick=start;
 }
+/* ===================== ЗВУК ===================== */
+let AC=null,MASTER=null,BUF={},SURF=null,SURFPAN=null,muted=false;
+const LOOPS={'helm-amb-sea':.55,'helm-amb-ship':.38,'helm-amb-wind':.28};
+function audioStart(){
+  if(AC){AC.resume();return;}
+  try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
+  MASTER=AC.createGain();MASTER.gain.value=muted?0:1;MASTER.connect(AC.destination);
+  const load=n=>fetch('snd/'+n+'.mp3').then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>AC.decodeAudioData(b,ok,no))).then(buf=>BUF[n]=buf);
+  for(const n in LOOPS)load(n).then(buf=>{const s=AC.createBufferSource();s.buffer=buf;s.loop=true;const g=AC.createGain();g.gain.value=LOOPS[n];s.connect(g).connect(MASTER);s.start(0,Math.random()*buf.duration);}).catch(()=>{});
+  load('helm-surf').then(buf=>{const s=AC.createBufferSource();s.buffer=buf;s.loop=true;SURF=AC.createGain();SURF.gain.value=0;
+    SURFPAN=AC.createStereoPanner?AC.createStereoPanner():null;if(SURFPAN)s.connect(SURF).connect(SURFPAN).connect(MASTER);else s.connect(SURF).connect(MASTER);s.start();}).catch(()=>{});
+  load('helm-hit').catch(()=>{});
+}
+function sfx(n,vol){if(!AC||!BUF[n])return;const s=AC.createBufferSource();s.buffer=BUF[n];const g=AC.createGain();g.gain.value=vol||1;s.connect(g).connect(MASTER);s.start();}
+$('snd').onclick=e=>{e.stopPropagation();muted=!muted;$('snd').textContent=muted?'🔇':'🔊';if(MASTER)MASTER.gain.value=muted?0:1;if(muted&&window.speechSynthesis)speechSynthesis.cancel();};
+/* прибой: громче и с той стороны, где рифы ближе */
+function surfUpdate(){
+  if(!SURF||!st)return;let I=0,P=0;
+  for(const o of st.obs){const dx=o.x-st.px,dz=o.z-st.pz;if(Math.abs(dx)>230||Math.abs(dz)>230)continue;
+    const d=Math.max(0,Math.hypot(dx,dz)-Math.max(o.cw,o.d)/2);if(d>220)continue;const w=(1-d/220)**2*(o.type==='reef-break'?2:1);
+    const {cx,cz}=cam(o.x,o.z);I+=w;P+=w*Math.sin(Math.atan2(cx,cz));}
+  const g=Math.min(.95,I*.55);SURF.gain.setTargetAtTime(muted?0:g,AC.currentTime,.3);
+  if(SURFPAN&&I>0)SURFPAN.pan.setTargetAtTime(Math.max(-.9,Math.min(.9,P/I)),AC.currentTime,.3);
+}
+/* голоса команды: синтез речи браузера + подпись на экране */
+let VOICES=[];function pickVoices(){const v=(window.speechSynthesis?speechSynthesis.getVoices():[]).filter(x=>/^ru/i.test(x.lang));VOICES=v;}
+if(window.speechSynthesis){pickVoices();speechSynthesis.onvoiceschanged=pickVoices;}
+const CREW={lead:{name:'Лотовый',pitch:.75,rate:.95,v:0},look:{name:'С мачты',pitch:1.2,rate:1.05,v:1},bosun:{name:'Боцман',pitch:.9,rate:1.1,v:0}};
+let callT,speakPri=0,speakEnd=0;
+function say(who,text,pri){
+  const now=performance.now();if(now<speakEnd&&pri<speakPri)return; // не перебиваем более важное
+  const c=CREW[who];$('call').innerHTML='<b>'+c.name+':</b> '+text;$('call').style.opacity=1;clearTimeout(callT);callT=setTimeout(()=>$('call').style.opacity=0,2600);
+  speakPri=pri;speakEnd=now+2200;
+  if(muted||!window.speechSynthesis)return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang='ru-RU';
+    if(VOICES.length)u.voice=VOICES[Math.min(c.v,VOICES.length-1)];u.pitch=c.pitch;u.rate=c.rate;u.volume=1;speechSynthesis.speak(u);}catch(e){}
+}
+let crew={leadLvl:0,leadT:0,lookT:0,clearT:0,warned:false,river:false};
+const DEPTH={10:'Десять саженей!',7:'Семь саженей!',5:'Пять саженей!',3:'Три сажени! Мелеем!',2:'Две сажени! Под килем риф!'};
+function crewStep(dt){
+  const t=st.t, c=Math.cos(st.h), s=Math.sin(st.h);
+  // лотовый: глубина по расстоянию от носа до ближайшего рифа
+  const bx=st.px+s*BOW, bz=st.pz+c*BOW; let clr=1e9;
+  for(const o of st.obs){const dx=o.x-bx,dz=o.z-bz;if(Math.abs(dx)>140||Math.abs(dz)>140)continue;
+    const fwd=dx*s+dz*c, side=Math.abs(dx*c-dz*s), r=Math.max(o.cw,o.d)/2; if(fwd<-r)continue; // только то, что впереди по курсу
+    if(side-r>SHIP_HALF+8)continue; clr=Math.min(clr,Math.max(0,fwd-r));}
+  const lvl=clr>90?10:clr>60?7:clr>38?5:clr>18?3:2;
+  if((lvl!==crew.leadLvl&&t-crew.leadT>2.5)||t-crew.leadT>9){crew.leadLvl=lvl;crew.leadT=t;say('lead',DEPTH[lvl],lvl<=3?2:1);}
+  // впередсмотрящий: новые рифы впереди и по бортам
+  if(t-crew.lookT>4.5){
+    let best=null;for(const o of st.obs){if(o.called)continue;const v=cam(o.x,o.z);if(v.cz<25||v.cz>170)continue;const a=Math.atan2(v.cx,v.cz);if(Math.abs(v.cx)>Math.max(o.cw,o.d)/2+14)continue; // кричит только о том, что на пути
+      
+      if(!best||v.cz<best.cz)best={o,a,cz:v.cz};}
+    if(best){for(const o of st.obs)if(Math.hypot(o.x-best.o.x,o.z-best.o.z)<70)o.called=1;crew.lookT=t;crew.warned=true;crew.clearT=t;
+      say('look',Math.abs(best.a)<.2?'Буруны прямо по курсу!':best.a>0?'Риф справа по борту!':'Риф слева по борту!',3);}
+  }
+  // «чистая вода»: впереди долго ничего нет после предупреждения
+  if(crew.warned&&t-crew.clearT>7){let any=false;for(const o of st.obs){const v=cam(o.x,o.z);if(v.cz>10&&v.cz<150&&Math.abs(Math.atan2(v.cx,v.cz))<.35){any=true;break;}}
+    if(!any){crew.warned=false;crew.lookT=t;say('look','Впереди чистая вода!',2);}else crew.clearT=t-4;}
+  if(!crew.river&&Math.hypot(GOALX-st.px,GZ-st.pz)<420){const v=cam(GOALX,GZ);if(Math.abs(Math.atan2(v.cx,v.cz))<.6&&v.cz>0){crew.river=true;crew.lookT=t;say('look','Вижу устье реки!',3);}}
+}
 function start(){
   // полный экран (Android, компьютер); на iPhone — только если добавить на экран «Домой»
   const de=document.documentElement;
   try{const r=(de.requestFullscreen||de.webkitRequestFullscreen)?.call(de,{navigationUI:'hide'});if(r&&r.then)r.then(()=>screen.orientation?.lock?.('landscape').catch(()=>{})).catch(()=>{});}catch(e){}
+  audioStart();if(window.speechSynthesis){try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u);}catch(e){}}
+  crew={leadLvl:0,leadT:0,lookT:2,clearT:0,warned:false,river:false};
   reset();$('ov').style.display='none';running=true;}
 $('go').onclick=start;
 
@@ -439,6 +507,7 @@ function render(T){
       const x=768+side*(SHIP_HALF+2+ph*2)/Math.max(2,z)*F*.55, y=hor+CAMH*F/Math.max(3,z+6);
       if(x<-50||x>1590)continue;ctx.fillStyle=`rgba(255,255,255,${.35*(1-ph)})`;ctx.beginPath();ctx.ellipse(x,y,40*(1-ph)+10,6*(1-ph)+2,0,0,TAU);ctx.fill();}
     drawMap();
+    surfUpdate();
   }
   deck.style.transform=`translate(${shx}px,${bob*.25+shy}px) rotate(${roll}deg)`;
   wheel.style.transform=`translate(${shx}px,${bob*.25+shy}px) rotate(${s.w*110}deg)`;
