@@ -11,7 +11,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 #gl,#sea{position:absolute;left:-60px;top:-40px;width:1656px;height:1104px;will-change:transform}
 #sea{display:none}
 #cv{position:absolute;left:0;top:0;width:1536px;height:1024px}
-#deck{position:absolute;left:-40px;top:-30px;width:1616px;height:1078px;will-change:transform;pointer-events:none}
+#deck,#crew{position:absolute;left:-40px;top:-30px;width:1616px;height:1078px;will-change:transform;pointer-events:none}
 #wheel{position:absolute;left:418px;top:690px;width:700px;height:700px;will-change:transform;cursor:grab}
 #flash{position:absolute;inset:0;background:rgba(200,30,20,0);pointer-events:none;transition:background .35s}
 #hud{position:fixed;left:0;right:0;top:0;display:flex;justify-content:space-between;gap:8px;padding:max(6px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left));pointer-events:none;z-index:5}
@@ -42,6 +42,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
   <img id="sea" src="img/helm-sea.jpg" alt="">
   <canvas id="cv" width="1536" height="1024"></canvas>
   <img id="deck" src="img/helm-deck.webp" alt="">
+  <canvas id="crew" width="1616" height="1078"></canvas>
   <img id="wheel" src="img/helm-wheel.webp" alt="Штурвал" draggable="false">
   <div id="flash"></div>
 </div>
@@ -474,6 +475,14 @@ function start(){
   reset();$('ov').style.display='none';running=true;}
 $('go').onclick=start;
 
+/* матросы на палубе: анимация из видео, качаются вместе с палубой */
+const CREWS=[{n:58,cols:8,fw:114,fh:231,x:518,y:363,fx:560,fy:590,off:0},{n:58,cols:8,fw:108,fh:232,x:819,y:347,fx:870,fy:578,off:19},{n:58,cols:8,fw:111,fh:139,x:889,y:445,fx:972,fy:582,off:37}];
+CREWS.forEach((c,i)=>{c.img=new Image();c.img.src='img/helm-crew'+i+'.webp';});
+const crx=$('crew').getContext('2d'),KX=1616/1536,KY=1078/1024;
+function drawCrew(T){crx.clearRect(0,0,1616,1078);
+  for(const c of CREWS){if(!c.img.complete||!c.img.naturalWidth)continue;const f=(Math.floor(T*12)+c.off)%c.n;
+    crx.fillStyle='rgba(30,15,5,.28)';crx.beginPath();crx.ellipse(c.fx*KX,c.fy*KY,c.fw*.38*KX,7,0,0,TAU);crx.fill(); // тень под ногами
+    crx.drawImage(c.img,(f%c.cols)*c.fw,Math.floor(f/c.cols)*c.fh,c.fw,c.fh,c.x*KX,c.y*KY,c.fw*KX,c.fh*KY);}}
 function render(T){
   const s=st||{h:0,w:0,shake:0,px:0,pz:0};
   const roll=Math.sin(T*.95)*1.7+Math.sin(T*.41)*.8, bob=Math.sin(T*1.6)*9+Math.sin(T*.55)*5;
@@ -510,6 +519,7 @@ function render(T){
     surfUpdate();
   }
   deck.style.transform=`translate(${shx}px,${bob*.25+shy}px) rotate(${roll}deg)`;
+  $('crew').style.transform=deck.style.transform;drawCrew(T);
   wheel.style.transform=`translate(${shx}px,${bob*.25+shy}px) rotate(${s.w*110}deg)`;
 }
 requestAnimationFrame(loop);
