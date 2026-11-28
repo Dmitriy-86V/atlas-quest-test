@@ -26,6 +26,10 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 .card{background:var(--paper);border:3px solid var(--rim);border-radius:16px;padding:18px 22px;max-width:min(520px,88vw);color:var(--ink);text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.5)}
 .card h2{margin:0 0 8px;font-size:22px}.card p{margin:6px 0;font-size:15px;line-height:1.35}
 .card button{margin-top:10px;font:inherit;font-weight:700;font-size:17px;padding:8px 22px;border-radius:12px;border:2px solid var(--rim);background:#e9c98f;color:var(--ink)}
+#map{position:fixed;right:max(12px,env(safe-area-inset-right));top:48px;width:150px;height:190px;border:2px solid var(--rim);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.35);z-index:5;background:#bfe3e6}
+#toast{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.9);font-weight:700;font-size:30px;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);opacity:0;transition:opacity .25s,transform .25s;z-index:6;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media (max-height:420px){#map{width:118px;height:150px}}
 #rot{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#1d2a33;color:#f5e8cd;font-size:18px;text-align:center;padding:20px;z-index:20}
 @media (orientation:portrait) and (max-width:900px){#rot{display:flex}}
 </style></head><body>
@@ -41,8 +45,9 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden;touch-action:none
 <div id="tip"><img src="img/banks-face.jpg" alt=""><span id="tipt"></span></div>
 <div id="ov"><div class="card"><h2>Штурман: проход через риф</h2>
 <p>Июнь 1770 года. «Индевор» идёт внутри Большого Барьерного рифа к устью реки, где можно починить корабль.</p>
-<p>Крути штурвал кнопками ◀ ▶, стрелками на клавиатуре или пальцем прямо по колесу. Обходи рифы, островки и светлые мели. Ветер сносит корабль вправо.</p>
+<p>Крути штурвал кнопками ◀ ▶, стрелками на клавиатуре или пальцем прямо по колесу. Обходи рифы, островки и светлые мели. Цель — флажок «Река Индевор» впереди; мини-карта в углу покажет, где препятствия.</p>
 <button id="go">Встать к штурвалу</button></div></div>
+<canvas id="map" width="300" height="380"></canvas><div id="toast"></div>
 <div id="rot">Поверни телефон горизонтально ↻</div>
 <script>
 'use strict';
@@ -55,22 +60,27 @@ function fit(){const vw=innerWidth,vh=innerHeight,s=Math.max(vw/1536,vh/1024);
 addEventListener('resize',fit);fit();
 
 /* --- параметры --- */
-const F=900, HOR=310, CAMH=6, SPEED=17, LEN=1500, DRIFT=1.6, HIT_Z=14, SHIP_HALF=5;
+const F=900, HOR=310, CAMH=6, SPEED=8.5, LEN=1000, BOW=24, STERN=-6, SHIP_HALF=4.5, GOALX=0;
 let st, last=0, running=false;
 function rnd(a,b){return a+Math.random()*(b-a)}
 function reset(){
-  const obs=[]; let z=140;
-  while(z<LEN-120){
+  const obs=[]; let z=110, cx=0;
+  while(z<LEN-110){
     const k=Math.random(); const type=k<.5?'reef':k<.75?'shoal':'cay';
-    const w=type==='reef'?rnd(30,60):type==='cay'?rnd(25,40):rnd(35,70);
-    obs.push({type,z,x:rnd(-45,45),w,seed:Math.random()*1000});
-    if(Math.random()<.35){ // иногда пара — проход между ними
-      obs.push({type:'reef',z:z+rnd(-10,10),x:obs[obs.length-1].x+(Math.random()<.5?-1:1)*rnd(55,75),w:rnd(30,50),seed:Math.random()*1000});}
-    z+=rnd(85,130);
+    const w=type==='reef'?rnd(28,50):type==='cay'?rnd(22,34):rnd(30,55);
+    cx+=rnd(-25,25); cx=Math.max(-50,Math.min(50,cx));
+    const x=cx+rnd(-18,18);
+    obs.push({type,z,x,w,d:w*.7,seed:Math.random()*1000});
+    if(Math.random()<.35){ // пара — проход между ними
+      const w2=rnd(26,40); obs.push({type:'reef',z:z+rnd(-8,8),x:x+(Math.random()<.5?-1:1)*(w/2+w2/2+rnd(26,34)),w:w2,d:w2*.7,seed:Math.random()*1000});}
+    z+=rnd(115,155);
   }
-  st={t:0,dist:0,px:0,h:0,w:0,hp:3,inv:0,obs,input:0,drag:null,done:false,shake:0};
-  $('hp').textContent='❤❤❤'; tip('Держи между рифами, капитан! Светлая вода — это мель.',4500);
+  st={t:0,pz:0,px:0,h:0,w:0,hp:3,inv:0,obs,drag:null,done:false,shake:0,passed:0};
+  $('hp').textContent='❤❤❤'; tip('Держи между рифами, капитан! Флажок впереди — устье реки. Смотри на карту в углу.',5000);
 }
+/* --- мировые координаты → координаты камеры (камера у штурвала, смотрит по курсу) --- */
+function cam(x,z){const dx=x-st.px,dz=z-st.pz,c=Math.cos(st.h),sn=Math.sin(st.h);return {cx:dx*c-dz*sn, cz:dz*c+dx*sn};}
+let toastT;function toast(t,col){const el=$('toast');el.textContent=t;el.style.color=col||'#fff';el.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),900);}
 /* --- подсказки Бэнкса --- */
 let tipTimer;function tip(t,ms){$('tipt').innerHTML='<b>Бэнкс:</b> «'+t+'»';$('tip').style.opacity=1;clearTimeout(tipTimer);tipTimer=setTimeout(()=>$('tip').style.opacity=0,ms||3500);}
 
@@ -90,10 +100,11 @@ wheel.addEventListener('pointerup',endDrag);wheel.addEventListener('pointercance
 
 /* --- рисование препятствий-заглушек --- */
 function blob(cx,cy,rx,ry,col){ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(cx,cy,Math.max(rx,.5),Math.max(ry,.5),0,0,Math.PI*2);ctx.fill();}
+function ring(cx,cy,rx,ry,col,lw){ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.ellipse(cx,cy,Math.max(rx,.5),Math.max(ry,.5),0,0,Math.PI*2);ctx.stroke();}
 function drawObs(o,sx,sy,k,fy,t){
   /* k — пикселей на метр на этом расстоянии, fy — насколько сплющена плоская вода (CAMH/z) */
   const R=(i)=>{const v=Math.sin(o.seed+i*12.9898)*43758.5453;return v-Math.floor(v)};
-  const rx=o.w/2*k, ry=Math.max(1.5,o.w*.35*k*fy); // пятно на воде: глубина ≈ 0.7 ширины
+  const rx=o.w/2*k, ry=Math.max(1.5,o.d/2*k*fy); // пятно на воде: глубина ≈ 0.7 ширины
   if(o.type==='shoal'){
     const g=ctx.createRadialGradient(sx,sy,0,sx,sy,rx);g.addColorStop(0,'rgba(175,242,226,.9)');g.addColorStop(.6,'rgba(125,218,206,.6)');g.addColorStop(1,'rgba(90,200,200,0)');
     ctx.save();ctx.translate(sx,sy);ctx.scale(1,ry/rx);ctx.translate(-sx,-sy);ctx.fillStyle=g;ctx.beginPath();ctx.arc(sx,sy,rx,0,Math.PI*2);ctx.fill();ctx.restore();
@@ -101,7 +112,7 @@ function drawObs(o,sx,sy,k,fy,t){
     return;}
   if(o.type==='cay'){
     blob(sx,sy,rx*1.25,ry*1.3,'rgba(150,235,225,.75)');
-    blob(sx,sy,rx,ry,'rgba(255,255,255,.8)');
+    ring(sx,sy,rx*1.02,ry*1.05,'rgba(255,255,255,.85)',Math.max(1,.5*k*fy+1));
     blob(sx,sy-ry*.1,rx*.85,ry*.75,'#efe2b8');
     for(let i=0;i<6;i++){const bx=sx+(R(i)-.5)*rx*1.2, bh=(1.2+R(i+3)*1.3)*k; blob(bx,sy-ry*.2-bh*.5,bh*1.1,bh*.55,i%2?'#4f7f3a':'#5f8f44');}
     const tx=sx+rx*.25, base=sy-ry*.3, th=6*k; // пальма ~6 м
@@ -112,20 +123,47 @@ function drawObs(o,sx,sy,k,fy,t){
   // риф: коралловые глыбы чуть выше воды, пена вокруг
   blob(sx,sy,rx*1.15,ry*1.3,'rgba(140,225,215,.55)');
   const foam=.5+.5*Math.sin(t*3+o.seed);
-  blob(sx,sy,rx,ry*1.05,`rgba(255,255,255,${.55+.3*foam})`);
+  ring(sx,sy,rx,ry*1.05,`rgba(255,255,255,${.6+.3*foam})`,Math.max(1,.7*k*fy+1));
   for(let i=0;i<11;i++){const bx=sx+(R(i)-.5)*rx*1.7,by=sy+(R(i+20)-.5)*ry*.8,bw=(1.5+R(i+40)*2.5)*k,bh=(.4+R(i+50)*.8)*k;
     ctx.fillStyle=['#7a5a3a','#9a6e44','#b8866a','#a0603f'][i%4];ctx.beginPath();ctx.ellipse(bx,by-bh*.4,Math.max(bw/2,.5),Math.max(bh,.5),0,Math.PI,0);ctx.fill();}
-  for(let i=0;i<6;i++)blob(sx+(R(i+60)-.5)*rx*1.8,sy+ry*.3,2*k,.4*k+1,`rgba(255,255,255,${.4+.4*foam})`);
+  for(let i=0;i<4;i++)blob(sx+(R(i+60)-.5)*rx*1.6,sy+ry*(.6+R(i+70)*.3),1.2*k,.2*k+.5,`rgba(255,255,255,${.3+.4*foam})`);
 }
-/* --- цель: зелёный берег с устьем реки на горизонте --- */
-function drawGoal(prog,yaw,bob){
-  const z=Math.max(60,LEN-st.dist+60), sx=768+(Math.atan((0-st.px)/z)-yaw)*F, a=Math.min(1,(prog-.55)/.2);
-  if(a<=0)return; const w=Math.min(1400,260000/z), hgt=w*.09, y=HOR+bob;
-  ctx.globalAlpha=a;
-  ctx.fillStyle='#3d6b3a';ctx.beginPath();ctx.moveTo(sx-w,y);ctx.quadraticCurveTo(sx-w*.6,y-hgt*1.3,sx-w*.15,y-hgt*.5);ctx.lineTo(sx-w*.08,y);ctx.fill();
-  ctx.beginPath();ctx.moveTo(sx+w*.08,y);ctx.lineTo(sx+w*.15,y-hgt*.6);ctx.quadraticCurveTo(sx+w*.6,y-hgt*1.4,sx+w,y);ctx.fill();
-  ctx.fillStyle='#e8d9a8';ctx.fillRect(sx-w,y-2,w*.92,3);ctx.fillRect(sx+w*.08,y-2,w*.92,3);
-  ctx.globalAlpha=1;
+/* --- цель: флажок и берег с устьем реки, виден с самого начала --- */
+function drawGoal(bob){
+  const {cx,cz}=cam(GOALX,LEN+60); if(cz<5)return;
+  const k=F/cz, sx=768+cx/cz*F, y=HOR+bob+CAMH*F/cz*.15;
+  if(sx<-600||sx>2100)return;
+  const w=Math.max(60,320*k), hgt=Math.max(6,22*k);
+  ctx.fillStyle='#3d6b3a';ctx.beginPath();ctx.moveTo(sx-w,y);ctx.quadraticCurveTo(sx-w*.6,y-hgt*1.3,sx-w*.12,y-hgt*.5);ctx.lineTo(sx-w*.06,y);ctx.fill();
+  ctx.beginPath();ctx.moveTo(sx+w*.06,y);ctx.lineTo(sx+w*.12,y-hgt*.6);ctx.quadraticCurveTo(sx+w*.6,y-hgt*1.4,sx+w,y);ctx.fill();
+  ctx.fillStyle='#e8d9a8';ctx.fillRect(sx-w,y-2,w*.94,3);ctx.fillRect(sx+w*.06,y-2,w*.94,3);
+  const fh=Math.max(34,10*k); ctx.strokeStyle='#4a2a10';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(sx,y);ctx.lineTo(sx,y-fh);ctx.stroke();
+  ctx.fillStyle='#c0392b';ctx.beginPath();ctx.moveTo(sx,y-fh);ctx.lineTo(sx+fh*.45,y-fh*.85);ctx.lineTo(sx,y-fh*.7);ctx.fill();
+  ctx.font='bold 26px Georgia';ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='rgba(0,0,0,.55)';
+  const lab='Река Индевор · '+Math.max(0,Math.round(LEN-st.pz))+' м';ctx.strokeText(lab,sx,y-fh-10);ctx.fillStyle='#fff';ctx.fillText(lab,sx,y-fh-10);
+}
+/* --- мини-карта: вид сверху, курс вверх по карте = к реке --- */
+const mc=$('map').getContext('2d');
+function drawMap(){
+  const W=300,H=380,sc=.8, ox=W/2, oy=H-60; // корабль внизу по центру
+  const X=x=>ox+(x-st.px)*sc, Y=z=>oy-(z-st.pz)*sc;
+  mc.clearRect(0,0,W,H);mc.fillStyle='#bfe3e6';mc.fillRect(0,0,W,H);
+  mc.strokeStyle='rgba(60,110,130,.25)';mc.lineWidth=1;for(let g=Math.floor((st.pz-100)/50)*50;g<st.pz+500;g+=50){mc.beginPath();mc.moveTo(0,Y(g));mc.lineTo(W,Y(g));mc.stroke();}
+  for(const o of st.obs){const x=X(o.x),y=Y(o.z);if(y<-30||y>H+30)continue;
+    mc.fillStyle=o.type==='reef'?'#8a5a3a':o.type==='cay'?'#e6d49a':'#7fd6cc';
+    mc.beginPath();mc.ellipse(x,y,o.w/2*sc,o.d/2*sc,0,0,Math.PI*2);mc.fill();
+    if(o.type!=='shoal'){mc.strokeStyle=o.hit?'#d33':'#fff';mc.lineWidth=2;mc.stroke();}
+    if(o.passed){mc.fillStyle='#2f9a5b';mc.font='bold 22px sans-serif';mc.textAlign='center';mc.fillText('✓',x,y+8);}}
+  // цель
+  let gy=Y(LEN+60),gx=X(GOALX); const off=gy<14; if(off)gy=14; gx=Math.max(14,Math.min(W-14,gx));
+  mc.fillStyle='#3d6b3a';if(!off){mc.fillRect(0,gy-6,gx-14,12);mc.fillRect(gx+14,gy-6,W-gx-14,12);}
+  mc.strokeStyle='#4a2a10';mc.lineWidth=3;mc.beginPath();mc.moveTo(gx,gy+10);mc.lineTo(gx,gy-14);mc.stroke();
+  mc.fillStyle='#c0392b';mc.beginPath();mc.moveTo(gx,gy-14);mc.lineTo(gx+14,gy-9);mc.lineTo(gx,gy-4);mc.fill();
+  // корабль: стрелка по курсу
+  mc.save();mc.translate(ox,oy);mc.rotate(st.h);
+  mc.fillStyle='#5a3416';mc.beginPath();mc.moveTo(0,-BOW*sc-6);mc.quadraticCurveTo(7,-4,5,(-STERN)*sc+4);mc.lineTo(-5,(-STERN)*sc+4);mc.quadraticCurveTo(-7,-4,0,-BOW*sc-6);mc.fill();
+  mc.strokeStyle='rgba(90,52,22,.6)';mc.setLineDash([5,5]);mc.lineWidth=2;mc.beginPath();mc.moveTo(0,-BOW*sc-8);mc.lineTo(0,-260);mc.stroke();mc.setLineDash([]);
+  mc.restore();
 }
 /* --- главный цикл --- */
 function loop(ts){
@@ -136,26 +174,30 @@ function loop(ts){
 }
 function step(dt){
   st.t+=dt;
-  // штурвал: кнопки крутят колесо, отпустил — медленно возвращается к центру (только если не держишь пальцем)
+  // штурвал: кнопки крутят колесо; отпустил — медленно возвращается к центру
   const inp=keys.r-keys.l;
-  if(inp) st.w=Math.max(-1,Math.min(1,st.w+inp*1.4*dt));
-  else if(!st.drag) st.w-=Math.sign(st.w)*Math.min(Math.abs(st.w),.5*dt);
-  // курс меняется от положения руля; корабль инертный
-  st.h+=(st.w*.32-st.h*.15)*dt; st.h=Math.max(-.4,Math.min(.4,st.h));
-  st.px+=(Math.sin(st.h)*SPEED+DRIFT)*dt;
-  st.dist+=SPEED*dt;
+  if(inp) st.w=Math.max(-1,Math.min(1,st.w+inp*1.3*dt));
+  else if(!st.drag) st.w-=Math.sign(st.w)*Math.min(Math.abs(st.w),.6*dt);
+  // руль поворачивает нос; корабль идёт туда, куда смотрит нос (без сноса вбок)
+  st.h+=st.w*.28*dt; st.h=Math.max(-1,Math.min(1,st.h));
+  st.px+=Math.sin(st.h)*SPEED*dt; st.pz+=Math.cos(st.h)*SPEED*dt;
   if(st.inv>0)st.inv-=dt; if(st.shake>0)st.shake-=dt;
-  for(const o of st.obs){const z=o.z-st.dist;
-    if(!o.hit&&z<HIT_Z&&z>-4&&Math.abs(o.x-st.px)<o.w/2+SHIP_HALF&&st.inv<=0){o.hit=1;hit(o);}}
-  $('bar').firstChild.style.width=Math.min(100,st.dist/LEN*100)+'%';
-  if(Math.abs(st.px)>95&&st.t%3<dt)tip('Мы уходим с фарватера — правь к середине!',2500);
-  if(st.dist>=LEN)finish(true);
+  for(const o of st.obs){ if(o.hit||o.passed)continue;
+    const {cx,cz}=cam(o.x,o.z), r=Math.max(o.w,o.d)/2;
+    if(cz-r<BOW&&cz+r>STERN&&Math.abs(cx)<o.w/2+SHIP_HALF){ if(st.inv<=0){o.hit=1;hit(o);} }
+    else if(o.z+o.d/2<st.pz+STERN){ o.passed=1; if(Math.abs(o.x-st.px)<o.w/2+45){st.passed++;toast('Прошли!','#bff5c8');} }
+  }
+  $('bar').firstChild.style.width=Math.min(100,st.pz/LEN*100)+'%';
+  if(Math.abs(st.px)>110&&st.t%4<dt)tip('Мы уходим далеко в сторону — правь обратно, к флажку!',2500);
+  if(Math.abs(st.h)>.9&&st.t%4<dt)tip('Мы почти повернули поперёк курса! Правь на флажок.',2500);
+  if(st.pz>=LEN)finish(true);
 }
 function hit(o){
   st.hp--; st.inv=1.6; st.shake=.6;
   $('hp').textContent='❤'.repeat(Math.max(0,st.hp))+'♡'.repeat(3-Math.max(0,st.hp));
   $('flash').style.background='rgba(200,30,20,.35)';setTimeout(()=>$('flash').style.background='rgba(200,30,20,0)',180);
   if(navigator.vibrate)navigator.vibrate(180);
+  toast(o.type==='shoal'?'Мель!':o.type==='cay'?'Остров!':'Удар о риф!','#ffd0c8');
   tip(o.type==='shoal'?'Сели на мель! Осторожнее со светлой водой.':o.type==='cay'?'Задели остров! Обходи шире.':'Удар о риф! Кораллы режут обшивку!',2600);
   if(st.hp<=0)finish(false);
 }
@@ -169,21 +211,23 @@ function start(){reset();$('ov').style.display='none';running=true;}
 $('go').onclick=start;
 
 function render(T){
-  const s=st||{h:0,w:0,px:0,dist:0,obs:[],shake:0};
+  const s=st||{h:0,w:0,shake:0};
   const roll=Math.sin(T*.9)*1.1+Math.sin(T*.37)*.5, bob=Math.sin(T*1.3)*6+Math.sin(T*.5)*3;
   let shx=0,shy=0;if(s.shake>0){shx=(Math.random()-.5)*26*s.shake;shy=(Math.random()-.5)*18*s.shake;}
   // море: сдвиг по курсу + качка (море как бы наклоняется обратно)
-  const yaw=s.h, seaX=-230-yaw*F*.9, seaY=-90-bob*.4;
+  const yaw=s.h, seaX=-230-Math.max(-190,Math.min(190,yaw*F*.9)), seaY=-90-bob*.4;
   sea.style.transform=`translate(${seaX+shx*.3}px,${seaY+shy*.3}px) rotate(${-roll*.6}deg) scale(${1+Math.sin(T*.6)*.006})`;
-  // препятствия
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,1536,1024);
+  if(st){
   ctx.translate(768+shx*.3,HOR+shy*.3);ctx.rotate(-roll*.6*Math.PI/180);ctx.translate(-768,-HOR);
-  if(st)drawGoal(s.dist/LEN,yaw,-bob*.4);
-  const vis=s.obs.map(o=>({o,z:o.z-s.dist})).filter(v=>v.z>6&&v.z<700).sort((a,b)=>b.z-a.z);
-  for(const {o,z} of vis){
-    const sx=768+(Math.atan((o.x-s.px)/z)-yaw)*F, sy=HOR-bob*.4+CAMH*F/z, k=F/z, sw=o.w*k;
+  drawGoal(-bob*.4);
+  const vis=s.obs.map(o=>({o,...cam(o.x,o.z)})).filter(v=>v.cz>4&&v.cz<650).sort((a,b)=>b.cz-a.cz);
+  for(const v of vis){const o=v.o,z=v.cz;
+    const k=F/z, sx=768+v.cx/z*F, sy=HOR-bob*.4+CAMH*F/z, sw=o.w*k;
     if(sx<-sw||sx>1536+sw)continue;
-    ctx.globalAlpha=Math.min(1,(700-z)/120);drawObs(o,sx,sy,k,CAMH/z,T);ctx.globalAlpha=1;
+    ctx.globalAlpha=Math.min(1,(650-z)/120);drawObs(o,sx,sy,k,CAMH/z,T);ctx.globalAlpha=1;
+  }
+  drawMap();
   }
   // палуба качается
   deck.style.transform=`translate(${shx}px,${bob*.25+shy}px) rotate(${roll}deg)`;
