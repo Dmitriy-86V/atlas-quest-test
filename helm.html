@@ -60,23 +60,49 @@ function fit(){const vw=innerWidth,vh=innerHeight,s=Math.max(vw/1536,vh/1024);
 addEventListener('resize',fit);fit();
 
 /* --- параметры --- */
-const F=900, HOR=310, CAMH=6, SPEED=8.5, LEN=1000, BOW=24, STERN=-6, SHIP_HALF=4.5, GOALX=0;
+const F=900, HOR=310, CAMH=6, SPEED=8.5, LEN=1000, BOW=24, STERN=-6, SHIP_HALF=4.5, GOALX=-40;
 let st, last=0, running=false;
 function rnd(a,b){return a+Math.random()*(b-a)}
+/* картинки препятствий: ширина в метрах, где у картинки линия воды (доля высоты) */
+const SPR={
+  'reef-long':{w:95,wl:.48},'reef-long2':{w:95,wl:.63},'reef-heads':{w:65,wl:.52},'reef-break':{w:80,wl:.74},
+  'cay':{w:55,wl:.70},'cay-mangrove':{w:60,wl:.74}};
+for(const k in SPR){const im=new Image();im.src='img/helm-'+k+'.webp';SPR[k].img=im;
+  im.onload=()=>{ // заранее готовим «дальнюю» копию: бледнее и светлее (дымка), чтобы не считать фильтры каждый кадр
+    const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);
+    const d=x.getImageData(0,0,c.width,c.height),p=d.data;
+    for(let i=0;i<p.length;i+=4){const l=(p[i]*.3+p[i+1]*.59+p[i+2]*.11);
+      p[i]=(p[i]*.5+l*.5)*.55+175*.45; p[i+1]=(p[i+1]*.5+l*.5)*.55+205*.45; p[i+2]=(p[i+2]*.5+l*.5)*.55+215*.45;}
+    x.putImageData(d,0,0);SPR[k].haze=c;};}
+/* маршрут: «ворота» поперёк пути, в каждых 2–3 прохода; путь петляет влево-вправо */
+const GATES=[
+  {z:150,c:0,  gaps:[-55,40]},
+  {z:300,c:-70,gaps:[-60,0,75]},
+  {z:450,c:30, gaps:[-40,70]},
+  {z:600,c:120,gaps:[-90,-10,60]},
+  {z:760,c:50, gaps:[-70,30]},
+];
+const FILL=['reef-long2','reef-heads','cay','reef-long','cay-mangrove','shoal','reef-heads','reef-long2'];
 function reset(){
-  const obs=[]; let z=110, cx=0;
-  while(z<LEN-110){
-    const k=Math.random(); const type=k<.5?'reef':k<.75?'shoal':'cay';
-    const w=type==='reef'?rnd(28,50):type==='cay'?rnd(22,34):rnd(30,55);
-    cx+=rnd(-25,25); cx=Math.max(-50,Math.min(50,cx));
-    const x=cx+rnd(-18,18);
-    obs.push({type,z,x,w,d:w*.7,seed:Math.random()*1000});
-    if(Math.random()<.35){ // пара — проход между ними
-      const w2=rnd(26,40); obs.push({type:'reef',z:z+rnd(-8,8),x:x+(Math.random()<.5?-1:1)*(w/2+w2/2+rnd(26,34)),w:w2,d:w2*.7,seed:Math.random()*1000});}
-    z+=rnd(115,155);
+  const obs=[]; let n=0;
+  const add=(type,x,z)=>{const w=type==='shoal'?60:SPR[type].w; obs.push({type,x,z,w,d:w*.35,seed:Math.random()*1000});};
+  for(const g of GATES){
+    const gapW=34, from=g.c-300, to=g.c+300; let x=from;
+    const gs=g.gaps.map(v=>g.c+v).sort((a,b)=>a-b);
+    while(x<to){
+      const nextGap=gs.find(v=>v-gapW/2>x);
+      const type=FILL[(n++)%FILL.length], w=type==='shoal'?60:SPR[type].w;
+      if(nextGap!==undefined && x+w>nextGap-gapW/2){ // не перекрываем проход: ставим подходящую штуку впритык или прыгаем через проход
+        const room=nextGap-gapW/2-x;
+        if(room>30){const t=room>58?'reef-heads':'reef-heads';const ww=Math.min(room,SPR[t].w);obs.push({type:t,x:x+ww/2,z:g.z+rnd(-6,6),w:ww,d:ww*.35,seed:Math.random()*1000,sc:ww/SPR[t].w});}
+        x=nextGap+gapW/2; continue;}
+      add(type,x+w/2,g.z+rnd(-8,8)); x+=w;
+    }
   }
+  // внешняя кромка рифа далеко по сторонам — с прибоем
+  for(let z=80;z<LEN;z+=90){add('reef-break',-260+rnd(-20,20),z);add('reef-break',300+rnd(-20,20),z+45);}
   st={t:0,pz:0,px:0,h:0,w:0,hp:3,inv:0,obs,drag:null,done:false,shake:0,passed:0};
-  $('hp').textContent='❤❤❤'; tip('Держи между рифами, капитан! Флажок впереди — устье реки. Смотри на карту в углу.',5000);
+  $('hp').textContent='❤❤❤'; tip('Смотри на карту: в каждой гряде рифов есть два-три прохода. Флажок — устье реки.',5500);
 }
 /* --- мировые координаты → координаты камеры (камера у штурвала, смотрит по курсу) --- */
 function cam(x,z){const dx=x-st.px,dz=z-st.pz,c=Math.cos(st.h),sn=Math.sin(st.h);return {cx:dx*c-dz*sn, cz:dz*c+dx*sn};}
@@ -101,7 +127,26 @@ wheel.addEventListener('pointerup',endDrag);wheel.addEventListener('pointercance
 /* --- рисование препятствий-заглушек --- */
 function blob(cx,cy,rx,ry,col){ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(cx,cy,Math.max(rx,.5),Math.max(ry,.5),0,0,Math.PI*2);ctx.fill();}
 function ring(cx,cy,rx,ry,col,lw){ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();ctx.ellipse(cx,cy,Math.max(rx,.5),Math.max(ry,.5),0,0,Math.PI*2);ctx.stroke();}
-function drawObs(o,sx,sy,k,fy,t){
+function drawSprite(o,sx,sy,k,z,t){
+  const S=SPR[o.type], im=S.img; if(!im.complete||!im.naturalWidth)return false;
+  const sc=o.sc||1, W=S.w*sc*k*(o.flip?-1:1), aw=Math.abs(W), H=aw*im.naturalHeight/im.naturalWidth*(o.sc?1:1);
+  const top=sy-H*S.wl, haze=Math.min(1,Math.max(0,(z-80)/420));
+  // тень на воде (вправо-вниз от солнца слева-сверху)
+  ctx.fillStyle=`rgba(10,50,60,${.22*(1-haze)})`;ctx.beginPath();ctx.ellipse(sx+aw*.08,sy+H*.06,aw*.46,Math.max(2,H*.12),0,0,Math.PI*2);ctx.fill();
+  // отражение: верх картинки, перевёрнутый и сплющенный
+  ctx.save();ctx.globalAlpha*=.22*(1-haze*.7);ctx.translate(sx,sy);ctx.scale(W<0?-1:1,-.45);
+  ctx.drawImage(im,0,0,im.naturalWidth,im.naturalHeight*S.wl,-aw/2,-H*S.wl,aw,H*S.wl);ctx.restore();
+  // сам предмет; дальние — светлее и бледнее (дымка)
+  ctx.save();ctx.translate(sx,0);ctx.scale(W<0?-1:1,1);
+  if(S.haze&&haze>.05){ctx.drawImage(S.haze,-aw/2,top,aw,H);ctx.globalAlpha*=(1-haze);}
+  ctx.drawImage(im,-aw/2,top,aw,H);ctx.restore();
+  // плеск у основания
+  const n=5;for(let i=0;i<n;i++){const ph=t*2.2+o.seed+i*1.7, xx=sx+(i/(n-1)-.5)*aw*.8+Math.sin(ph)*aw*.02;
+    ctx.fillStyle=`rgba(255,255,255,${(.25+.25*Math.sin(ph*1.3))*(1-haze)})`;ctx.beginPath();ctx.ellipse(xx,sy+H*.02+Math.sin(ph)*H*.01,aw*.06,Math.max(1,H*.02),0,0,Math.PI*2);ctx.fill();}
+  return true;
+}
+function drawObs(o,sx,sy,k,fy,t,z){
+  if(SPR[o.type]&&drawSprite(o,sx,sy,k,z,t))return;
   /* k — пикселей на метр на этом расстоянии, fy — насколько сплющена плоская вода (CAMH/z) */
   const R=(i)=>{const v=Math.sin(o.seed+i*12.9898)*43758.5453;return v-Math.floor(v)};
   const rx=o.w/2*k, ry=Math.max(1.5,o.d/2*k*fy); // пятно на воде: глубина ≈ 0.7 ширины
@@ -142,15 +187,37 @@ function drawGoal(bob){
   ctx.font='bold 26px Georgia';ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='rgba(0,0,0,.55)';
   const lab='Река Индевор · '+Math.max(0,Math.round(LEN-st.pz))+' м';ctx.strokeText(lab,sx,y-fh-10);ctx.fillStyle='#fff';ctx.fillText(lab,sx,y-fh-10);
 }
+/* --- живая вода: ряды гребней в перспективе бегут к кораблю, блики солнца --- */
+function drawWater(T,bob){
+  const SP=7, N=42, ch=Math.cos(st.h), sh=Math.sin(st.h);
+  const base=st.pz*ch+st.px*sh; // путь вдоль взгляда
+  for(let i=N;i>=1;i--){
+    const zr=i*SP-(base%SP); if(zr<5)continue;
+    const y=HOR+bob+CAMH*F/zr, k=F/zr, a=Math.min(.22,.05+k*.004)*Math.min(1,(N*SP-zr)/120);
+    const amp=Math.max(.6,.35*k), wl=Math.max(40,26*k), ph=T*1.6+i*1.37+(st.px*ch-st.pz*sh)*.05;
+    ctx.strokeStyle=`rgba(255,255,255,${a})`;ctx.lineWidth=Math.max(1,.12*k);
+    ctx.beginPath();
+    for(let x=-20;x<=1556;x+=Math.max(10,wl/6)){const yy=y+Math.sin(x/wl*6.283+ph)*amp+Math.sin(x/(wl*2.7)+ph*.6)*amp*.6; if(x<0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);}
+    ctx.stroke();
+    ctx.strokeStyle=`rgba(0,60,80,${a*.7})`;ctx.lineWidth=Math.max(1,.18*k);ctx.beginPath();
+    for(let x=-20;x<=1556;x+=Math.max(10,wl/6)){const yy=y+amp*1.6+Math.sin(x/wl*6.283+ph+1.2)*amp;if(x<0)ctx.moveTo(x,yy);else ctx.lineTo(x,yy);}
+    ctx.stroke();
+  }
+  // блики: мерцающие точки ближе к солнечной дорожке (левее центра)
+  for(let i=0;i<70;i++){const r1=Math.sin(i*91.7)*43758.5,r2=Math.sin(i*47.3)*12345.6, fx=r1-Math.floor(r1), fz=r2-Math.floor(r2);
+    const zr=8+fz*fz*300, y=HOR+bob+CAMH*F/zr, x=((fx*1700+T*12*(i%3-1)+st.h*F*.9)%1700+1700)%1700-80;
+    const tw=Math.max(0,Math.sin(T*(3+i%5)+i*2.1)); if(tw<.6)continue;
+    const sz=Math.max(1.2,F/zr*.25)*tw; ctx.fillStyle=`rgba(255,255,240,${(tw-.6)*2})`;ctx.fillRect(x-sz*2,y-sz*.3,sz*4,sz*.6);}
+}
 /* --- мини-карта: вид сверху, курс вверх по карте = к реке --- */
 const mc=$('map').getContext('2d');
 function drawMap(){
-  const W=300,H=380,sc=.8, ox=W/2, oy=H-60; // корабль внизу по центру
+  const W=300,H=380,sc=.55, ox=W/2, oy=H-60; // корабль внизу по центру
   const X=x=>ox+(x-st.px)*sc, Y=z=>oy-(z-st.pz)*sc;
   mc.clearRect(0,0,W,H);mc.fillStyle='#bfe3e6';mc.fillRect(0,0,W,H);
   mc.strokeStyle='rgba(60,110,130,.25)';mc.lineWidth=1;for(let g=Math.floor((st.pz-100)/50)*50;g<st.pz+500;g+=50){mc.beginPath();mc.moveTo(0,Y(g));mc.lineTo(W,Y(g));mc.stroke();}
   for(const o of st.obs){const x=X(o.x),y=Y(o.z);if(y<-30||y>H+30)continue;
-    mc.fillStyle=o.type==='reef'?'#8a5a3a':o.type==='cay'?'#e6d49a':'#7fd6cc';
+    mc.fillStyle=o.type.startsWith('reef')?'#8a5a3a':o.type==='cay'?'#e6d49a':o.type==='cay-mangrove'?'#4f7f3a':'#7fd6cc';
     mc.beginPath();mc.ellipse(x,y,o.w/2*sc,o.d/2*sc,0,0,Math.PI*2);mc.fill();
     if(o.type!=='shoal'){mc.strokeStyle=o.hit?'#d33':'#fff';mc.lineWidth=2;mc.stroke();}
     if(o.passed){mc.fillStyle='#2f9a5b';mc.font='bold 22px sans-serif';mc.textAlign='center';mc.fillText('✓',x,y+8);}}
@@ -162,7 +229,6 @@ function drawMap(){
   // корабль: стрелка по курсу
   mc.save();mc.translate(ox,oy);mc.rotate(st.h);
   mc.fillStyle='#5a3416';mc.beginPath();mc.moveTo(0,-BOW*sc-6);mc.quadraticCurveTo(7,-4,5,(-STERN)*sc+4);mc.lineTo(-5,(-STERN)*sc+4);mc.quadraticCurveTo(-7,-4,0,-BOW*sc-6);mc.fill();
-  mc.strokeStyle='rgba(90,52,22,.6)';mc.setLineDash([5,5]);mc.lineWidth=2;mc.beginPath();mc.moveTo(0,-BOW*sc-8);mc.lineTo(0,-260);mc.stroke();mc.setLineDash([]);
   mc.restore();
 }
 /* --- главный цикл --- */
@@ -179,7 +245,7 @@ function step(dt){
   if(inp) st.w=Math.max(-1,Math.min(1,st.w+inp*1.3*dt));
   else if(!st.drag) st.w-=Math.sign(st.w)*Math.min(Math.abs(st.w),.6*dt);
   // руль поворачивает нос; корабль идёт туда, куда смотрит нос (без сноса вбок)
-  st.h+=st.w*.28*dt; st.h=Math.max(-1,Math.min(1,st.h));
+  st.h+=st.w*.28*dt; st.h=Math.max(-1.4,Math.min(1.4,st.h));
   st.px+=Math.sin(st.h)*SPEED*dt; st.pz+=Math.cos(st.h)*SPEED*dt;
   if(st.inv>0)st.inv-=dt; if(st.shake>0)st.shake-=dt;
   for(const o of st.obs){ if(o.hit||o.passed)continue;
@@ -188,8 +254,8 @@ function step(dt){
     else if(o.z+o.d/2<st.pz+STERN){ o.passed=1; if(Math.abs(o.x-st.px)<o.w/2+45){st.passed++;toast('Прошли!','#bff5c8');} }
   }
   $('bar').firstChild.style.width=Math.min(100,st.pz/LEN*100)+'%';
-  if(Math.abs(st.px)>110&&st.t%4<dt)tip('Мы уходим далеко в сторону — правь обратно, к флажку!',2500);
-  if(Math.abs(st.h)>.9&&st.t%4<dt)tip('Мы почти повернули поперёк курса! Правь на флажок.',2500);
+  if(Math.abs(st.px-GATES[0].c)>230&&st.t%4<dt)tip('Мы уходим далеко в сторону — правь обратно, к флажку!',2500);
+  if(Math.abs(st.h)>1.2&&st.t%4<dt)tip('Мы почти повернули поперёк курса! Правь на флажок.',2500);
   if(st.pz>=LEN)finish(true);
 }
 function hit(o){
@@ -197,8 +263,8 @@ function hit(o){
   $('hp').textContent='❤'.repeat(Math.max(0,st.hp))+'♡'.repeat(3-Math.max(0,st.hp));
   $('flash').style.background='rgba(200,30,20,.35)';setTimeout(()=>$('flash').style.background='rgba(200,30,20,0)',180);
   if(navigator.vibrate)navigator.vibrate(180);
-  toast(o.type==='shoal'?'Мель!':o.type==='cay'?'Остров!':'Удар о риф!','#ffd0c8');
-  tip(o.type==='shoal'?'Сели на мель! Осторожнее со светлой водой.':o.type==='cay'?'Задели остров! Обходи шире.':'Удар о риф! Кораллы режут обшивку!',2600);
+  toast(o.type==='shoal'?'Мель!':o.type.startsWith('cay')?'Остров!':'Удар о риф!','#ffd0c8');
+  tip(o.type==='shoal'?'Сели на мель! Осторожнее со светлой водой.':o.type.startsWith('cay')?'Задели остров! Обходи шире.':'Удар о риф! Кораллы режут обшивку!',2600);
   if(st.hp<=0)finish(false);
 }
 function finish(ok){
@@ -220,12 +286,13 @@ function render(T){
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,1536,1024);
   if(st){
   ctx.translate(768+shx*.3,HOR+shy*.3);ctx.rotate(-roll*.6*Math.PI/180);ctx.translate(-768,-HOR);
+  drawWater(T,-bob*.4);
   drawGoal(-bob*.4);
-  const vis=s.obs.map(o=>({o,...cam(o.x,o.z)})).filter(v=>v.cz>4&&v.cz<650).sort((a,b)=>b.cz-a.cz);
+  const vis=s.obs.map(o=>({o,...cam(o.x,o.z)})).filter(v=>v.cz>4&&v.cz<700).sort((a,b)=>b.cz-a.cz);
   for(const v of vis){const o=v.o,z=v.cz;
     const k=F/z, sx=768+v.cx/z*F, sy=HOR-bob*.4+CAMH*F/z, sw=o.w*k;
     if(sx<-sw||sx>1536+sw)continue;
-    ctx.globalAlpha=Math.min(1,(650-z)/120);drawObs(o,sx,sy,k,CAMH/z,T);ctx.globalAlpha=1;
+    ctx.globalAlpha=Math.min(1,(700-z)/140);drawObs(o,sx,sy,k,CAMH/z,T,z);ctx.globalAlpha=1;
   }
   drawMap();
   }
