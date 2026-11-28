@@ -249,7 +249,8 @@ function drawSprite(o,sx,sy,k,z,t){
     ctx.fillStyle=`rgba(255,255,255,${(.18+.2*Math.sin(ph*1.3))*(1-haze)})`;ctx.beginPath();ctx.ellipse(xx,sy+H*.015,aw*.05,Math.max(1,H*.018),0,0,TAU);ctx.fill();}
 }
 /* --- дальние декорации на горизонте (материк, дальние рифы): стоят в мире очень далеко --- */
-const BACK=[{src:'coast',x:-8000,z:LEN*.4,w:16000,wl:.97,hs:.42},{src:'coast',x:-3000,z:LEN+7000,w:14000,wl:.97,hs:.42,flip:1}];
+const BACK=[{src:'coast',x:-8000,z:LEN*.4,w:16000,wl:.97,hs:.42},{src:'coast',x:-3000,z:LEN+7000,w:14000,wl:.97,hs:.42,flip:1},
+  {src:'horizon',x:4200,z:LEN*.5,w:9000,wl:.75},{src:'horizon',x:2500,z:LEN+4000,w:8000,wl:.75,flip:1},{src:'horizon',x:500,z:-3800,w:9000,wl:.75},{src:'horizon',x:-2500,z:-2500,w:6000,wl:.75,flip:1}];
 for(const b of BACK){const im=new Image();im.src='img/helm-'+b.src+'.webp';b.img=im;}
 function drawBack(bob){
   for(const b of BACK){const im=b.img;if(!im.complete||!im.naturalWidth)continue;
