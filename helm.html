@@ -190,19 +190,20 @@ for(const k in SPR){const im=new Image();im.onload=()=>Object.assign(SPR[k],soft
 
 /* уровень: сплошное поле рифов, через него идут три фарватера (западный — длинный, средний — с узостью, восточный — выходит в средний) и два тупика */
 const CH=[
-  {w:18,p:[[0,-20],[-40,120],[-120,220],[-110,360],[-180,480],[-160,620],[-90,740],[-110,880],[-40,1070]]},          // западный путь
-  {w:18,p:[[0,-20],[50,130],[130,230],[120,380],[40,470],[60,600],[150,700],[110,850],[10,930],[-40,1070]],narrow:[430,505,13]}, // восточный путь с узостью
-  {w:16,p:[[-110,360],[-30,420],[40,470]]},                       // перемычка между путями
-  {w:17,p:[[-40,120],[-200,160],[-300,230]]},                     // тупики, похожие на короткий путь
-  {w:17,p:[[130,230],[260,300],[320,420]]},
-  {w:17,p:[[-160,620],[-300,700]]},
-  {w:16,p:[[60,600],[-30,650]]},
-  {w:17,p:[[150,700],[280,790],[300,900]]},
-  {w:16,p:[[-90,740],[10,800]]},
+  {w:16,p:[[0,-20],[-50,100],[-170,190],[-260,320],[-250,470],[-300,600],[-230,740],[-150,860],[-70,980],[-40,1070]],narrow:[455,525,12.5]},   // западный путь
+  {w:16,p:[[0,-20],[30,120],[0,250],[-70,360],[-40,500],[30,620],[0,760],[-60,880],[-40,1070]],narrow:[700,780,12.5]},                       // средний путь
+  {w:16,p:[[30,120],[140,200],[250,330],[300,480],[220,620],[260,760],[180,880],[60,960],[-40,1070]],narrow:[465,535,12.5]},                  // восточный путь
+  {w:16,p:[[-70,360],[-160,420],[-250,470]]},          // перемычки между путями
+  {w:16,p:[[30,620],[130,600],[220,620]]},
+  {w:16,p:[[-170,190],[-320,170],[-400,230]]},         // тупики
+  {w:16,p:[[0,250],[90,300],[130,400]]},
+  {w:16,p:[[-300,600],[-420,640]]},
+  {w:16,p:[[260,760],[400,800],[440,900]]},
+  {w:16,p:[[-150,860],[-260,930],[-330,1000]]},
+  {w:16,p:[[250,330],[380,300],[450,360]]},
 ];
-const CHECK=[{x:50,z:470,r:28,t:'Прошли узость!'},{x:-40,z:1000,r:40,t:'Устье близко!'},
-  {x:-300,z:230,r:30,t:'Тупик! Разворачивайся.',bad:1},{x:320,z:420,r:30,t:'Тупик! Разворачивайся.',bad:1},{x:-300,z:700,r:30,t:'Тупик! Разворачивайся.',bad:1},
-  {x:-30,z:650,r:26,t:'Тупик! Разворачивайся.',bad:1},{x:300,z:900,r:30,t:'Тупик! Разворачивайся.',bad:1},{x:10,z:800,r:26,t:'Тупик! Разворачивайся.',bad:1}];
+const CHECK=[{x:-255,z:490,r:26,t:'Прошли узость!'},{x:5,z:740,r:26,t:'Прошли узость!'},{x:295,z:500,r:26,t:'Прошли узость!'},{x:-40,z:1010,r:40,t:'Устье близко!'},
+  ...[[-400,230],[130,400],[-420,640],[440,900],[-330,1000],[450,360]].map(([x,z])=>({x,z,r:28,t:'Тупик! Разворачивайся.',bad:1}))];
 function segDist(x,z,a,b){const dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz;let t=((x-a[0])*dx+(z-a[1])*dz)/L;t=Math.max(0,Math.min(1,t));return Math.hypot(x-a[0]-t*dx,z-a[1]-t*dz);}
 function chanClear(x,z){ // сколько метров от точки до края ближайшего фарватера (минус — внутри)
   let m=1e9;for(const c of CH){let hw=c.w;if(c.narrow&&z>c.narrow[0]&&z<c.narrow[1])hw=c.narrow[2];
@@ -220,12 +221,24 @@ function reset(){
     let size=Math.min(rnd(82,118),room*2/.86*.98); if(size<28)continue;
     let type=TYPES[Math.floor(Math.random()*TYPES.length)];
     if(size<45&&type!=='shoal')type='reef-heads';
-    if(room<45&&size>=40&&gz>0&&Math.random()<.1)type='reef-break'; // живой бурун — изредка у самого фарватера, чтобы видеть его вблизи
     obs.push(mkObs(type,x,z,size));
   }
-  st={t:0,pz:0,px:0,h:0,w:0,hp:3,inv:0,obs,drag:null,done:false,shake:0,seen:{},fog:new Uint8Array(60*80)};
+  // второй проход: каждая точка вне фарватеров должна быть закрыта рифом — без дыр в стенках
+  for(let gz=-280;gz<=LEN+10;gz+=16)for(let gx=-500;gx<=540;gx+=16){
+    const x=gx+rnd(-3,3), z=gz+rnd(-3,3); if(z>LEN-10&&Math.abs(x-GOALX)<160)continue;
+    const room=chanClear(x,z); if(room<7||room>55)continue; // закрываем только стенки у фарватеров, глубь рифа не нужна
+    let cov=false;for(const o of obs){if(Math.abs(o.x-x)>o.cw/2+2||Math.abs(o.z-z)>o.d/2+2)continue;if(inShape(o,x,z)){cov=true;break;}}
+    if(cov)continue;
+    const size=Math.max(18,Math.min(rnd(40,60),room*2/.86*.98));
+    obs.push(mkObs(Math.random()<.7?'reef-heads':Math.random()<.5?'shoal':'cay',x,z,size));
+  }
+  const grid=new Map();for(const o of obs){const k=Math.floor(o.x/100)+','+Math.floor(o.z/100);if(!grid.has(k))grid.set(k,[]);grid.get(k).push(o);}
+  st={t:0,pz:0,px:0,h:0,w:0,hp:3,inv:0,obs,grid,drag:null,done:false,shake:0,seen:{},fog:new Uint8Array(60*80)};
   $('hp').textContent='❤❤❤'; tip('Впереди лабиринт рифов. Ищи проход — карта дорисовывается по ходу. Красный флажок — устье реки.',6500);
 }
+/* быстрый поиск рифов рядом с точкой (сетка 100 м) */
+function near(x,z,r){const out=[];if(!st||!st.grid)return out;const i0=Math.floor((x-r)/100),i1=Math.floor((x+r)/100),j0=Math.floor((z-r)/100),j1=Math.floor((z+r)/100);
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++){const a=st.grid.get(i+','+j);if(a)for(const o of a)out.push(o);}return out;}
 /* мир → камера */
 function cam(x,z){const dx=x-st.px,dz=z-st.pz,c=Math.cos(st.h),sn=Math.sin(st.h);return {cx:dx*c-dz*sn, cz:dz*c+dx*sn};}
 
@@ -265,8 +278,7 @@ function drawSprite(o,sx,sy,k,z,t){
   if(z<260){ctx.save();ctx.globalAlpha*=.18*(1-haze*.7);ctx.translate(sx,sy);ctx.scale(fl,-.4);ctx.drawImage(im,fx,fy,fw,fh*S.wl,-aw/2,-H*S.wl,aw,H*S.wl);ctx.restore();}
   // сам предмет с дымкой по расстоянию
   ctx.save();ctx.globalAlpha*=nearA;ctx.translate(sx,0);ctx.scale(fl,1);
-  if(haze>.05){ctx.drawImage(S.haze,fx,fy,fw,fh,-aw/2,top,aw,H);ctx.globalAlpha*=(1-haze);}
-  ctx.drawImage(im,fx,fy,fw,fh,-aw/2,top,aw,H);ctx.restore();
+  ctx.drawImage(haze>.45?S.haze:im,fx,fy,fw,fh,-aw/2,top,aw,H); // одна отрисовка: вдали — копия в дымкеctx.restore();
   // плеск по краю
   if(z<300)for(let i=0;i<6;i++){const ph=t*2.1+o.seed+i*1.9, xx=sx+(i/5-.5)*aw*.75+Math.sin(ph)*aw*.02;
     ctx.fillStyle=`rgba(255,255,255,${(.18+.2*Math.sin(ph*1.3))*(1-haze)})`;ctx.beginPath();ctx.ellipse(xx,sy+H*.015,aw*.05,Math.max(1,H*.018),0,0,TAU);ctx.fill();}
@@ -321,7 +333,7 @@ function drawMap(){
   // материк слева (берег Австралии)
   const cxL=X(-470);if(cxL>-40){mc.fillStyle='#c9ad78';mc.beginPath();mc.moveTo(-5,-5);for(let z=st.pz+700;z>st.pz-200;z-=20){mc.lineTo(cxL+Math.sin(z*.02)*8,Y(z));}mc.lineTo(-5,H+5);mc.fill();
     mc.strokeStyle='#6b4a2a';mc.lineWidth=1.5;mc.stroke();}
-  for(const o of st.obs){if(!o.rev)continue;const x=X(o.x),y=Y(o.z);if(y<-40||y>H+40||x<-60||x>W+60)continue;
+  for(const o of near(st.px,st.pz+150,420)){if(!o.rev)continue;const x=X(o.x),y=Y(o.z);if(y<-40||y>H+40||x<-60||x>W+60)continue;
     const p=shape(o);mc.beginPath();p.forEach(([a,b],i)=>{const px=x+a*sc,py=y-b*sc;i?mc.lineTo(px,py):mc.moveTo(px,py);});mc.closePath();
     if(o.type==='shoal'){mc.setLineDash([3,3]);mc.strokeStyle='#5a7f86';mc.lineWidth=1.3;mc.stroke();mc.setLineDash([]);mc.fillStyle='rgba(120,170,170,.18)';mc.fill();}
     else if(o.type.startsWith('cay')){mc.fillStyle=o.type==='cay'?'#e3cf98':'#9bb27a';mc.fill();mc.strokeStyle='#6b4a2a';mc.lineWidth=1.2;mc.stroke();
@@ -376,12 +388,12 @@ function step(dt){
   if(st.px<-500||st.px>540||st.pz<-280){st.px=Math.max(-500,Math.min(540,st.px));st.pz=Math.max(-280,st.pz);if(st.t%3<dt)tip('Дальше внешний риф и открытый океан — нам к реке!',2500);}
   if(st.inv>0)st.inv-=dt; if(st.shake>0)st.shake-=dt;
   crewStep(dt);
-  for(const o of st.obs){
+  for(const o of near(st.px,st.pz,140)){
     if(Math.abs(o.x-st.px)>o.w/2+BOW+6||Math.abs(o.z-st.pz)>o.w/2+BOW+6)continue;
     if(shipHits(o)){ if(st.inv<=0){o.hit=1;hit(o);} else { const a=Math.atan2(st.px-o.x,st.pz-o.z);st.px+=Math.sin(a)*1.5;st.pz+=Math.cos(a)*1.5; } }
   }
   // разведка: всё в радиусе видимости с марса попадает на карту
-  const SEE=150;for(const o of st.obs)if(!o.rev&&Math.hypot(o.x-st.px,o.z-st.pz)<SEE+o.w/2)o.rev=1;
+  const SEE=150;for(const o of near(st.px,st.pz,SEE+70))if(!o.rev&&Math.hypot(o.x-st.px,o.z-st.pz)<SEE+o.w/2)o.rev=1;
   {const ci=Math.floor((st.px+450)/15),cj=Math.floor((st.pz+300)/15),R=10;for(let i=ci-R;i<=ci+R;i++)for(let j=cj-R;j<=cj+R;j++){if(i<0||j<0||i>=60||j>=80)continue;if((i-ci)**2+(j-cj)**2<=R*R)st.fog[j*60+i]=1;}}
   for(const c of CHECK){if(!st.seen[c.t+c.x]&&Math.hypot(c.x-st.px,c.z-st.pz)<c.r){st.seen[c.t+c.x]=1;toast(c.t,c.bad?'#ffd0c8':'#bff5c8');}}
   $('bar').firstChild.style.width=Math.min(100,Math.max(0,st.pz/GZ*100))+'%';
@@ -423,7 +435,7 @@ $('snd').onclick=e=>{e.stopPropagation();muted=!muted;$('snd').textContent=muted
 /* прибой: громче и с той стороны, где рифы ближе */
 function surfUpdate(){
   if(!SURF||!st)return;let I=0,P=0;
-  for(const o of st.obs){const dx=o.x-st.px,dz=o.z-st.pz;if(Math.abs(dx)>230||Math.abs(dz)>230)continue;
+  for(const o of near(st.px,st.pz,230)){const dx=o.x-st.px,dz=o.z-st.pz;if(Math.abs(dx)>230||Math.abs(dz)>230)continue;
     const d=Math.max(0,Math.hypot(dx,dz)-Math.max(o.cw,o.d)/2);if(d>220)continue;const w=(1-d/220)**2*(o.type==='reef-break'?2:1);
     const {cx,cz}=cam(o.x,o.z);I+=w;P+=w*Math.sin(Math.atan2(cx,cz));}
   const g=Math.min(.95,I*.55);SURF.gain.setTargetAtTime(muted?0:g,AC.currentTime,.3);
@@ -448,21 +460,21 @@ function crewStep(dt){
   const t=st.t, c=Math.cos(st.h), s=Math.sin(st.h);
   // лотовый: глубина по расстоянию от носа до ближайшего рифа
   const bx=st.px+s*BOW, bz=st.pz+c*BOW; let clr=1e9;
-  for(const o of st.obs){const dx=o.x-bx,dz=o.z-bz;if(Math.abs(dx)>140||Math.abs(dz)>140)continue;
+  for(const o of near(bx,bz,150)){const dx=o.x-bx,dz=o.z-bz;if(Math.abs(dx)>140||Math.abs(dz)>140)continue;
     const fwd=dx*s+dz*c, side=Math.abs(dx*c-dz*s), r=Math.max(o.cw,o.d)/2; if(fwd<-r)continue; // только то, что впереди по курсу
     if(side-r>SHIP_HALF+8)continue; clr=Math.min(clr,Math.max(0,fwd-r));}
   const lvl=clr>90?10:clr>60?7:clr>38?5:clr>18?3:2;
   if((lvl!==crew.leadLvl&&t-crew.leadT>2.5)||t-crew.leadT>9){crew.leadLvl=lvl;crew.leadT=t;say('lead',DEPTH[lvl],lvl<=3?2:1);}
   // впередсмотрящий: новые рифы впереди и по бортам
   if(t-crew.lookT>4.5){
-    let best=null;for(const o of st.obs){if(o.called)continue;const v=cam(o.x,o.z);if(v.cz<25||v.cz>170)continue;const a=Math.atan2(v.cx,v.cz);if(Math.abs(v.cx)>Math.max(o.cw,o.d)/2+14)continue; // кричит только о том, что на пути
+    let best=null;for(const o of near(st.px,st.pz,200)){if(o.called)continue;const v=cam(o.x,o.z);if(v.cz<25||v.cz>170)continue;const a=Math.atan2(v.cx,v.cz);if(Math.abs(v.cx)>Math.max(o.cw,o.d)/2+14)continue; // кричит только о том, что на пути
       
       if(!best||v.cz<best.cz)best={o,a,cz:v.cz};}
-    if(best){for(const o of st.obs)if(Math.hypot(o.x-best.o.x,o.z-best.o.z)<70)o.called=1;crew.lookT=t;crew.warned=true;crew.clearT=t;
+    if(best){for(const o of near(best.o.x,best.o.z,80))if(Math.hypot(o.x-best.o.x,o.z-best.o.z)<70)o.called=1;crew.lookT=t;crew.warned=true;crew.clearT=t;
       say('look',Math.abs(best.a)<.2?'Буруны прямо по курсу!':best.a>0?'Риф справа по борту!':'Риф слева по борту!',3);}
   }
   // «чистая вода»: впереди долго ничего нет после предупреждения
-  if(crew.warned&&t-crew.clearT>7){let any=false;for(const o of st.obs){const v=cam(o.x,o.z);if(v.cz>10&&v.cz<150&&Math.abs(Math.atan2(v.cx,v.cz))<.35){any=true;break;}}
+  if(crew.warned&&t-crew.clearT>7){let any=false;for(const o of near(st.px,st.pz,160)){const v=cam(o.x,o.z);if(v.cz>10&&v.cz<150&&Math.abs(Math.atan2(v.cx,v.cz))<.35){any=true;break;}}
     if(!any){crew.warned=false;crew.lookT=t;say('look','Впереди чистая вода!',2);}else crew.clearT=t-4;}
   if(!crew.river&&Math.hypot(GOALX-st.px,GZ-st.pz)<420){const v=cam(GOALX,GZ);if(Math.abs(Math.atan2(v.cx,v.cz))<.6&&v.cz>0){crew.river=true;crew.lookT=t;say('look','Вижу устье реки!',3);}}
 }
@@ -497,25 +509,25 @@ function render(T){
     ctx.translate(768+shx*.3,HOR+shy*.3);ctx.rotate(-roll*.6*Math.PI/180);ctx.translate(-768,-HOR);
     drawBack(-bob*.4);
     drawGoal(-bob*.4);
-    const vis=s.obs.map(o=>({o,...cam(o.x,o.z)})).filter(v=>v.cz>4&&v.cz<650).sort((a,b)=>b.cz-a.cz);
+    const vis=near(s.px,s.pz,520).map(o=>({o,...cam(o.x,o.z)})).filter(v=>v.cz>4&&v.cz<500&&Math.abs(v.cx)<v.cz*1.1+v.o.w).sort((a,b)=>a.cz-b.cz).slice(0,110).reverse();
     // мелководье над рифами: светлая бирюза на воде по контуру рифа — по ней штурман и видит, где мель, а где глубокий фарватер
     ctx.save();
-    for(const v of vis){const o=v.o;if(v.cz>600)continue;const p=shape(o);let ok=true;const pts=[];
+    for(const v of vis){const o=v.o;if(v.cz>320)continue;const p=shape(o);let ok=true;const pts=[];
       for(const [a,b] of p){const w=cam(o.x+a*1.12,o.z+b*1.12);if(w.cz<2){ok=false;break;}pts.push([768+w.cx/w.cz*F,hor+CAMH*F/w.cz]);}
-      if(!ok)continue;const fade=Math.min(1,(600-v.cz)/200);
+      if(!ok)continue;const fade=Math.min(1,(320-v.cz)/120);
       ctx.fillStyle=o.type==='shoal'?`rgba(150,235,215,${.28*fade})`:`rgba(120,225,210,${.16*fade})`;
       ctx.beginPath();pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
     ctx.restore();
     for(const v of vis){const o=v.o,z=v.cz,k=F/z,sx=768+v.cx/z*F,sy=hor+CAMH*F/z,sw=o.w*k;
       if(sx<-sw||sx>1536+sw)continue;
-      ctx.globalAlpha=Math.min(1,(650-z)/150);
+      ctx.globalAlpha=Math.min(1,(500-z)/130);
       if(o.type==='shoal')drawShoal(o,sx,sy,k,CAMH/z);else drawSprite(o,sx,sy,k,z,T);
       ctx.globalAlpha=1;}
     // пена от хода корабля вдоль бортов
     for(let i=0;i<26;i++){const ph=((T*SPEED*.9+i*7.3)%60)/60, side=i%2?1:-1, z=16-ph*14;
       const x=768+side*(SHIP_HALF+2+ph*2)/Math.max(2,z)*F*.55, y=hor+CAMH*F/Math.max(3,z+6);
       if(x<-50||x>1590)continue;ctx.fillStyle=`rgba(255,255,255,${.35*(1-ph)})`;ctx.beginPath();ctx.ellipse(x,y,40*(1-ph)+10,6*(1-ph)+2,0,0,TAU);ctx.fill();}
-    drawMap();
+    if(T-(window._mapT||0)>.1){window._mapT=T;drawMap();} // карта 10 раз в секунду
     surfUpdate();
   }
   deck.style.transform=`translate(${shx}px,${bob*.25+shy}px) rotate(${roll}deg)`;
