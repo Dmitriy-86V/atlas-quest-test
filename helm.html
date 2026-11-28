@@ -70,7 +70,7 @@ function rnd(a,b){return a+Math.random()*(b-a)}
 
 /* ===================== ВОДА (WebGL) ===================== */
 const gl=$('gl').getContext('webgl',{antialias:false,premultipliedAlpha:false});
-let GLP=null;
+let GLP=null, WATVID=null;
 if(gl){
   const vs=`attribute vec2 p;varying vec2 v;void main(){v=p*.5+.5;gl_Position=vec4(p,0.,1.);}`;
   const fs=`precision highp float;varying vec2 v;
@@ -107,8 +107,8 @@ if(gl){
     float fres=.04+.96*pow(1.-max(dot(-vd,n),0.),5.);
     // нарисованная фактура воды (из helm-sea) лежит на поверхности моря и движется вместе с миром; два слоя бегут в разные стороны
     vec2 dist=g*.09;
-    vec3 t1=texture2D(WAT,w*.018+dist+vec2(T*.010,T*.022)).rgb;
-    vec3 t2=texture2D(WAT,w.yx*.031-dist*1.3+vec2(-T*.018,T*.012)).rgb;
+    vec3 t1=texture2D(WAT,w*.012+dist+vec2(T*.004,T*.008)).rgb;
+    vec3 t2=texture2D(WAT,w.yx*.021-dist*1.3+vec2(-T*.006,T*.005)).rgb;
     vec3 tex=mix(t1,t2,.45);
     float far=clamp(t/320.,0.,1.);
     vec3 base=mix(tex,vec3(.09,.45,.72),far*.85);           // вдали — синее и ровнее, как на картинке моря
@@ -141,8 +141,18 @@ if(gl){
       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
       gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.activeTexture(gl.TEXTURE0);};
     wi.src='img/helm-water.jpg';gl.activeTexture(gl.TEXTURE0);
+    // живая вода: зацикленное видео поверхности моря обновляет текстуру каждый кадр
+    const vid=document.createElement('video');vid.src=vid.canPlayType('video/mp4; codecs="avc1.42E01E"')?'img/helm-water.mp4':'img/helm-water.webm';vid.muted=true;vid.loop=true;vid.playsInline=true;vid.setAttribute('playsinline','');vid.preload='auto';
+    vid.play().catch(()=>{});addEventListener('pointerdown',()=>vid.play().catch(()=>{}),{once:true});
+    let vReady=false,vLast=-1;
+    WATVID=()=>{if(vid.readyState<2||vid.paused)return;const t=vid.currentTime;if(t===vLast)return;vLast=t;
+      gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,wt);
+      try{gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,vid);
+        if(!vReady){gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.MIRRORED_REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.MIRRORED_REPEAT);vReady=true;}
+        gl.generateMipmap(gl.TEXTURE_2D);window._vidOK=(window._vidOK||0)+1;}catch(e){window._vidErr=String(e);}
+      gl.activeTexture(gl.TEXTURE0);};
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-    GLP={U,draw(T,h,px,pz,hor){gl.viewport(0,0,828,552);gl.uniform1f(U.T,T);gl.uniform1f(U.H,h);gl.uniform1f(U.HOR,hor);gl.uniform1f(U.CAMH,CAMH);gl.uniform1f(U.F,F);gl.uniform2f(U.P,px,pz);gl.uniform1i(U.SKY,0);gl.uniform1i(U.WAT,1);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}};
+    GLP={U,draw(T,h,px,pz,hor){if(WATVID)WATVID();gl.viewport(0,0,828,552);gl.uniform1f(U.T,T);gl.uniform1f(U.H,h);gl.uniform1f(U.HOR,hor);gl.uniform1f(U.CAMH,CAMH);gl.uniform1f(U.F,F);gl.uniform2f(U.P,px,pz);gl.uniform1i(U.SKY,0);gl.uniform1i(U.WAT,1);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);}};
   }catch(e){console.warn('WebGL water off',e);GLP=null;}
 }
 if(!GLP){$('gl').style.display='none';$('sea').style.display='block';}
